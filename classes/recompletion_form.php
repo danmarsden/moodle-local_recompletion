@@ -19,13 +19,16 @@
  *
  * @package     local_recompletion
  * @copyright   2017 Dan Marsden
-  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 /**
  * Defines the course completion settings form.
+ *
+ * @copyright   2017 Dan Marsden
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class local_recompletion_recompletion_form extends moodleform {
 
@@ -33,7 +36,6 @@ class local_recompletion_recompletion_form extends moodleform {
      * Defines the form fields.
      */
     public function definition() {
-        global $CFG, $DB;
 
         $mform = $this->_form;
         $course = $this->_customdata['course'];

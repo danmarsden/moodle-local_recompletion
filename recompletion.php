@@ -27,16 +27,16 @@ require_once($CFG->dirroot.'/course/lib.php');
 require_once($CFG->libdir.'/completionlib.php');
 require_once($CFG->libdir.'/formslib.php');
 
-$id = required_param('id', PARAM_INT);       // course id
+$id = required_param('id', PARAM_INT);
 
 // Perform some basic access control checks.
 if ($id) {
-    if($id == SITEID){
+    if ($id == SITEID) {
         // Don't allow editing of 'site course' using this form.
         print_error('cannoteditsiteform');
     }
 
-    if (!$course = $DB->get_record('course', array('id'=>$id))) {
+    if (!$course = $DB->get_record('course', array('id' => $id))) {
         print_error('invalidcourseid');
     }
     require_login($course);

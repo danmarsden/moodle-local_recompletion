@@ -17,7 +17,7 @@
 /**
  * Strings for local_recompletion
  *
- * @package    local_moodlecheck
+ * @package    local_recompletion
  * @copyright  2017 Dan Marsden
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
