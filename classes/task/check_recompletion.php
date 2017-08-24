@@ -55,6 +55,7 @@ class check_recompletion extends \core\task\scheduled_task {
                   WHERE (cc.timecompleted + r.recompletionduration) < ?';
         $users = $DB->get_recordset_sql($sql, array(time()));
         $courses = array();
+        $clearcache = false;
         foreach ($users as $user) {
             if (!isset($courses[$user->course])) {
                 // Only get the course record for this course once.
@@ -86,6 +87,13 @@ class check_recompletion extends \core\task\scheduled_task {
             $subject = get_string('recompletionemailsubject', 'local_recompletion');
             $content = get_string('recompletionemailcontent', 'local_recompletion', $a);
             email_to_user($user, $SITE->shortname, $subject, $content);
+
+            $clearcache = true;
+        }
+        if ($clearcache) {
+            // Difficult to find affected users, just purge all completion cache.
+            \cache::make('core', 'completion')->purge();
+            \cache::make('core', 'coursecompletion')->purge();
         }
     }
 }
