@@ -24,8 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version   = 2017082402;
-$plugin->release   = '1';
+$plugin->version   = 2017082403;
+$plugin->release   = '1.1';
 $plugin->maturity  = MATURITY_ALPHA;
 $plugin->requires  = 2016052307; // Moodle 3.1.7 release and upwards.
 $plugin->component = 'local_recompletion';
