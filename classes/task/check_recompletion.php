@@ -49,10 +49,15 @@ class check_recompletion extends \core\task\scheduled_task {
      */
     public function execute() {
         global $DB, $SITE;
+        if (!\completion_info::is_enabled_for_site()) {
+            return;
+        }
         $sql = 'SELECT cc.userid, cc.course
                   FROM {course_completions} cc
                   JOIN {local_recompletion} r ON r.course = cc.course AND r.enable = 1
-                  WHERE (cc.timecompleted + r.recompletionduration) < ?';
+                  JOIN {course} c ON c.id = cc.course
+                  WHERE c.enablecompletion = '.COMPLETION_ENABLED.' AND
+                  (cc.timecompleted + r.recompletionduration) < ?';
         $users = $DB->get_recordset_sql($sql, array(time()));
         $courses = array();
         $clearcache = false;
@@ -64,12 +69,7 @@ class check_recompletion extends \core\task\scheduled_task {
             } else {
                 $course = $courses[$user->course];
             }
-            $completion = new \completion_info($course);
 
-            // Sanity check if completion is enabled.
-            if (!$completion->is_enabled()) {
-                continue;
-            }
             // Delete course completion.
             $params = array('userid' => $user->userid, 'course' => $user->course);
             $DB->delete_records('course_completions', $params);
