@@ -48,7 +48,10 @@ class check_recompletion extends \core\task\scheduled_task {
      * Execute task.
      */
     public function execute() {
-        global $DB, $SITE;
+        global $CFG, $DB, $SITE;
+        require_once($CFG->dirroot . '/course/lib.php');
+        require_once($CFG->libdir . '/completionlib.php');
+
         if (!\completion_info::is_enabled_for_site()) {
             return;
         }
