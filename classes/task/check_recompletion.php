@@ -73,13 +73,21 @@ class check_recompletion extends \core\task\scheduled_task {
                 $course = $courses[$user->course];
             }
 
-            // Delete course completion.
+            // Archive and delete course completion.
             $params = array('userid' => $user->userid, 'course' => $user->course);
+
+            $coursecompletions = $DB->get_records('course_completions', $params);
+            $DB->insert_records('local_recompletion_cc', $coursecompletions);
             $DB->delete_records('course_completions', $params);
+
+            $criteriacompletions = $DB->get_records('course_completion_crit_compl', $params);
+            $DB->insert_records('local_recompletion_cc_cc', $criteriacompletions);
             $DB->delete_records('course_completion_crit_compl', $params);
 
             // Delete all activity completions.
             $selectsql = 'userid = ? AND coursemoduleid IN (SELECT id FROM {course_modules} WHERE course = ?)';
+            $cmc = $DB->get_records_select('course_modules_completion', $selectsql, $params);
+            $DB->insert_records('local_recompletion_cmc', $cmc);
             $DB->delete_records_select('course_modules_completion', $selectsql, $params);
 
             // Now notify user.
