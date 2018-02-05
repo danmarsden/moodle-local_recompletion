@@ -76,10 +76,30 @@ if ($form->is_cancelled()) {
         $recompletion->course = $course->id;
         $recompletion->enable = $data->enable;
         $recompletion->recompletionduration = $data->recompletionduration;
+        $recompletion->archivecompletiondata = isset($data->archivecompletiondata) ? $data->archivecompletiondata : 0;
+        $recompletion->deletegradedata = isset($data->deletegradedata) ? $data->deletegradedata : 0;
+        $recompletion->archivegradedata = isset($data->archivegradedata) ? $data->archivegradedata : 0;
+        $recompletion->deletequizdata = isset($data->deletequizdata) ? $data->deletequizdata : 0;
+        $recompletion->archivequizdata = isset($data->archivequizdata) ? $data->archivequizdata : 0;
+        $recompletion->deletescormdata = isset($data->deletescormdata) ? $data->deletescormdata : 0;
+        $recompletion->archivescormdata = isset($data->archivescormdata) ? $data->archivescormdata : 0;
+        $recompletion->recompletionemailenable = isset($data->recompletionemailenable) ? $data->recompletionemailenable : 0;
+        $recompletion->recompletionemailheader = isset($data->recompletionemailheader) ? $data->recompletionemailheader : '';
+        $recompletion->recompletionemailbody = isset($data->recompletionemailbody) ? $data->recompletionemailbody : '';
         $DB->insert_record('local_recompletion', $recompletion);
     } else {
         $existing->enable = isset($data->enable) ? $data->enable : 0;
         $existing->recompletionduration = $data->recompletionduration;
+        $existing->archivecompletiondata = isset($data->archivecompletiondata) ? $data->archivecompletiondata : 0;
+        $existing->deletegradedata = isset($data->deletegradedata) ? $data->deletegradedata : 0;
+        $existing->archivegradedata = isset($data->archivegradedata) ? $data->archivegradedata : 0;
+        $existing->deletequizdata = isset($data->deletequizdata) ? $data->deletequizdata : 0;
+        $existing->archivequizdata = isset($data->archivequizdata) ? $data->archivequizdata : 0;
+        $existing->deletescormdata = isset($data->deletescormdata) ? $data->deletescormdata : 0;
+        $existing->archivescormdata = isset($data->archivescormdata) ? $data->archivescormdata : 0;
+        $existing->recompletionemailenable = isset($data->recompletionemailenable) ? $data->recompletionemailenable : 0;
+        $existing->recompletionemailheader = isset($data->recompletionemailheader) ? $data->recompletionemailheader : '';
+        $existing->recompletionemailbody = isset($data->recompletionemailbody) ? $data->recompletionemailbody : '';
         $DB->update_record('local_recompletion', $existing);
     }
     // Redirect to the course main page.

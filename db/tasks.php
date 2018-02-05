@@ -29,8 +29,8 @@ $tasks = array(
     array(
         'classname' => 'local_recompletion\task\check_recompletion',
         'blocking' => 0,
-        'minute' => 'R',
-        'hour' => 'R',
+        'minute' => '*',
+        'hour' => '*',
         'day' => '*',
         'dayofweek' => '*',
         'month' => '*'
