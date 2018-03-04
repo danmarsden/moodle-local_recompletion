@@ -116,63 +116,54 @@ function xmldb_local_recompletion_upgrade($oldversion) {
     }
     if ($oldversion < 2018012300) {
         // Add additional fields to local_recompletion table.
-        // Define field archivecompletiondata to be added to local_recompletion table.
-        $table = new xmldb_table('local_recompletion');
-        $field = new xmldb_field('archivecompletiondata', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'recompletionduration');
-
-        // Conditionally launch add field archivecompletiondata.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
         // Define field deletegradedata to be added to local_recompletion table.
         $table = new xmldb_table('local_recompletion');
-        $field = new xmldb_field('deletegradedata', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'archivecompletiondata');
+        $field = new xmldb_field('deletegradedata', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'recompletionduration');
 
         // Conditionally launch add field deletegradedata.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
 
-        // Define field archivegradedata to be added to local_recompletion table.
-        $table = new xmldb_table('local_recompletion');
-        $field = new xmldb_field('archivegradedata', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'deletegradedata');
-
-        // Conditionally launch add field archivegradedata.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
         // Define field deletequizdata to be added to local_recompletion table.
         $table = new xmldb_table('local_recompletion');
-        $field = new xmldb_field('deletequizdata', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'archivegradedata');
+        $field = new xmldb_field('deletequizdata', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'deletegradedata');
 
         // Conditionally launch add field deletequizdata.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
 
-        // Define field archivequizdata to be added to local_recompletion table.
-        $table = new xmldb_table('local_recompletion');
-        $field = new xmldb_field('archivequizdata', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'deletequizdata');
-
-        // Conditionally launch add field archivequizdata.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
-        }
-
         // Define field deletescormdata to be added to local_recompletion table.
         $table = new xmldb_table('local_recompletion');
-        $field = new xmldb_field('deletescormdata', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'archivequizdata');
+        $field = new xmldb_field('deletescormdata', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'deletequizdata');
 
         // Conditionally launch add field deletescormdata.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
 
+        // Define field archivecompletiondata to be added to local_recompletion table.
+        $table = new xmldb_table('local_recompletion');
+        $field = new xmldb_field('archivecompletiondata', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'deletescromdata');
+
+        // Conditionally launch add field archivecompletiondata.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field archivequizdata to be added to local_recompletion table.
+        $table = new xmldb_table('local_recompletion');
+        $field = new xmldb_field('archivequizdata', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'archivecompletiondata');
+
+        // Conditionally launch add field archivequizdata.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
         // Define field archivescormdata to be added to local_recompletion table.
         $table = new xmldb_table('local_recompletion');
-        $field = new xmldb_field('archivescormdata', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'deletescormdata');
+        $field = new xmldb_field('archivescormdata', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'archivequizdata');
 
         // Conditionally launch add field archivescormdata.
         if (!$dbman->field_exists($table, $field)) {
@@ -188,65 +179,24 @@ function xmldb_local_recompletion_upgrade($oldversion) {
             $dbman->add_field($table, $field);
         }
 
-        // Define field recompletionemailheader to be added to local_recompletion table.
+        // Define field recompletionemailsubject to be added to local_recompletion table.
         $table = new xmldb_table('local_recompletion');
-        $field = new xmldb_field('recompletionemailheader', XMLDB_TYPE_TEXT, null, null, null, null, null, 'recompletionemailenabled');
+        $field = new xmldb_field('recompletionemailsubject', XMLDB_TYPE_TEXT, null, null, null, null, null,
+                'recompletionemailenabled');
 
-        // Conditionally launch add field recompletionemailheader.
+        // Conditionally launch add field recompletionemailsubject.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
         }
 
         // Define field recompletionemailbody to be added to local_recompletion table.
         $table = new xmldb_table('local_recompletion');
-        $field = new xmldb_field('recompletionemailbody', XMLDB_TYPE_TEXT, null, null, null, null, null, 'recompletionemailheader');
+        $field = new xmldb_field('recompletionemailbody', XMLDB_TYPE_TEXT, null, null, null, null, null,
+                'recompletionemailsubject');
 
         // Conditionally launch add field recompletionemailbody.
         if (!$dbman->field_exists($table, $field)) {
             $dbman->add_field($table, $field);
-        }
-
-        // Define table local_recompletion_gg to be created.
-        $table = new xmldb_table('local_recompletion_gg');
-
-        // Adding fields to table local_recompletion_gg.
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('itemid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('rawgrade', XMLDB_TYPE_NUMBER, '10, 5', null, null, null, null);
-        $table->add_field('rawgrademax', XMLDB_TYPE_NUMBER, '10, 5', null, XMLDB_NOTNULL, null, '100');
-        $table->add_field('rawgrademin', XMLDB_TYPE_NUMBER, '10, 5', null, XMLDB_NOTNULL, null, '0');
-        $table->add_field('rawscaleid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
-        $table->add_field('usermodified', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
-        $table->add_field('finalgrade', XMLDB_TYPE_NUMBER, '10, 5', null, null, null, null);
-        $table->add_field('hidden', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-        $table->add_field('locked', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-        $table->add_field('locktime', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-        $table->add_field('exported', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-        $table->add_field('overridden', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-        $table->add_field('excluded', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-        $table->add_field('feedback', XMLDB_TYPE_TEXT, null, null, null, null, null);
-        $table->add_field('feedbackformat', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-        $table->add_field('information', XMLDB_TYPE_TEXT, null, null, null, null, null);
-        $table->add_field('informationformat', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
-        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
-        $table->add_field('aggregationstatus', XMLDB_TYPE_CHAR, '10', null, XMLDB_NOTNULL, null, 'unknown');
-        $table->add_field('aggregationweight', XMLDB_TYPE_NUMBER, '10, 5', null, null, null, null);
-
-        // Adding keys to table local_recompletion_gg.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
-        $table->add_key('itemid', XMLDB_KEY_FOREIGN, array('itemid'), 'grade_items', array('id'));
-        $table->add_key('userid', XMLDB_KEY_FOREIGN, array('userid'), 'user', array('id'));
-        $table->add_key('rawscaleid', XMLDB_KEY_FOREIGN, array('rawscaleid'), 'scale', array('id'));
-        $table->add_key('usermodified', XMLDB_KEY_FOREIGN, array('usermodified'), 'user', array('id'));
-
-        // Adding indexes to table local_recompletion_gg.
-        $table->add_index('locked-locktime', XMLDB_INDEX_NOTUNIQUE, array('locked', 'locktime'));
-
-        // Conditionally launch create table for local_recompletion_gg.
-        if (!$dbman->table_exists($table)) {
-            $dbman->create_table($table);
         }
 
         // Define table local_recompletion_qa to be created.

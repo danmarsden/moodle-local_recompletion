@@ -55,7 +55,11 @@ class check_recompletion extends \core\task\scheduled_task {
         if (!\completion_info::is_enabled_for_site()) {
             return;
         }
-        $sql = 'SELECT cc.userid, cc.course, r.archivecompletiondata, r.deletegradedata, r.archivegradedata, r.deletequizdata, r.archivequizdata, r.deletescormdata, r.archivescormdata, r.recompletionemailenable, r.recompletionemailheader, r.recompletionemailbody
+        $sql = 'SELECT cc.userid, cc.course, r.archivecompletiondata,
+            r.deletegradedata,
+            r.deletequizdata, r.archivequizdata,
+            r.deletescormdata, r.archivescormdata,
+            r.recompletionemailenable, r.recompletionemailsubject, r.recompletionemailbody
             FROM {course_completions} cc
             JOIN {local_recompletion} r ON r.course = cc.course AND r.enable = 1
             JOIN {course} c ON c.id = cc.course
@@ -92,13 +96,9 @@ class check_recompletion extends \core\task\scheduled_task {
             }
             $DB->delete_records_select('course_modules_completion', $selectsql, $params);
 
-            // Archive and delete current grade information.
+            // Delete current grade information.
             if ($user->deletegradedata) {
                 $selectsql = 'userid = ? AND itemid IN (SELECT id FROM {course_modules} WHERE course = ?)';
-                if ($user->archivegradedata) {
-                    $gradegrades = $DB->get_records_select('grade_grades', $selectsql, $params);
-                    $DB->insert_records('local_recompletion_gg', $gradegrades);
-                }
                 $DB->delete_records_select('grade_grades', $selectsql, $params);
             }
 
@@ -149,20 +149,21 @@ class check_recompletion extends \core\task\scheduled_task {
                         $messagehtml = text_to_html($messagetext, null, false, true);
                     } else {
                         // This is most probably the tag/newline soup known as FORMAT_MOODLE.
-                        $messagehtml = format_text($message, FORMAT_MOODLE, array('context' => $context, 'para' => false, 'newlines' => true, 'filter' => true));
+                        $messagehtml = format_text($message, FORMAT_MOODLE, array('context' => $context,
+                            'para' => false, 'newlines' => true, 'filter' => true));
                         $messagetext = html_to_text($messagehtml);
                     }
                 } else {
-                    $messagetext = get_string('recompletionemailcontent', 'local_recompletion', $a);
+                    $messagetext = get_string('recompletionemaildefaultbody', 'local_recompletion', $a);
                     $messagehtml = text_to_html($messagetext, null, false, true);
                 }
-                if (trim($user->recompletionemailheader) !== '') {
-                    $subject = $user->recompletionemailheader;
+                if (trim($user->recompletionemailsubject) !== '') {
+                    $subject = $user->recompletionemailsubject;
                     $keysub = array('{$a->coursename}', '{$a->fullname}');
                     $valuesub = array($a->coursename, fullname($userrecord));
                     $subject = str_replace($keysub, $valuesub, $subject);
                 } else {
-                    $subject = get_string('recompletionemailsubject', 'local_recompletion', $a);
+                    $subject = get_string('recompletionemaildefaultsubject', 'local_recompletion', $a);
                 }
                 // Directly emailing recompletion message rather than using messaging.
                 email_to_user($userrecord, $from, $subject, $messagetext, $messagehtml);
