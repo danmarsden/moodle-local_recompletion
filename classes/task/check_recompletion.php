@@ -51,6 +51,7 @@ class check_recompletion extends \core\task\scheduled_task {
         global $CFG, $DB, $SITE;
         require_once($CFG->dirroot . '/course/lib.php');
         require_once($CFG->libdir . '/completionlib.php');
+        require_once($CFG->libdir.'/gradelib.php');
 
         if (!\completion_info::is_enabled_for_site()) {
             return;
@@ -98,8 +99,15 @@ class check_recompletion extends \core\task\scheduled_task {
 
             // Delete current grade information.
             if ($user->deletegradedata) {
-                $selectsql = 'userid = ? AND itemid IN (SELECT id FROM {course_modules} WHERE course = ?)';
-                $DB->delete_records_select('grade_grades', $selectsql, $params);
+                if ($items = grade_item::fetch_all(array('courseid' => $course->id))) {
+                    foreach ($items as $item) {
+                        if ($grades = grade_grade::fetch_all(array('userid' => $user->id, 'itemid' => $item->id))) {
+                            foreach ($grades as $grade) {
+                                $grade->delete('local_recompletion');
+                            }
+                        }
+                    }
+                }
             }
 
             // Archive and delete quiz attempts information.
