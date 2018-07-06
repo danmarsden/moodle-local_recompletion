@@ -47,7 +47,6 @@ class backup_local_recompletion_plugin extends backup_local_plugin {
         $pluginwrapper->set_source_table('local_recompletion', array(
             'course' => backup::VAR_PARENTID));
 
-
         // Handle Historical course completions.
         $coursecompletions = new backup_nested_element('local_recompletion_cc', array('id'), array(
             'userid', 'course', 'timeenrolled', 'timestarted', 'timecompleted', 'reaggregate'
