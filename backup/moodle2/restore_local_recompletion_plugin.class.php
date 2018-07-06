@@ -29,7 +29,7 @@ defined('MOODLE_INTERNAL') || die();
  * Restore plugin class that provides the necessary information
  * needed to restore recompletion data.
  */
-class restore_local_recompletion_plugin extends backup_local_plugin {
+class restore_local_recompletion_plugin extends restore_local_plugin {
 
     /**
      * Returns the paths to be handled by the plugin at course level.
@@ -38,9 +38,9 @@ class restore_local_recompletion_plugin extends backup_local_plugin {
 
         $paths = array();
 
-        $elename = 'recompletion'; // This defines the postfix of 'process_*' below.
         $elepath = $this->get_pathfor('/');
-        $paths[] = new restore_path_element($elename, $elepath);
+        $paths[] = new restore_path_element('recompletion', $elepath);
+        $paths[] = new restore_path_element('recompletion_cc', '/course/local_recompletion_cc');
 
         return $paths;
     }
@@ -55,5 +55,18 @@ class restore_local_recompletion_plugin extends backup_local_plugin {
         $data->course = $this->task->get_courseid();
 
         $DB->insert_record('local_recompletion', $data);
+    }
+
+    /**
+     * Process local_recompletion_cc table.
+     */
+    public function process_recompletion_cc($data) {
+        global $DB;
+
+        $data = (object) $data;
+        $data->course = $this->task->get_courseid();
+        $data->userid = $this->get_mappingid('user', $data->userid);
+
+        $DB->insert_record('local_recompletion_cc', $data);
     }
 }
