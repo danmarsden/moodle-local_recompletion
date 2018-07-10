@@ -30,12 +30,10 @@ defined('MOODLE_INTERNAL') || die();
  * needed to restore recompletion data.
  */
 class restore_local_recompletion_plugin extends restore_local_plugin {
-
     /**
      * Returns the paths to be handled by the plugin at course level.
      */
     protected function define_course_plugin_structure() {
-
         $paths = array();
 
         $elepath = $this->get_pathfor('/');
@@ -43,6 +41,9 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
         $paths[] = new restore_path_element('recompletion_cc', $elepath.'/course_completion/coursecompletion');
         $paths[] = new restore_path_element('recompletion_cc_cc', $elepath.'/course_completion/course_completion_crit_completions/course_completion_crit_compl');
         $paths[] = new restore_path_element('recompletion_completion', $elepath.'/course_completion/completions/completion');
+        $paths[] = new restore_path_element('recompletion_qa', $elepath.'/quizattempts/attempt');
+        $paths[] = new restore_path_element('recompletion_qg', $elepath.'/quizgrades/grade');
+        $paths[] = new restore_path_element('recompletion_sst', $elepath.'/scormtracks/sco_track');
 
         return $paths;
     }
@@ -86,7 +87,6 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
         $DB->insert_record('local_recompletion_cc_cc', $data);
     }
 
-
     /**
      * Process local_recompletion_cmc table.
      */
@@ -94,16 +94,88 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
         global $DB;
 
         $data = (object) $data;
-        $data->coursemoduleid = $this->get_mappingid('course_module', $data->coursemoduleid);
+        $data->course = $this->task->get_courseid();
         $data->userid = $this->get_mappingid('user', $data->userid);
-        if (empty($data->coursemoduleid)) {
-            $this->log(
-                'Could not match the module instance in local_recompletion_cmc, so skipping',
-                backup::LOG_DEBUG
-            );
-            return;
-        }
 
         $DB->insert_record('local_recompletion_cmc', $data);
     }
+
+    /**
+     * Process local_recompletion_qa table.
+     */
+    public function process_recompletion_qa($data) {
+        global $DB;
+
+        $data = (object) $data;
+        $data->course = $this->task->get_courseid();
+        $data->userid = $this->get_mappingid('user', $data->userid);
+
+        $DB->insert_record('local_recompletion_qa', $data);
+    }
+
+    /**
+     * Process local_recompletion_qg table.
+     */
+    public function process_recompletion_qg($data) {
+        global $DB;
+
+        $data = (object) $data;
+        $data->course = $this->task->get_courseid();
+        $data->userid = $this->get_mappingid('user', $data->userid);
+
+        $DB->insert_record('local_recompletion_qg', $data);
+    }
+
+    /**
+     * Process local_recompletion_sst table.
+     */
+    public function process_recompletion_sst($data) {
+        global $DB;
+
+        $data = (object) $data;
+        $data->course = $this->task->get_courseid();
+        $data->userid = $this->get_mappingid('user', $data->userid);
+
+        $DB->insert_record('local_recompletion_sst', $data);
+    }
+
+    /**
+     * We call the after restore_course to update the coursemodule ids we didn't know when creating.
+     */
+    protected function after_restore_course() {
+        global $DB;
+        // Fix local_recompletion_cmc records.
+        $rcm = $DB->get_recordset('local_recompletion_cmc', array('course' => $this->task->get_courseid()));
+        foreach ($rcm as $rc) {
+            $rc->coursemoduleid = $this->get_mappingid('course_module', $rc->coursemoduleid);
+            $DB->update_record('local_recompletion_cmc', $rc);
+        }
+        $rcm->close();
+
+        // Fix SCORM tracks.
+        $rcm = $DB->get_recordset('local_recompletion_sst', array('course' => $this->task->get_courseid()));
+        foreach ($rcm as $rc) {
+            $rc->scormid = $this->get_mappingid('scorm', $rc->scormid);
+            $rc->scoid = $this->get_mappingid('scorm_sco', $rc->scoid);
+            $DB->update_record('local_recompletion_sst', $rc);
+        }
+        $rcm->close();
+
+        // Fix Quiz.
+        $rcm = $DB->get_recordset('local_recompletion_qg', array('course' => $this->task->get_courseid()));
+        foreach ($rcm as $rc) {
+            $rc->quiz = $this->get_mappingid('quiz', $rc->quiz);
+            $DB->update_record('local_recompletion_qg', $rc);
+        }
+        $rcm->close();
+
+        $rcm = $DB->get_recordset('local_recompletion_qa', array('course' => $this->task->get_courseid()));
+        foreach ($rcm as $rc) {
+            $rc->quiz = $this->get_mappingid('quiz', $rc->quiz);
+            $rc->uniqueid = $this->get_mappingid('question_usage', $rc->uniqueid);
+            $DB->update_record('local_recompletion_qa', $rc);
+        }
+        $rcm->close();
+    }
+
 }

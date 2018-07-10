@@ -290,4 +290,39 @@ function xmldb_local_recompletion_upgrade($oldversion) {
         }
         upgrade_plugin_savepoint(true, 2018071000, 'local', 'recompletion');
     }
+
+    if ($oldversion < 2018071100) {
+
+        // Define field course to be added to local_recompletion_cmc.
+        $table = new xmldb_table('local_recompletion_cmc');
+        $field = new xmldb_field('course', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'timemodified');
+
+        // Conditionally launch add field course.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $table = new xmldb_table('local_recompletion_qg');
+        // Conditionally launch add field course.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $table = new xmldb_table('local_recompletion_sst');
+        // Conditionally launch add field course.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // This table has "sumgrades" as the last field.
+        $table = new xmldb_table('local_recompletion_qa');
+        $field = new xmldb_field('course', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'sumgrades');
+        // Conditionally launch add field course.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Recompletion savepoint reached.
+        upgrade_plugin_savepoint(true, 2018071100, 'local', 'recompletion');
+    }
 }

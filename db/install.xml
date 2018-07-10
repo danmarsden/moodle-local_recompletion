@@ -72,12 +72,14 @@
         <FIELD NAME="viewed" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="Tracks whether or not this activity has been viewed. NULL = we are not tracking viewed for this activity 0 = not viewed 1 = viewed"/>
         <FIELD NAME="overrideby" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Tracks whether this completion state has been set manually to override a previous state."/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Time at which the completion state last changed."/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
       <INDEXES>
         <INDEX NAME="coursemoduleid" UNIQUE="false" FIELDS="coursemoduleid" COMMENT="For quick access via course-module (e.g. when displaying course module settings page and we need to determine whether anyone has completed it)."/>
+        <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="local_recompletion_qa" COMMENT="archive of quiz attempts table">
@@ -96,6 +98,7 @@
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Last modified time."/>
         <FIELD NAME="timecheckstate" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Next time quiz cron should check attempt for state changes.  NULL means never check."/>
         <FIELD NAME="sumgrades" TYPE="number" LENGTH="10" NOTNULL="false" SEQUENCE="false" DECIMALS="5" COMMENT="Total marks for this attempt."/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -104,6 +107,7 @@
       </KEYS>
       <INDEXES>
         <INDEX NAME="state-timecheckstate" UNIQUE="false" FIELDS="state, timecheckstate"/>
+        <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="local_recompletion_qg" COMMENT="archive of quiz grades table">
@@ -113,6 +117,7 @@
         <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Foreign key references user.id."/>
         <FIELD NAME="grade" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="5" COMMENT="The overall grade from the quiz. Not affected by overrides in the gradebook."/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The last time this grade changed."/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -120,6 +125,7 @@
       </KEYS>
       <INDEXES>
         <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
+        <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="local_recompletion_sst" COMMENT="archive of scorm_scoes_track table">
@@ -132,6 +138,7 @@
         <FIELD NAME="element" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="value" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -141,6 +148,7 @@
       <INDEXES>
         <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
         <INDEX NAME="element" UNIQUE="false" FIELDS="element"/>
+        <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
       </INDEXES>
     </TABLE>
   </TABLES>

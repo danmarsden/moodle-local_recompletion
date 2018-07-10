@@ -62,7 +62,7 @@ class backup_local_recompletion_plugin extends backup_local_plugin {
         $completions = new backup_nested_element('completions');
 
         $completion = new backup_nested_element('completion', array('id'), array(
-            'userid', 'completionstate', 'viewed', 'timemodified', 'coursemoduleid'));
+            'userid', 'completionstate', 'viewed', 'timemodified', 'coursemoduleid', 'course'));
 
         $plugin->add_child($recompletion);
         $recompletion->add_child($recompletiondata);
@@ -81,10 +81,7 @@ class backup_local_recompletion_plugin extends backup_local_plugin {
         if ($usercompletion) {
             $coursecompletions->set_source_table('local_recompletion_cc', array('course' => backup::VAR_COURSEID));
             $criteriacomplete->set_source_table('local_recompletion_cc_cc', array('course' => backup::VAR_COURSEID));
-            $sql = 'SELECT *
-                      FROM {local_recompletion_cmc}
-                     WHERE coursemoduleid IN (SELECT id FROM {course_modules} WHERE course = ?)';
-            $completion->set_source_sql($sql, array(backup::VAR_COURSEID));
+            $completion->set_source_table('local_recompletion_cmc', array('course' => backup::VAR_COURSEID));
         }
         $coursecompletions->annotate_ids('user', 'userid');
         $criteriacomplete->annotate_ids('user', 'userid');
@@ -96,28 +93,21 @@ class backup_local_recompletion_plugin extends backup_local_plugin {
         $quizgrades = new backup_nested_element('quizgrades');
 
         $grade = new backup_nested_element('grade', array('id'), array(
-            'userid', 'gradeval', 'timemodified'));
+            'userid', 'quiz', 'gradeval', 'timemodified', 'course'));
 
         $quizattempts = new backup_nested_element('quizattempts');
 
         $attempt = new backup_nested_element('attempt', array('id'), array(
-            'userid', 'attemptnum', 'uniqueid', 'layout', 'currentpage', 'preview',
-            'state', 'timestart', 'timefinish', 'timemodified', 'timemodifiedoffline', 'timecheckstate', 'sumgrades'));
+            'userid', 'attempt', 'uniqueid', 'layout', 'currentpage', 'preview', 'quiz',
+            'state', 'timestart', 'timefinish', 'timemodified', 'timemodifiedoffline', 'timecheckstate', 'sumgrades', 'course'));
 
         $recompletion->add_child($quizgrades);
         $quizgrades->add_child($grade);
         $recompletion->add_child($quizattempts);
         $quizattempts->add_child($attempt);
         if ($usercompletion) {
-            $sql = 'SELECT *
-                      FROM {local_recompletion_qa}
-                     WHERE quiz IN (SELECT id FROM {quiz} WHERE course = ?)';
-            $attempt->set_source_sql($sql, array(backup::VAR_COURSEID));
-
-            $sql = 'SELECT *
-                      FROM {local_recompletion_qg}
-                     WHERE quiz IN (SELECT id FROM {quiz} WHERE course = ?)';
-            $grade->set_source_sql($sql, array(backup::VAR_COURSEID));
+            $attempt->set_source_table('local_recompletion_qa', array('course' => backup::VAR_COURSEID));
+            $grade->set_source_table('local_recompletion_qg', array('course' => backup::VAR_COURSEID));
         }
 
         $attempt->annotate_ids('user', 'userid');
@@ -128,16 +118,13 @@ class backup_local_recompletion_plugin extends backup_local_plugin {
 
         $scotrack = new backup_nested_element('sco_track', array('id'), array(
             'userid', 'attempt', 'element', 'value',
-            'timemodified'));
+            'timemodified', 'course', 'scormid', 'scoid'));
 
         $recompletion->add_child($scotracks);
         $scotracks->add_child($scotrack);
 
         if ($usercompletion) {
-            $sql = 'SELECT *
-                      FROM {local_recompletion_sst}
-                     WHERE scormid IN (SELECT id FROM {scorm} WHERE course = ?)';
-            $scotrack->set_source_sql($sql, array(backup::VAR_COURSEID));
+            $scotrack->set_source_table('local_recompletion_sst', array('course' => backup::VAR_COURSEID));
         }
         $scotrack->annotate_ids('user', 'userid');
 

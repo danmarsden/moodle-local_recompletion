@@ -93,6 +93,10 @@ class check_recompletion extends \core\task\scheduled_task {
             $selectsql = 'userid = ? AND coursemoduleid IN (SELECT id FROM {course_modules} WHERE course = ?)';
             if ($user->archivecompletiondata) {
                 $cmc = $DB->get_records_select('course_modules_completion', $selectsql, $params);
+                foreach($cmc as $cid => $unused) {
+                    // Add courseid to records to help with restore process.
+                    $cmc[$cid]->course = $user->course;
+                }
                 $DB->insert_records('local_recompletion_cmc', $cmc);
             }
             $DB->delete_records_select('course_modules_completion', $selectsql, $params);
@@ -115,8 +119,17 @@ class check_recompletion extends \core\task\scheduled_task {
                 $selectsql = 'userid = ? AND quiz IN (SELECT id FROM {quiz} WHERE course = ?)';
                 if ($user->archivequizdata) {
                     $quizattempts = $DB->get_records_select('quiz_attempts', $selectsql, $params);
+                    foreach($quizattempts as $qid => $unused) {
+                        // Add courseid to records to help with restore process.
+                        $quizattempts[$qid]->course = $user->course;
+                    }
                     $DB->insert_records('local_recompletion_qa', $quizattempts);
+
                     $quizgrades = $DB->get_records_select('quiz_grades', $selectsql, $params);
+                    foreach($quizgrades as $qid => $unused) {
+                        // Add courseid to records to help with restore process.
+                        $quizgrades[$qid]->course = $user->course;
+                    }
                     $DB->insert_records('local_recompletion_qg', $quizgrades);
                 }
                 $DB->delete_records_select('quiz_attempts', $selectsql, $params);
@@ -128,6 +141,10 @@ class check_recompletion extends \core\task\scheduled_task {
                 $selectsql = 'userid = ? AND scormid IN (SELECT id FROM {scorm} WHERE course = ?)';
                 if ($user->archivescormdata) {
                     $scormscoestrack = $DB->get_records_select('scorm_scoes_track', $selectsql, $params);
+                    foreach($scormscoestrack as $sid => $unused) {
+                        // Add courseid to records to help with restore process.
+                        $scormscoestrack[$sid]->course = $user->course;
+                    }
                     $DB->insert_records('local_recompletion_sst', $scormscoestrack);
                 }
                 $DB->delete_records_select('scorm_scoes_track', $selectsql, $params);
