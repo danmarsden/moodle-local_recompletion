@@ -81,7 +81,7 @@ class backup_local_recompletion_plugin extends backup_local_plugin {
         if ($usercompletion) {
             $coursecompletions->set_source_table('local_recompletion_cc', array('course' => backup::VAR_COURSEID));
             $criteriacomplete->set_source_table('local_recompletion_cc_cc', array('course' => backup::VAR_COURSEID));
-            $sql = 'SELECT * 
+            $sql = 'SELECT *
                       FROM {local_recompletion_cmc}
                      WHERE coursemoduleid IN (SELECT id FROM {course_modules} WHERE course = ?)';
             $completion->set_source_sql($sql, array(backup::VAR_COURSEID));
@@ -91,6 +91,55 @@ class backup_local_recompletion_plugin extends backup_local_plugin {
         $criteriacomplete->annotate_ids('course_completion_criteria', 'criteriaid');
         $completion->annotate_ids('user', 'userid');
         $completion->annotate_ids('course_module', 'coursemoduleid');
+
+        // Now deal with Quiz Archive tables.
+        $quizgrades = new backup_nested_element('quizgrades');
+
+        $grade = new backup_nested_element('grade', array('id'), array(
+            'userid', 'gradeval', 'timemodified'));
+
+        $quizattempts = new backup_nested_element('quizattempts');
+
+        $attempt = new backup_nested_element('attempt', array('id'), array(
+            'userid', 'attemptnum', 'uniqueid', 'layout', 'currentpage', 'preview',
+            'state', 'timestart', 'timefinish', 'timemodified', 'timemodifiedoffline', 'timecheckstate', 'sumgrades'));
+
+        $recompletion->add_child($quizgrades);
+        $quizgrades->add_child($grade);
+        $recompletion->add_child($quizattempts);
+        $quizattempts->add_child($attempt);
+        if ($usercompletion) {
+            $sql = 'SELECT *
+                      FROM {local_recompletion_qa}
+                     WHERE quiz IN (SELECT id FROM {quiz} WHERE course = ?)';
+            $attempt->set_source_sql($sql, array(backup::VAR_COURSEID));
+
+            $sql = 'SELECT *
+                      FROM {local_recompletion_qg}
+                     WHERE quiz IN (SELECT id FROM {quiz} WHERE course = ?)';
+            $grade->set_source_sql($sql, array(backup::VAR_COURSEID));
+        }
+
+        $attempt->annotate_ids('user', 'userid');
+        $grade->annotate_ids('user', 'userid');
+
+        // Now deal with SCORM archive tables.
+        $scotracks = new backup_nested_element('scormtracks');
+
+        $scotrack = new backup_nested_element('sco_track', array('id'), array(
+            'userid', 'attempt', 'element', 'value',
+            'timemodified'));
+
+        $recompletion->add_child($scotracks);
+        $scotracks->add_child($scotrack);
+
+        if ($usercompletion) {
+            $sql = 'SELECT *
+                      FROM {local_recompletion_sst}
+                     WHERE scormid IN (SELECT id FROM {scorm} WHERE course = ?)';
+            $scotrack->set_source_sql($sql, array(backup::VAR_COURSEID));
+        }
+        $scotrack->annotate_ids('user', 'userid');
 
         return $plugin;
     }
