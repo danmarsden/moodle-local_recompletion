@@ -35,31 +35,62 @@ class backup_local_recompletion_plugin extends backup_local_plugin {
      */
     protected function define_course_plugin_structure() {
 
-        $plugin = $this->get_plugin_element();
+        // Are we including usercompletion info in this backup.
+        $usercompletion = $this->get_setting_value('userscompletion');
 
-        $pluginwrapper = new backup_nested_element($this->get_recommended_name(), null, array(
+        $plugin = $this->get_plugin_element();
+        $recompletion = new backup_nested_element($this->get_recommended_name());
+
+        $recompletiondata = new backup_nested_element('recompletion', null, array(
             'enable', 'recompletionduration', 'deletegradedata', 'deletequizdata', 'deletescormdata', 'archivecompletiondata',
             'archivequizdata', 'archivescormdata', 'recompletionemailenable', 'recompletionemailsubject', 'recompletionemailbody'));
 
-        $plugin->add_child($pluginwrapper);
-
-        // Set source to populate the data.
-        $pluginwrapper->set_source_table('local_recompletion', array(
-            'course' => backup::VAR_PARENTID));
-
         // Handle Historical course completions.
-        $coursecompletions = new backup_nested_element('local_recompletion_cc', array('id'), array(
+        $cc = new backup_nested_element('course_completion');
+
+        $coursecompletions = new backup_nested_element('coursecompletion', array('id'), array(
             'userid', 'course', 'timeenrolled', 'timestarted', 'timecompleted', 'reaggregate'
         ));
 
-        $plugin->add_child($coursecompletions);
+        // Now Handle historical course_completion_crit_compl table.
+        $criteriacompletions = new backup_nested_element('course_completion_crit_completions');
+
+        $criteriacomplete = new backup_nested_element('course_completion_crit_compl', array('id'), array(
+            'criteriaid', 'userid', 'gradefinal', 'unenrolled', 'timecompleted'
+        ));
+
+        $completions = new backup_nested_element('completions');
+
+        $completion = new backup_nested_element('completion', array('id'), array(
+            'userid', 'completionstate', 'viewed', 'timemodified', 'coursemoduleid'));
+
+        $plugin->add_child($recompletion);
+        $recompletion->add_child($recompletiondata);
+        $recompletion->add_child($cc);
+        $cc->add_child($coursecompletions);
+        $cc->add_child($criteriacompletions);
+        $criteriacompletions->add_child($criteriacomplete);
+        $cc->add_child($completions);
+        $completions->add_child($completion);
+
+        // Set source to populate the data.
+        $recompletiondata->set_source_table('local_recompletion', array(
+            'course' => backup::VAR_PARENTID));
 
         // Only include the archive info if usercompletion is also being saved to backup.
-        $usercompletion = $this->get_setting_value('userscompletion');
         if ($usercompletion) {
             $coursecompletions->set_source_table('local_recompletion_cc', array('course' => backup::VAR_COURSEID));
+            $criteriacomplete->set_source_table('local_recompletion_cc_cc', array('course' => backup::VAR_COURSEID));
+            $sql = 'SELECT * 
+                      FROM {local_recompletion_cmc}
+                     WHERE coursemoduleid IN (SELECT id FROM {course_modules} WHERE course = ?)';
+            $completion->set_source_sql($sql, array(backup::VAR_COURSEID));
         }
         $coursecompletions->annotate_ids('user', 'userid');
+        $criteriacomplete->annotate_ids('user', 'userid');
+        $criteriacomplete->annotate_ids('course_completion_criteria', 'criteriaid');
+        $completion->annotate_ids('user', 'userid');
+        $completion->annotate_ids('course_module', 'coursemoduleid');
 
         return $plugin;
     }
