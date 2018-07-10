@@ -278,34 +278,16 @@ function xmldb_local_recompletion_upgrade($oldversion) {
         if (!$dbman->table_exists($table)) {
             $dbman->create_table($table);
         }
-        // Define table local_recompletion_sas to be created.
-        $table = new xmldb_table('local_recompletion_sas');
-
-        // Adding fields to table local_recompletion_sas.
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-        $table->add_field('scormid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-        $table->add_field('hacpsession', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null);
-        $table->add_field('scoid', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
-        $table->add_field('scormmode', XMLDB_TYPE_CHAR, '50', null, null, null, null);
-        $table->add_field('scormstatus', XMLDB_TYPE_CHAR, '255', null, null, null, null);
-        $table->add_field('attempt', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
-        $table->add_field('lessonstatus', XMLDB_TYPE_CHAR, '255', null, null, null, null);
-        $table->add_field('sessiontime', XMLDB_TYPE_CHAR, '255', null, null, null, null);
-        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
-
-        // Adding keys to table local_recompletion_sas.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
-        $table->add_key('scormid', XMLDB_KEY_FOREIGN, array('scormid'), 'scorm', array('id'));
-        $table->add_key('userid', XMLDB_KEY_FOREIGN, array('userid'), 'user', array('id'));
-
-        // Conditionally launch create table for local_recompletion_sas.
-        if (!$dbman->table_exists($table)) {
-            $dbman->create_table($table);
-        }
 
         // Recompletion savepoint reached.
         upgrade_plugin_savepoint(true, 2018012300, 'local', 'recompletion');
+    }
+
+    if ($oldversion < 2018071000) {
+        $table = new xmldb_table('local_recompletion_sas');
+        if ($dbman->table_exists($table)) {
+            $dbman->drop_table($table);
+        }
+        upgrade_plugin_savepoint(true, 2018071000, 'local', 'recompletion');
     }
 }

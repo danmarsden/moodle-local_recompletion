@@ -129,8 +129,6 @@ class check_recompletion extends \core\task\scheduled_task {
                 if ($user->archivescormdata) {
                     $scormscoestrack = $DB->get_records_select('scorm_scoes_track', $selectsql, $params);
                     $DB->insert_records('local_recompletion_sst', $scormscoestrack);
-                    $scormaiccsession = $DB->get_records_select('scorm_aicc_session', $selectsql, $params);
-                    $DB->insert_records('local_recompletion_sas', $scormaiccsession);
                 }
                 $DB->delete_records_select('scorm_scoes_track', $selectsql, $params);
                 $DB->delete_records_select('scorm_aicc_session', $selectsql, $params);

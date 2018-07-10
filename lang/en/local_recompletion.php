@@ -67,6 +67,6 @@ $string['archivecompletiondata_help'] = 'Writes course completion data to the lo
 $string['archivequizdata'] = 'Archive quiz data';
 $string['archivequizdata_help'] = 'Archive quiz module data to the local_recompletion_qa and local_recompletion_qg tables before removing. Quiz module completion data is permanentely deleted if this is not selected.';
 $string['archivescormdata'] = 'Archive SCORM data';
-$string['archivescormdata_help'] = 'Archive SCORM module data to the local_recompletion_sst and local_recompletion_sas tables before removing. SCORM module completion data is permanentely deleted if this is not selected.';
+$string['archivescormdata_help'] = 'Archive SCORM module data to the local_recompletion_sst table before removing. SCORM module completion data is permanentely deleted if this is not selected.';
 $string['emailrecompletiontitle'] = 'Custom recompletion message settings';
 
