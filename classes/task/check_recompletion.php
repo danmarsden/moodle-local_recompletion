@@ -99,9 +99,9 @@ class check_recompletion extends \core\task\scheduled_task {
 
             // Delete current grade information.
             if ($user->deletegradedata) {
-                if ($items = grade_item::fetch_all(array('courseid' => $course->id))) {
+                if ($items = \grade_item::fetch_all(array('courseid' => $course->id))) {
                     foreach ($items as $item) {
-                        if ($grades = grade_grade::fetch_all(array('userid' => $user->id, 'itemid' => $item->id))) {
+                        if ($grades = \grade_grade::fetch_all(array('userid' => $user->id, 'itemid' => $item->id))) {
                             foreach ($grades as $grade) {
                                 $grade->delete('local_recompletion');
                             }
