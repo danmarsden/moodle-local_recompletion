@@ -108,21 +108,98 @@ final class provider implements
         return $collection;
     }
 
+    /**
+     * Export all user data for the specified user, in the specified contexts.
+     *
+     * @param approved_contextlist $contextlist The approved contexts to export information for.
+     */
     public static function export_user_data(approved_contextlist $contextlist) {
-        // TODO: Implement export_user_data() method.
+        $userid = (int)$contextlist->get_user()->id;
     }
 
-
+    /**
+     * Delete all data for all users in the specified context.
+     *
+     * @param context $context The specific context to delete data for.
+     */
     public static function delete_data_for_all_users_in_context(\context $context) {
-        // TODO: Implement delete_data_for_all_users_in_context() method.
+        global $DB;
+
+        if (!$context instanceof \context_course) {
+            return;
+        }
+        $courseid = $context->instanceid;
+
+        $params = array('course' => $courseid);
+        $DB->delete_records('local_recompletion_cc', $params);
+        $DB->delete_records('local_recompletion_cc_cc', $params);
+        $DB->delete_records('local_recompletion_cmc', $params);
+        $DB->delete_records('local_recompletion_qa', $params);
+        $DB->delete_records('local_recompletion_qg', $params);
+        $DB->delete_records('local_recompletion_sst', $params);
     }
 
+    /**
+     * Delete all user data for the specified user, in the specified contexts.
+     *
+     * @param approved_contextlist $contextlist The approved contexts and user information to delete information for.
+     */
     public static function delete_data_for_user(approved_contextlist $contextlist) {
-        // TODO: Implement delete_data_for_user() method.
+        global $DB;
+        $userid = (int)$contextlist->get_user()->id;
+        foreach ($contextlist as $context) {
+            if (!$context instanceof \context_course) {
+                continue;
+            }
+            $courseid = $context->instanceid;
+            $params = array('userid' => $userid, 'course' => $courseid);
+            $DB->delete_records('local_recompletion_cc', $params);
+            $DB->delete_records('local_recompletion_cc_cc', $params);
+            $DB->delete_records('local_recompletion_cmc', $params);
+            $DB->delete_records('local_recompletion_qa', $params);
+            $DB->delete_records('local_recompletion_qg', $params);
+            $DB->delete_records('local_recompletion_sst', $params);
+        }
     }
 
+    /**
+     * Get the list of contexts that contain user information for the specified user.
+     *
+     * @param int $userid The user to search.
+     * @return contextlist $contextlist The contextlist containing the list of contexts used in this plugin.
+     */
     public static function get_contexts_for_userid(int $userid): contextlist {
-        // TODO: Implement get_contexts_for_userid() method.
+        $contextlist = new \core_privacy\local\request\contextlist();
+        $params = array('contextlevel' => CONTEXT_COURSE, 'userid' => $userid);
+        $sql = "SELECT ctx.id
+                  FROM {course} c
+                  JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                  JOIN {local_recompletion_cc} rc ON rc.course = c.id and rc.userid = :userid";
+        $contextlist->add_from_sql($sql, $params);
+        $sql = "SELECT ctx.id
+                  FROM {course} c
+                  JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                  JOIN {local_recompletion_cc_cc} rc ON rc.course = c.id and rc.userid = :userid";
+        $contextlist->add_from_sql($sql, $params);
+        $sql = "SELECT ctx.id
+                  FROM {course} c
+                  JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                  JOIN {local_recompletion_cmc} rc ON rc.course = c.id and rc.userid = :userid";
+        $contextlist->add_from_sql($sql, $params);
+        $sql = "SELECT ctx.id
+                  FROM {course} c
+                  JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                  JOIN {local_recompletion_qa} rc ON rc.course = c.id and rc.userid = :userid";
+        $contextlist->add_from_sql($sql, $params);
+        $sql = "SELECT ctx.id
+                  FROM {course} c
+                  JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                  JOIN {local_recompletion_qg} rc ON rc.course = c.id and rc.userid = :userid";
+        $contextlist->add_from_sql($sql, $params);
+        $sql = "SELECT ctx.id
+                  FROM {course} c
+                  JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                  JOIN {local_recompletion_sst} rc ON rc.course = c.id and rc.userid = :userid";
+        $contextlist->add_from_sql($sql, $params);
     }
-
 }
