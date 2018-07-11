@@ -56,7 +56,7 @@ class check_recompletion extends \core\task\scheduled_task {
         if (!\completion_info::is_enabled_for_site()) {
             return;
         }
-        $sql = 'SELECT cc.userid, cc.course, r.archivecompletiondata,
+        $sql = 'SELECT cc.userid, cc.course, r.id as rid, r.archivecompletiondata,
             r.deletegradedata,
             r.deletequizdata, r.archivequizdata,
             r.deletescormdata, r.archivescormdata,
@@ -193,6 +193,18 @@ class check_recompletion extends \core\task\scheduled_task {
             }
 
             $clearcache = true;
+
+            // Trigger completion reset event for this user.
+            $context = \context_course::instance($user->course);
+            $event = \local_recompletion\event\completion_reset::create(
+                array(
+                    'objectid'      => $user->rid,
+                    'relateduserid' => $user->userid,
+                    'courseid' => $user->course,
+                    'context' => $context,
+                )
+            );
+            $event->trigger();
         }
         if ($clearcache) {
             // Difficult to find affected users, just purge all completion cache.
