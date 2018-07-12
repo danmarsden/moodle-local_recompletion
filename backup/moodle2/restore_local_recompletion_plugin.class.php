@@ -26,8 +26,12 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Restore plugin class that provides the necessary information
- * needed to restore recompletion data.
+ * Restore plugin class.
+ *
+ * @package    local_recompletion
+ * @author     Dan Marsden http://danmarsden.com
+ * @copyright  2018 Catalyst IT
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class restore_local_recompletion_plugin extends restore_local_plugin {
     /**
@@ -39,7 +43,8 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
         $elepath = $this->get_pathfor('/');
         $paths[] = new restore_path_element('recompletion', $elepath.'/recompletion');
         $paths[] = new restore_path_element('recompletion_cc', $elepath.'/course_completion/coursecompletion');
-        $paths[] = new restore_path_element('recompletion_cc_cc', $elepath.'/course_completion/course_completion_crit_completions/course_completion_crit_compl');
+        $paths[] = new restore_path_element('recompletion_cc_cc',
+            $elepath.'/course_completion/course_completion_crit_completions/course_completion_crit_compl');
         $paths[] = new restore_path_element('recompletion_completion', $elepath.'/course_completion/completions/completion');
         $paths[] = new restore_path_element('recompletion_qa', $elepath.'/quizattempts/attempt');
         $paths[] = new restore_path_element('recompletion_qg', $elepath.'/quizgrades/grade');
@@ -50,6 +55,7 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
 
     /**
      * Process local_recompletion table.
+     * @param stdClass $data
      */
     public function process_recompletion($data) {
         global $DB;
@@ -62,6 +68,7 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
 
     /**
      * Process local_recompletion_cc table.
+     * @param stdClass $data
      */
     public function process_recompletion_cc($data) {
         global $DB;
@@ -75,6 +82,7 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
 
     /**
      * Process course_completion_crit_compl table.
+     * @param stdClass $data
      */
     public function process_recompletion_cc_cc($data) {
         global $DB;
@@ -89,6 +97,7 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
 
     /**
      * Process local_recompletion_cmc table.
+     * @param stdClass $data
      */
     public function process_recompletion_completion($data) {
         global $DB;
@@ -102,6 +111,7 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
 
     /**
      * Process local_recompletion_qa table.
+     * @param stdClass $data
      */
     public function process_recompletion_qa($data) {
         global $DB;
@@ -115,6 +125,7 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
 
     /**
      * Process local_recompletion_qg table.
+     * @param stdClass $data
      */
     public function process_recompletion_qg($data) {
         global $DB;
@@ -128,6 +139,7 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
 
     /**
      * Process local_recompletion_sst table.
+     * @param stdClass $data
      */
     public function process_recompletion_sst($data) {
         global $DB;
@@ -177,5 +189,4 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
         }
         $rcm->close();
     }
-
 }

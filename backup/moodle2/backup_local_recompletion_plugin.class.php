@@ -26,7 +26,12 @@
 defined('MOODLE_INTERNAL') || die();
 
 /**
- * Provides the steps to perform one complete backup of the recompletion plugin.
+ * Backup plugin class.
+ *
+ * @package    local_recompletion
+ * @author     Dan Marsden http://danmarsden.com
+ * @copyright  2018 Catalyst IT
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class backup_local_recompletion_plugin extends backup_local_plugin {
 
