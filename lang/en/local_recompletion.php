@@ -23,6 +23,7 @@
  */
 
 $string['pluginname'] = 'Course recompletion';
+$string['recompletion'] = 'recompletion';
 $string['editrecompletion'] = 'Edit course recompletion settings';
 $string['enablerecompletion'] = 'Enable recompletion';
 $string['enablerecompletion_help'] = 'The recompletion plugin allows a course completion details to be reset after a defined period.';
