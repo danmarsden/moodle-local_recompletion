@@ -181,32 +181,12 @@ final class provider implements
      * @return stdClass The transformed row.
      */
     private static function transform_db_row_to_session_data(stdClass $dbrow) : stdClass {
-        if (isset($dbrow->timeenrolled) && (!empty($dbrow->timeenrolled))) {
-            $dbrow->timeenrolled =  transform::datetime($dbrow->timeenrolled);
-        }
-
-        if (isset($dbrow->timestarted) && (!empty($dbrow->timestarted))) {
-            $dbrow->timestarted =  transform::datetime($dbrow->timestarted);
-        }
-
-        if (isset($dbrow->timecompleted) && (!empty($dbrow->timecompleted))) {
-            $dbrow->timecompleted =  transform::datetime($dbrow->timecompleted);
-        }
-
-        if (isset($dbrow->timemodified) && (!empty($dbrow->timemodified))) {
-            $dbrow->timemodified =  transform::datetime($dbrow->timemodified);
-        }
-
-        if (isset($dbrow->timemodifiedoffline) && (!empty($dbrow->timemodifiedoffline))) {
-            $dbrow->timemodifiedoffline =  transform::datetime($dbrow->timemodifiedoffline);
-        }
-
-        if (isset($dbrow->timestart) && (!empty($dbrow->timestart))) {
-            $dbrow->timestart =  transform::datetime($dbrow->timestart);
-        }
-
-        if (isset($dbrow->timefinish) && (!empty($dbrow->timefinish))) {
-            $dbrow->timefinish =  transform::datetime($dbrow->timefinish);
+        $times = array('timeenrolled', 'timestarted', 'timecompleted', 'timemodified', 'timemodifiedoffline',
+            'timestart', 'timefinish');
+        foreach ($times as $time) {
+            if (isset($dbrow->$time) && (!empty($dbrow->$time))) {
+                $dbrow->$time = transform::datetime($dbrow->$time);
+            }
         }
 
         return $dbrow;
