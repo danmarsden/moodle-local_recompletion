@@ -62,7 +62,13 @@ $PAGE->set_title($course->shortname);
 $PAGE->set_heading($course->fullname);
 $PAGE->set_pagelayout('admin');
 
-$existing = $DB->get_record('local_recompletion', array('course' => $course->id));
+// This seems a bit messy - would be nice to tidy this up a bit.
+$config = $DB->get_records_menu('local_recompletion_config', array('course' => $course->id), '', 'name, value');
+$idmap =  $DB->get_records_menu('local_recompletion_config', array('course' => $course->id), '', 'name, id');
+
+$setnames = array('enable', 'recompletionduration', 'deletegradedata', 'deletequizdata', 'deletescormdata', 'archivecompletiondata',
+    'archivequizdata', 'archivescormdata', 'recompletionemailenable', 'recompletionemailsubject', 'recompletionemailbody',
+    'assignextraattempt');
 
 // Create the settings form instance.
 $form = new local_recompletion_recompletion_form('recompletion.php?id='.$id, array('course' => $course));
@@ -71,42 +77,40 @@ if ($form->is_cancelled()) {
     redirect($CFG->wwwroot.'/course/view.php?id='.$course->id);
 
 } else if ($data = $form->get_data()) {
-    if (empty($existing)) {
-        $recompletion = new stdClass();
-        $recompletion->course = $course->id;
-        $recompletion->enable = isset($data->enable) ? $data->enable : 0;
-        $recompletion->recompletionduration = $data->recompletionduration;
-        $recompletion->deletegradedata = isset($data->deletegradedata) ? $data->deletegradedata : 0;
-        $recompletion->deletequizdata = isset($data->deletequizdata) ? $data->deletequizdata : 0;
-        $recompletion->deletescormdata = isset($data->deletescormdata) ? $data->deletescormdata : 0;
-        $recompletion->archivecompletiondata = isset($data->archivecompletiondata) ? $data->archivecompletiondata : 0;
-        $recompletion->archivequizdata = isset($data->archivequizdata) ? $data->archivequizdata : 0;
-        $recompletion->archivescormdata = isset($data->archivescormdata) ? $data->archivescormdata : 0;
-        $recompletion->recompletionemailenable = isset($data->recompletionemailenable) ? $data->recompletionemailenable : 0;
-        $recompletion->recompletionemailsubject = isset($data->recompletionemailsubject) ? $data->recompletionemailsubject : '';
-        $recompletion->recompletionemailbody = isset($data->recompletionemailbody) ? $data->recompletionemailbody : '';
-        $DB->insert_record('local_recompletion', $recompletion);
-    } else {
-        $existing->enable = isset($data->enable) ? $data->enable : 0;
-        $existing->recompletionduration = $data->recompletionduration;
-        $existing->deletegradedata = isset($data->deletegradedata) ? $data->deletegradedata : 0;
-        $existing->deletequizdata = isset($data->deletequizdata) ? $data->deletequizdata : 0;
-        $existing->deletescormdata = isset($data->deletescormdata) ? $data->deletescormdata : 0;
-        $existing->archivecompletiondata = isset($data->archivecompletiondata) ? $data->archivecompletiondata : 0;
-        $existing->archivequizdata = isset($data->archivequizdata) ? $data->archivequizdata : 0;
-        $existing->archivescormdata = isset($data->archivescormdata) ? $data->archivescormdata : 0;
-        $existing->recompletionemailenable = isset($data->recompletionemailenable) ? $data->recompletionemailenable : 0;
-        $existing->recompletionemailsubject = isset($data->recompletionemailsubject) ? $data->recompletionemailsubject : '';
-        $existing->recompletionemailbody = isset($data->recompletionemailbody) ? $data->recompletionemailbody : '';
-        $DB->update_record('local_recompletion', $existing);
+    foreach ($setnames as $name) {
+        if (isset($data->$name)) {
+            $value = $data->$name;
+        } else {
+            if ($name == 'recompletionemailsubject' || $name == 'recompletionemailbody') {
+                $value = '';
+            } else {
+                $value = 0;
+            }
+        }
+        if (!isset($config[$name]) || $config[$name] <> $value) {
+            $rc = new stdclass();
+            if (isset($idmap[$name])) {
+                $rc->id = $idmap[$name];
+            }
+            $rc->name = $name;
+            $rc->value = $value;
+            $rc->course = $course->id;
+            if (empty($rc->id)) {
+                $DB->insert_record('local_recompletion_config', $rc);
+            } else {
+                $DB->update_record('local_recompletion_config', $rc);
+            }
+            if ($name == 'enable' && empty($value)) {
+                // Don't overwrite any other settings when recompletion disabled.
+                break;
+            }
+        }
     }
     // Redirect to the course main page.
     $url = new moodle_url('/course/view.php', array('id' => $course->id));
     redirect($url, get_string('recompletionsettingssaved', 'local_recompletion'));
-} else if (!empty($existing)) {
-    if ($existing->enable) {
-        $form->set_data($existing);
-    }
+} else if (!empty($config)) {
+    $form->set_data($config);
 }
 
 // Print the form.

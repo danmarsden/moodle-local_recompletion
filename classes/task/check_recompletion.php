@@ -56,25 +56,42 @@ class check_recompletion extends \core\task\scheduled_task {
         if (!\completion_info::is_enabled_for_site()) {
             return;
         }
-        $sql = 'SELECT cc.userid, cc.course, r.id as rid, r.archivecompletiondata,
-            r.deletegradedata,
-            r.deletequizdata, r.archivequizdata,
-            r.deletescormdata, r.archivescormdata,
-            r.recompletionemailenable, r.recompletionemailsubject, r.recompletionemailbody
+
+        $sql = "SELECT cc.userid, cc.course
             FROM {course_completions} cc
-            JOIN {local_recompletion} r ON r.course = cc.course AND r.enable = 1
+            JOIN {local_recompletion_config} r ON r.course = cc.course AND r.name = 'enable' AND r.value = '1'
+            JOIN {local_recompletion_config} r2 ON r2.course = cc.course AND r2.name = 'recompletionduration'
             JOIN {course} c ON c.id = cc.course
-            WHERE c.enablecompletion = '.COMPLETION_ENABLED.' AND
-            (cc.timecompleted + r.recompletionduration) < ?';
+            WHERE c.enablecompletion = ".COMPLETION_ENABLED." AND cc.timecompleted > 0 AND
+            (cc.timecompleted + ".$DB->sql_cast_char2int('r2.value').") < ?";
         $users = $DB->get_recordset_sql($sql, array(time()));
         $courses = array();
+        $configs = array();
         $clearcache = false;
         foreach ($users as $user) {
+            if (!isset($courses[$user->course])) {
+                // Only get the course record for this course once.
+                $course = get_course($user->course);
+                $courses[$user->course] = $course;
+            } else {
+                $course = $courses[$user->course];
+            }
+
+            // Get recompletion config.
+            if (!isset($configs[$user->course])) {
+                // Only get the recompletion config record for this course once.
+                $config = $DB->get_records_menu('local_recompletion_config', array('course' => $course->id), '', 'name, value');
+                $config = (object) $config;
+                $configs[$user->course] = $config;
+            } else {
+                $config = $configs[$user->course];
+            }
+
             // Archive and delete course completion.
-            $this->reset_completions($user);
+            $this->reset_completions($user, $config);
 
             // Delete current grade information.
-            if ($user->deletegradedata) {
+            if ($config->deletegradedata) {
                 if ($items = \grade_item::fetch_all(array('courseid' => $user->course))) {
                     foreach ($items as $item) {
                         if ($grades = \grade_grade::fetch_all(array('userid' => $user->userid, 'itemid' => $item->id))) {
@@ -87,26 +104,17 @@ class check_recompletion extends \core\task\scheduled_task {
             }
 
             // Archive and delete specific activity data.
-            $this->reset_quiz($user);
-            $this->reset_scorm($user);
+            $this->reset_quiz($user, $config);
+            $this->reset_scorm($user, $config);
 
             // Now notify user.
-            if ($user->recompletionemailenable) {
-                if (!isset($courses[$user->course])) {
-                    // Only get the course record for this course once.
-                    $course = get_course($user->course);
-                    $courses[$user->course] = $course;
-                } else {
-                    $course = $courses[$user->course];
-                }
-                $this->notify_user($user, $course);
-            }
+            $this->notify_user($user, $config, $course);
 
             // Trigger completion reset event for this user.
             $context = \context_course::instance($user->course);
             $event = \local_recompletion\event\completion_reset::create(
                 array(
-                    'objectid'      => $user->rid,
+                    'objectid'      => $user->course,
                     'relateduserid' => $user->userid,
                     'courseid' => $user->course,
                     'context' => $context,
@@ -130,10 +138,10 @@ class check_recompletion extends \core\task\scheduled_task {
      * Reset and archive completion records
      * @param \stdclass $user - record with user information for recompletion
      */
-    protected function reset_completions($user) {
+    protected function reset_completions($user, $config) {
         global $DB;
         $params = array('userid' => $user->userid, 'course' => $user->course);
-        if ($user->archivecompletiondata) {
+        if ($config->archivecompletiondata) {
             $coursecompletions = $DB->get_records('course_completions', $params);
             $DB->insert_records('local_recompletion_cc', $coursecompletions);
             $criteriacompletions = $DB->get_records('course_completion_crit_compl', $params);
@@ -144,7 +152,7 @@ class check_recompletion extends \core\task\scheduled_task {
 
         // Archive and delete all activity completions.
         $selectsql = 'userid = ? AND coursemoduleid IN (SELECT id FROM {course_modules} WHERE course = ?)';
-        if ($user->archivecompletiondata) {
+        if ($config->archivecompletiondata) {
             $cmc = $DB->get_records_select('course_modules_completion', $selectsql, $params);
             foreach ($cmc as $cid => $unused) {
                 // Add courseid to records to help with restore process.
@@ -159,15 +167,15 @@ class check_recompletion extends \core\task\scheduled_task {
      * Reset and archive scorm records.
      * @param \stdclass $user - record with user information for recompletion
      */
-    protected function reset_scorm($user) {
+    protected function reset_scorm($user, $config) {
         global $DB;
 
-        if (empty($user->deletescormdata)) {
+        if (empty($config->deletescormdata)) {
             return;
         }
         $params = array('userid' => $user->userid, 'course' => $user->course);
         $selectsql = 'userid = ? AND scormid IN (SELECT id FROM {scorm} WHERE course = ?)';
-        if ($user->archivescormdata) {
+        if ($config->archivescormdata) {
             $scormscoestrack = $DB->get_records_select('scorm_scoes_track', $selectsql, $params);
             foreach ($scormscoestrack as $sid => $unused) {
                 // Add courseid to records to help with restore process.
@@ -183,15 +191,15 @@ class check_recompletion extends \core\task\scheduled_task {
      * Reset and archive quiz records.
      * @param \stdclass $user - record with user information for recompletion
      */
-    protected function reset_quiz($user) {
+    protected function reset_quiz($user, $config) {
         global $DB;
 
-        if (empty($user->deletequizdata)) {
+        if (empty($config->deletequizdata)) {
             return;
         }
         $params = array('userid' => $user->userid, 'course' => $user->course);
         $selectsql = 'userid = ? AND quiz IN (SELECT id FROM {quiz} WHERE course = ?)';
-        if ($user->archivequizdata) {
+        if ($config->archivequizdata) {
             $quizattempts = $DB->get_records_select('quiz_attempts', $selectsql, $params);
             foreach ($quizattempts as $qid => $unused) {
                 // Add courseid to records to help with restore process.
@@ -215,8 +223,12 @@ class check_recompletion extends \core\task\scheduled_task {
      * @param \stdclass $user - record with user information for recompletion
      * @param \sdclass $course - record from course table.
      */
-    protected function notify_user($user, $course) {
+    protected function notify_user($user, $config, $course) {
         global $DB, $CFG;
+
+        if (!$config->recompletionemailenable) {
+            return;
+        }
 
         $userrecord = $DB->get_record('user', array('id' => $user->userid));
         $context = \context_course::instance($course->id);
@@ -225,8 +237,8 @@ class check_recompletion extends \core\task\scheduled_task {
         $a->coursename = format_string($course->fullname, true, array('context' => $context));
         $a->profileurl = "$CFG->wwwroot/user/view.php?id=$userrecord->id&course=$course->id";
         $a->link = course_get_url($course)->out();
-        if (trim($user->recompletionemailbody) !== '') {
-            $message = $user->recompletionemailbody;
+        if (trim($config->recompletionemailbody) !== '') {
+            $message = $config->recompletionemailbody;
             $key = array('{$a->coursename}', '{$a->profileurl}', '{$a->link}', '{$a->fullname}', '{$a->email}');
             $value = array($a->coursename, $a->profileurl, $a->link, fullname($userrecord), $userrecord->email);
             $message = str_replace($key, $value, $message);
@@ -244,8 +256,8 @@ class check_recompletion extends \core\task\scheduled_task {
             $messagetext = get_string('recompletionemaildefaultbody', 'local_recompletion', $a);
             $messagehtml = text_to_html($messagetext, null, false, true);
         }
-        if (trim($user->recompletionemailsubject) !== '') {
-            $subject = $user->recompletionemailsubject;
+        if (trim($config->recompletionemailsubject) !== '') {
+            $subject = $config->recompletionemailsubject;
             $keysub = array('{$a->coursename}', '{$a->fullname}');
             $valuesub = array($a->coursename, fullname($userrecord));
             $subject = str_replace($keysub, $valuesub, $subject);
