@@ -70,40 +70,12 @@ class check_recompletion extends \core\task\scheduled_task {
         $courses = array();
         $clearcache = false;
         foreach ($users as $user) {
-            if (!isset($courses[$user->course])) {
-                // Only get the course record for this course once.
-                $course = get_course($user->course);
-                $courses[$user->course] = $course;
-            } else {
-                $course = $courses[$user->course];
-            }
-
             // Archive and delete course completion.
-            $params = array('userid' => $user->userid, 'course' => $user->course);
-            if ($user->archivecompletiondata) {
-                $coursecompletions = $DB->get_records('course_completions', $params);
-                $DB->insert_records('local_recompletion_cc', $coursecompletions);
-                $criteriacompletions = $DB->get_records('course_completion_crit_compl', $params);
-                $DB->insert_records('local_recompletion_cc_cc', $criteriacompletions);
-            }
-            $DB->delete_records('course_completions', $params);
-            $DB->delete_records('course_completion_crit_compl', $params);
-
-            // Archive and delete all activity completions.
-            $selectsql = 'userid = ? AND coursemoduleid IN (SELECT id FROM {course_modules} WHERE course = ?)';
-            if ($user->archivecompletiondata) {
-                $cmc = $DB->get_records_select('course_modules_completion', $selectsql, $params);
-                foreach ($cmc as $cid => $unused) {
-                    // Add courseid to records to help with restore process.
-                    $cmc[$cid]->course = $user->course;
-                }
-                $DB->insert_records('local_recompletion_cmc', $cmc);
-            }
-            $DB->delete_records_select('course_modules_completion', $selectsql, $params);
+            $this->reset_completions($user);
 
             // Delete current grade information.
             if ($user->deletegradedata) {
-                if ($items = \grade_item::fetch_all(array('courseid' => $course->id))) {
+                if ($items = \grade_item::fetch_all(array('courseid' => $user->course))) {
                     foreach ($items as $item) {
                         if ($grades = \grade_grade::fetch_all(array('userid' => $user->userid, 'itemid' => $item->id))) {
                             foreach ($grades as $grade) {
@@ -114,85 +86,21 @@ class check_recompletion extends \core\task\scheduled_task {
                 }
             }
 
-            // Archive and delete quiz attempts information.
-            if ($user->deletequizdata) {
-                $selectsql = 'userid = ? AND quiz IN (SELECT id FROM {quiz} WHERE course = ?)';
-                if ($user->archivequizdata) {
-                    $quizattempts = $DB->get_records_select('quiz_attempts', $selectsql, $params);
-                    foreach ($quizattempts as $qid => $unused) {
-                        // Add courseid to records to help with restore process.
-                        $quizattempts[$qid]->course = $user->course;
-                    }
-                    $DB->insert_records('local_recompletion_qa', $quizattempts);
-
-                    $quizgrades = $DB->get_records_select('quiz_grades', $selectsql, $params);
-                    foreach ($quizgrades as $qid => $unused) {
-                        // Add courseid to records to help with restore process.
-                        $quizgrades[$qid]->course = $user->course;
-                    }
-                    $DB->insert_records('local_recompletion_qg', $quizgrades);
-                }
-                $DB->delete_records_select('quiz_attempts', $selectsql, $params);
-                $DB->delete_records_select('quiz_grades', $selectsql, $params);
-            }
-
-            // Archive and delete scorm attempts information.
-            if ($user->deletescormdata) {
-                $selectsql = 'userid = ? AND scormid IN (SELECT id FROM {scorm} WHERE course = ?)';
-                if ($user->archivescormdata) {
-                    $scormscoestrack = $DB->get_records_select('scorm_scoes_track', $selectsql, $params);
-                    foreach ($scormscoestrack as $sid => $unused) {
-                        // Add courseid to records to help with restore process.
-                        $scormscoestrack[$sid]->course = $user->course;
-                    }
-                    $DB->insert_records('local_recompletion_sst', $scormscoestrack);
-                }
-                $DB->delete_records_select('scorm_scoes_track', $selectsql, $params);
-                $DB->delete_records_select('scorm_aicc_session', $selectsql, $params);
-            }
+            // Archive and delete specific activity data.
+            $this->reset_quiz($user);
+            $this->reset_scorm($user);
 
             // Now notify user.
             if ($user->recompletionemailenable) {
-                $userrecord = $DB->get_record('user', array('id' => $user->userid));
-                $coursedetails = $DB->get_record('course', array('id' => $user->course), '*', MUST_EXIST);
-                $context = \context_course::instance($course->id);
-                $from = get_admin();
-                $a = new \stdClass();
-                $a->coursename = format_string($coursedetails->fullname, true, array('context' => $context));
-                $a->profileurl = "$CFG->wwwroot/user/view.php?id=$userrecord->id&course=$coursedetails->id";
-                $a->link = course_get_url($course)->out();
-                if (trim($user->recompletionemailbody) !== '') {
-                    $message = $user->recompletionemailbody;
-                    $key = array('{$a->coursename}', '{$a->profileurl}', '{$a->link}', '{$a->fullname}', '{$a->email}');
-                    $value = array($a->coursename, $a->profileurl, $a->link, fullname($userrecord), $userrecord->email);
-                    $message = str_replace($key, $value, $message);
-                    if (strpos($message, '<') === false) {
-                        // Plain text only.
-                        $messagetext = $message;
-                        $messagehtml = text_to_html($messagetext, null, false, true);
-                    } else {
-                        // This is most probably the tag/newline soup known as FORMAT_MOODLE.
-                        $messagehtml = format_text($message, FORMAT_MOODLE, array('context' => $context,
-                            'para' => false, 'newlines' => true, 'filter' => true));
-                        $messagetext = html_to_text($messagehtml);
-                    }
+                if (!isset($courses[$user->course])) {
+                    // Only get the course record for this course once.
+                    $course = get_course($user->course);
+                    $courses[$user->course] = $course;
                 } else {
-                    $messagetext = get_string('recompletionemaildefaultbody', 'local_recompletion', $a);
-                    $messagehtml = text_to_html($messagetext, null, false, true);
+                    $course = $courses[$user->course];
                 }
-                if (trim($user->recompletionemailsubject) !== '') {
-                    $subject = $user->recompletionemailsubject;
-                    $keysub = array('{$a->coursename}', '{$a->fullname}');
-                    $valuesub = array($a->coursename, fullname($userrecord));
-                    $subject = str_replace($keysub, $valuesub, $subject);
-                } else {
-                    $subject = get_string('recompletionemaildefaultsubject', 'local_recompletion', $a);
-                }
-                // Directly emailing recompletion message rather than using messaging.
-                email_to_user($userrecord, $from, $subject, $messagetext, $messagehtml);
+                $this->notify_user($user, $course);
             }
-
-            $clearcache = true;
 
             // Trigger completion reset event for this user.
             $context = \context_course::instance($user->course);
@@ -205,6 +113,8 @@ class check_recompletion extends \core\task\scheduled_task {
                 )
             );
             $event->trigger();
+
+            $clearcache = true; // We have made some changes, clear completion cache.
         }
         if ($clearcache) {
             // Difficult to find affected users, just purge all completion cache.
@@ -214,5 +124,135 @@ class check_recompletion extends \core\task\scheduled_task {
                 \cache::make('core', 'coursecompletion')->purge();
             }
         }
+    }
+
+    /**
+     * Reset and archive completion records
+     * @param \stdclass $user - record with user information for recompletion
+     */
+    protected function reset_completions($user) {
+        global $DB;
+        $params = array('userid' => $user->userid, 'course' => $user->course);
+        if ($user->archivecompletiondata) {
+            $coursecompletions = $DB->get_records('course_completions', $params);
+            $DB->insert_records('local_recompletion_cc', $coursecompletions);
+            $criteriacompletions = $DB->get_records('course_completion_crit_compl', $params);
+            $DB->insert_records('local_recompletion_cc_cc', $criteriacompletions);
+        }
+        $DB->delete_records('course_completions', $params);
+        $DB->delete_records('course_completion_crit_compl', $params);
+
+        // Archive and delete all activity completions.
+        $selectsql = 'userid = ? AND coursemoduleid IN (SELECT id FROM {course_modules} WHERE course = ?)';
+        if ($user->archivecompletiondata) {
+            $cmc = $DB->get_records_select('course_modules_completion', $selectsql, $params);
+            foreach ($cmc as $cid => $unused) {
+                // Add courseid to records to help with restore process.
+                $cmc[$cid]->course = $user->course;
+            }
+            $DB->insert_records('local_recompletion_cmc', $cmc);
+        }
+        $DB->delete_records_select('course_modules_completion', $selectsql, $params);
+    }
+
+    /**
+     * Reset and archive scorm records.
+     * @param \stdclass $user - record with user information for recompletion
+     */
+    protected function reset_scorm($user) {
+        global $DB;
+
+        if (empty($user->deletescormdata)) {
+            return;
+        }
+        $params = array('userid' => $user->userid, 'course' => $user->course);
+        $selectsql = 'userid = ? AND scormid IN (SELECT id FROM {scorm} WHERE course = ?)';
+        if ($user->archivescormdata) {
+            $scormscoestrack = $DB->get_records_select('scorm_scoes_track', $selectsql, $params);
+            foreach ($scormscoestrack as $sid => $unused) {
+                // Add courseid to records to help with restore process.
+                $scormscoestrack[$sid]->course = $user->course;
+            }
+            $DB->insert_records('local_recompletion_sst', $scormscoestrack);
+        }
+        $DB->delete_records_select('scorm_scoes_track', $selectsql, $params);
+        $DB->delete_records_select('scorm_aicc_session', $selectsql, $params);
+    }
+
+    /**
+     * Reset and archive quiz records.
+     * @param \stdclass $user - record with user information for recompletion
+     */
+    protected function reset_quiz($user) {
+        global $DB;
+
+        if (empty($user->deletequizdata)) {
+            return;
+        }
+        $params = array('userid' => $user->userid, 'course' => $user->course);
+        $selectsql = 'userid = ? AND quiz IN (SELECT id FROM {quiz} WHERE course = ?)';
+        if ($user->archivequizdata) {
+            $quizattempts = $DB->get_records_select('quiz_attempts', $selectsql, $params);
+            foreach ($quizattempts as $qid => $unused) {
+                // Add courseid to records to help with restore process.
+                $quizattempts[$qid]->course = $user->course;
+            }
+            $DB->insert_records('local_recompletion_qa', $quizattempts);
+
+            $quizgrades = $DB->get_records_select('quiz_grades', $selectsql, $params);
+            foreach ($quizgrades as $qid => $unused) {
+                // Add courseid to records to help with restore process.
+                $quizgrades[$qid]->course = $user->course;
+            }
+            $DB->insert_records('local_recompletion_qg', $quizgrades);
+        }
+        $DB->delete_records_select('quiz_attempts', $selectsql, $params);
+        $DB->delete_records_select('quiz_grades', $selectsql, $params);
+    }
+
+    /**
+     * Notify user of recompletion.
+     * @param \stdclass $user - record with user information for recompletion
+     * @param \sdclass $course - record from course table.
+     */
+    protected function notify_user($user, $course) {
+        global $DB, $CFG;
+
+        $userrecord = $DB->get_record('user', array('id' => $user->userid));
+        $context = \context_course::instance($course->id);
+        $from = get_admin();
+        $a = new \stdClass();
+        $a->coursename = format_string($course->fullname, true, array('context' => $context));
+        $a->profileurl = "$CFG->wwwroot/user/view.php?id=$userrecord->id&course=$course->id";
+        $a->link = course_get_url($course)->out();
+        if (trim($user->recompletionemailbody) !== '') {
+            $message = $user->recompletionemailbody;
+            $key = array('{$a->coursename}', '{$a->profileurl}', '{$a->link}', '{$a->fullname}', '{$a->email}');
+            $value = array($a->coursename, $a->profileurl, $a->link, fullname($userrecord), $userrecord->email);
+            $message = str_replace($key, $value, $message);
+            if (strpos($message, '<') === false) {
+                // Plain text only.
+                $messagetext = $message;
+                $messagehtml = text_to_html($messagetext, null, false, true);
+            } else {
+                // This is most probably the tag/newline soup known as FORMAT_MOODLE.
+                $messagehtml = format_text($message, FORMAT_MOODLE, array('context' => $context,
+                    'para' => false, 'newlines' => true, 'filter' => true));
+                $messagetext = html_to_text($messagehtml);
+            }
+        } else {
+            $messagetext = get_string('recompletionemaildefaultbody', 'local_recompletion', $a);
+            $messagehtml = text_to_html($messagetext, null, false, true);
+        }
+        if (trim($user->recompletionemailsubject) !== '') {
+            $subject = $user->recompletionemailsubject;
+            $keysub = array('{$a->coursename}', '{$a->fullname}');
+            $valuesub = array($a->coursename, fullname($userrecord));
+            $subject = str_replace($keysub, $valuesub, $subject);
+        } else {
+            $subject = get_string('recompletionemaildefaultsubject', 'local_recompletion', $a);
+        }
+        // Directly emailing recompletion message rather than using messaging.
+        email_to_user($userrecord, $from, $subject, $messagetext, $messagehtml);
     }
 }
