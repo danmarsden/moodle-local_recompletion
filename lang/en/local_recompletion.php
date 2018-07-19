@@ -55,22 +55,20 @@ The following placeholders may be included in the message:
 * User fullname {$a->fullname}';
 $string['recompletionemaildefaultbody'] = 'Hi there, please recomplete the course {$a->coursename} {$a->link}';
 $string['advancedrecompletiontitle'] = 'Advanced';
-$string['deletewhichdata'] = 'Select deletion criteria';
-$string['deletegradedata'] = 'Delete current grade data';
+$string['deletegradedata'] = 'Delete all grades for the user';
 $string['deletegradedata_help'] = 'Delete current grade completion data from grade_grades table. Grade recompletion data is permanently deleted but data retained in Grade history data table.';
-$string['deletequizdata'] = 'Delete quiz data';
-$string['deletequizdata_help'] = 'Delete quiz module completion data from quiz_attempts and quiz_grades tables. Quiz module completion data is permanently deleted if archive quiz data is not selected.';
-$string['deletescormdata'] = 'Delete SCORM data';
-$string['deletescormdata_help'] = 'Delete SCORM module completion data from the scorm_scoes_track and scorm_aicc_session tables. SCORM module completion data is permanently deleted if archive quiz data is not selected.';
-$string['archivewhichdata'] = 'Select archive criteria';
 $string['archivecompletiondata'] = 'Archive completion data';
-$string['archivecompletiondata_help'] = 'Writes course completion data to the local_recompletion_cc, local_recompletion_cc_cc and local_recompletion_cmc tables. Completion data will be permanently deleted if this is not selected.';
-$string['archivequizdata'] = 'Archive quiz data';
-$string['archivequizdata_help'] = 'Archive quiz module data to the local_recompletion_qa and local_recompletion_qg tables before removing. Quiz module completion data is permanentely deleted if this is not selected.';
-$string['archivescormdata'] = 'Archive SCORM data';
-$string['archivescormdata_help'] = 'Archive SCORM module data to the local_recompletion_sst table before removing. SCORM module completion data is permanentely deleted if this is not selected.';
+$string['archivecompletiondata_help'] = 'Writes completion data to the local_recompletion_cc, local_recompletion_cc_cc and local_recompletion_cmc tables. Completion data will be permanently deleted if this is not selected.';
 $string['emailrecompletiontitle'] = 'Custom recompletion message settings';
 $string['eventrecompletion'] = 'Course recompletion';
+
+$string['quizattempts'] = 'Quiz attempts';
+$string['quizattempts_help'] = 'Should existing Quiz attempts be deleted - if archive is selected, the old quiz attempts will be archived in the local_recompletion tables.';
+$string['scormattempts'] = 'SCORM attempts';
+$string['scormattempts_help'] = 'Should existing SCORM attempts be deleted - if archive is selected, the old SCORM attempts will be archived in the local_recompletion_sst table.';
+$string['archive'] = 'Archive old attempts';
+$string['delete'] = 'Delete existing attempts';
+
 $string['privacy:metadata:local_recompletion_cc'] = 'Archive of previous course completions.';
 $string['privacy:metadata:local_recompletion_cmc'] = 'Archive of previous course module completions.';
 $string['privacy:metadata:local_recompletion_cc_cc'] = 'Archive of previous course_completion_crit_compl';

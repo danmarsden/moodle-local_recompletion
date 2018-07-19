@@ -72,35 +72,44 @@ class local_recompletion_recompletion_form extends moodleform {
         // Delete data section.
         $mform->addElement('header', 'advancedheader', get_string('advancedrecompletiontitle', 'local_recompletion'));
         $mform->setExpanded('advancedheader', false);
-        $mform->addElement('static', 'deletewhichdata', get_string('deletewhichdata', 'local_recompletion'));
+
         $mform->addElement('checkbox', 'deletegradedata', get_string('deletegradedata', 'local_recompletion'));
         $mform->setDefault('deletegradedata', 1);
         $mform->addHelpButton('deletegradedata', 'deletegradedata', 'local_recompletion');
-        $mform->disabledIf('deletegradedata', 'enable', 'notchecked');
-        $mform->addElement('checkbox', 'deletequizdata', get_string('deletequizdata', 'local_recompletion'));
-        $mform->setDefault('deletequizdata', 1);
-        $mform->addHelpButton('deletequizdata', 'deletequizdata', 'local_recompletion');
-        $mform->disabledIf('deletequizdata', 'enable', 'notchecked');
-        $mform->addElement('checkbox', 'deletescormdata', get_string('deletescormdata', 'local_recompletion'));
-        $mform->setDefault('deletescormdata', 1);
-        $mform->addHelpButton('deletescormdata', 'deletescormdata', 'local_recompletion');
-        $mform->disabledIf('deletescormdata', 'enable', 'notchecked');
-        // Archive data section.
-        $mform->addElement('static', 'archivewhichdata', get_string('archivewhichdata', 'local_recompletion'));
+
         $mform->addElement('checkbox', 'archivecompletiondata', get_string('archivecompletiondata', 'local_recompletion'));
         $mform->setDefault('archivecompletiondata', 1);
         $mform->addHelpButton('archivecompletiondata', 'archivecompletiondata', 'local_recompletion');
+
+        $cba = array();
+        $cba[] = $mform->createElement('checkbox', 'deletescormdata',
+            get_string('delete', 'local_recompletion'));
+        $cba[] = $mform->createElement('checkbox', 'archivescormdata',
+            get_string('archive', 'local_recompletion'));
+
+        $mform->addGroup($cba, 'scorm', get_string('scormattempts', 'local_recompletion'), array(' '), false);
+        $mform->addHelpButton('scorm', 'scormattempts', 'local_recompletion');
+
+        $cba = array();
+        $cba[] = $mform->createElement('checkbox', 'deletequizdata',
+            get_string('delete', 'local_recompletion'));
+        $cba[] = $mform->createElement('checkbox', 'archivequizdata',
+            get_string('archive', 'local_recompletion'));
+
+        $mform->addGroup($cba, 'quiz', get_string('quizattempts', 'local_recompletion'), array(' '), false);
+        $mform->addHelpButton('quiz', 'quizattempts', 'local_recompletion');
+
+
+        $mform->disabledIf('deletescormdata', 'enable', 'notchecked');
+        $mform->disabledIf('deletegradedata', 'enable', 'notchecked');
+        $mform->disabledIf('deletequizdata', 'enable', 'notchecked');
         $mform->disabledIf('archivecompletiondata', 'enable', 'notchecked');
-        $mform->addElement('checkbox', 'archivequizdata', get_string('archivequizdata', 'local_recompletion'));
-        $mform->setDefault('archivequizdata', 1);
-        $mform->addHelpButton('archivequizdata', 'archivequizdata', 'local_recompletion');
         $mform->disabledIf('archivequizdata', 'enable', 'notchecked');
         $mform->disabledIf('archivequizdata', 'deletequizdata', 'notchecked');
-        $mform->addElement('checkbox', 'archivescormdata', get_string('archivescormdata', 'local_recompletion'));
-        $mform->setDefault('archivescormdata', 1);
-        $mform->addHelpButton('archivescormdata', 'archivescormdata', 'local_recompletion');
         $mform->disabledIf('archivescormdata', 'enable', 'notchecked');
         $mform->disabledIf('archivescormdata', 'deletescormdata', 'notchecked');
+
+
 
         // Add common action buttons.
         $this->add_action_buttons();
