@@ -61,7 +61,9 @@ $string['archivecompletiondata'] = 'Archive completion data';
 $string['archivecompletiondata_help'] = 'Writes completion data to the local_recompletion_cc, local_recompletion_cc_cc and local_recompletion_cmc tables. Completion data will be permanently deleted if this is not selected.';
 $string['emailrecompletiontitle'] = 'Custom recompletion message settings';
 $string['eventrecompletion'] = 'Course recompletion';
-
+$string['assignattempts'] = 'Assign attempts';
+$string['assignattempts_help'] = 'How to handle assignment attempts within the course.';
+$string['extraattempt'] = 'Give student extra attempt (if supported)';
 $string['quizattempts'] = 'Quiz attempts';
 $string['quizattempts_help'] = 'Should existing Quiz attempts be deleted - if archive is selected, the old quiz attempts will be archived in the local_recompletion tables.';
 $string['scormattempts'] = 'SCORM attempts';

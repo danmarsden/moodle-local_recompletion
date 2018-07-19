@@ -326,5 +326,94 @@ function xmldb_local_recompletion_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2018071100, 'local', 'recompletion');
     }
 
+    if ($oldversion < 2018071900) {
+
+        // Define table local_recompletion_config to be created.
+        $table = new xmldb_table('local_recompletion_config');
+
+        // Adding fields to table local_recompletion_config.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('course', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('name', XMLDB_TYPE_CHAR, '100', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('value', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table local_recompletion_config.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Adding indexes to table local_recompletion_config.
+        $table->add_index('course', XMLDB_INDEX_NOTUNIQUE, ['course']);
+
+        // Conditionally launch create table for local_recompletion_config.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Recompletion savepoint reached.
+        upgrade_plugin_savepoint(true, 2018071900, 'local', 'recompletion');
+    }
+
+    if ($oldversion < 2018071901) {
+        // Convert old local_recompletion records to new structure.
+        $recompletion = $DB->get_recordset('local_recompletion');
+        $newrecords = array();
+        foreach ($recompletion as $r) {
+            $newrecords[] = array('course' => $r->course,
+                'name' => 'enable',
+                'value' => $r->enable);
+            $newrecords[] = array('course' => $r->course,
+                'name' => 'recompletionduration',
+                'value' => $r->recompletionduration);
+            $newrecords[] = array('course' => $r->course,
+                'name' => 'deletegradedata',
+                'value' => $r->deletegradedata);
+            $newrecords[] = array('course' => $r->course,
+                'name' => 'deletequizdata',
+                'value' => $r->deletequizdata);
+            $newrecords[] = array('course' => $r->course,
+                'name' => 'deletescormdata',
+                'value' => $r->deletescormdata);
+            $newrecords[] = array('course' => $r->course,
+                'name' => 'archivecompletiondata',
+                'value' => $r->archivecompletiondata);
+            $newrecords[] = array('course' => $r->course,
+                'name' => 'archivequizdata',
+                'value' => $r->archivequizdata);
+            $newrecords[] = array('course' => $r->course,
+                'name' => 'archivescormdata',
+                'value' => $r->archivescormdata);
+            $newrecords[] = array('course' => $r->course,
+                'name' => 'recompletionemailenable',
+                'value' => $r->recompletionemailenable);
+            $newrecords[] = array('course' => $r->course,
+                'name' => 'recompletionemailsubject',
+                'value' => $r->recompletionemailsubject);
+            $newrecords[] = array('course' => $r->course,
+                'name' => 'recompletionemailbody',
+                'value' => $r->recompletionemailbody);
+        }
+        $recompletion->close();
+        foreach ($newrecords as $id => $rec) {
+            if ($rec['value'] == null) {
+                $newrecords[$id]['value'] = '';
+            }
+        }
+        $DB->insert_records('local_recompletion_config', $newrecords);
+
+        // Recompletion savepoint reached.
+        upgrade_plugin_savepoint(true, 2018071901, 'local', 'recompletion');
+    }
+
+    if ($oldversion < 2018071902) {
+        // Define table local_recompletion to be dropped.
+        $table = new xmldb_table('local_recompletion');
+
+        // Conditionally launch drop table for local_recompletion.
+        if ($dbman->table_exists($table)) {
+            $dbman->drop_table($table);
+        }
+        // Recompletion savepoint reached.
+        upgrade_plugin_savepoint(true, 2018071902, 'local', 'recompletion');
+    }
+
     return true;
 }

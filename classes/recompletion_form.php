@@ -99,17 +99,22 @@ class local_recompletion_recompletion_form extends moodleform {
         $mform->addGroup($cba, 'quiz', get_string('quizattempts', 'local_recompletion'), array(' '), false);
         $mform->addHelpButton('quiz', 'quizattempts', 'local_recompletion');
 
+        $cba = array();
+        $cba[] = $mform->createElement('checkbox', 'assignextraattempt',
+            get_string('extraattempt', 'local_recompletion'));
+
+        $mform->addGroup($cba, 'assign', get_string('assignattempts', 'local_recompletion'), array(' '), false);
+        $mform->addHelpButton('assign', 'assignattempts', 'local_recompletion');
 
         $mform->disabledIf('deletescormdata', 'enable', 'notchecked');
         $mform->disabledIf('deletegradedata', 'enable', 'notchecked');
         $mform->disabledIf('deletequizdata', 'enable', 'notchecked');
         $mform->disabledIf('archivecompletiondata', 'enable', 'notchecked');
         $mform->disabledIf('archivequizdata', 'enable', 'notchecked');
-        $mform->disabledIf('archivequizdata', 'deletequizdata', 'notchecked');
         $mform->disabledIf('archivescormdata', 'enable', 'notchecked');
+        $mform->disabledIf('assignextraattempt', 'enable', 'notchecked');
+        $mform->disabledIf('archivequizdata', 'deletequizdata', 'notchecked');
         $mform->disabledIf('archivescormdata', 'deletescormdata', 'notchecked');
-
-
 
         // Add common action buttons.
         $this->add_action_buttons();
