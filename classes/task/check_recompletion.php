@@ -107,6 +107,7 @@ class check_recompletion extends \core\task\scheduled_task {
             // Archive and delete specific activity data.
             $this->reset_quiz($user, $config);
             $this->reset_scorm($user, $config);
+            $this->reset_assign($user, $config);
 
             // Now notify user.
             $this->notify_user($user, $config, $course);
@@ -137,7 +138,8 @@ class check_recompletion extends \core\task\scheduled_task {
 
     /**
      * Reset and archive completion records
-     * @param \stdclass $user - record with user information for recompletion
+     * @param \stdClass $user - record with user information for recompletion
+     * @param \stdClass $config - recompletion config.
      */
     protected function reset_completions($user, $config) {
         global $DB;
@@ -167,30 +169,31 @@ class check_recompletion extends \core\task\scheduled_task {
     /**
      * Reset and archive scorm records.
      * @param \stdclass $user - record with user information for recompletion
+     * @param \stdClass $config - recompletion config.
      */
     protected function reset_scorm($user, $config) {
         global $DB;
 
-        if (empty($config->deletescormdata)) {
-            return;
-        }
-        $params = array('userid' => $user->userid, 'course' => $user->course);
-        $selectsql = 'userid = ? AND scormid IN (SELECT id FROM {scorm} WHERE course = ?)';
-        if ($config->archivescormdata) {
-            $scormscoestrack = $DB->get_records_select('scorm_scoes_track', $selectsql, $params);
-            foreach ($scormscoestrack as $sid => $unused) {
-                // Add courseid to records to help with restore process.
-                $scormscoestrack[$sid]->course = $user->course;
+        if ($config->scormdata == LOCAL_RECOMPLETION_DELETE) {
+            $params = array('userid' => $user->userid, 'course' => $user->course);
+            $selectsql = 'userid = ? AND scormid IN (SELECT id FROM {scorm} WHERE course = ?)';
+            if ($config->archivescormdata) {
+                $scormscoestrack = $DB->get_records_select('scorm_scoes_track', $selectsql, $params);
+                foreach ($scormscoestrack as $sid => $unused) {
+                    // Add courseid to records to help with restore process.
+                    $scormscoestrack[$sid]->course = $user->course;
+                }
+                $DB->insert_records('local_recompletion_sst', $scormscoestrack);
             }
-            $DB->insert_records('local_recompletion_sst', $scormscoestrack);
+            $DB->delete_records_select('scorm_scoes_track', $selectsql, $params);
+            $DB->delete_records_select('scorm_aicc_session', $selectsql, $params);
         }
-        $DB->delete_records_select('scorm_scoes_track', $selectsql, $params);
-        $DB->delete_records_select('scorm_aicc_session', $selectsql, $params);
     }
 
     /**
      * Reset and archive quiz records.
      * @param \stdclass $user - record with user information for recompletion
+     * @param \stdClass $config - recompletion config.
      */
     protected function reset_quiz($user, $config) {
         global $DB;
@@ -276,9 +279,21 @@ class check_recompletion extends \core\task\scheduled_task {
     }
 
     /**
+     * Reset assign records.
+     * @param \stdclass $user - record with user information for recompletion
+     * @param \stdClass $config - recompletion config.
+     */
+    protected function reset_assign($user, $config) {
+        if ($config->assigndata == LOCAL_RECOMPLETION_EXTRAATTEMPT) {
+            // TODO: Handle Assignment new attempts.
+        }
+    }
+
+    /**
      * Notify user of recompletion.
      * @param \stdclass $user - record with user information for recompletion
-     * @param \sdclass $course - record from course table.
+     * @param \stdClass $config - recompletion config.
+     * @param \stdclass $course - record from course table.
      */
     protected function notify_user($user, $config, $course) {
         global $DB, $CFG;
