@@ -23,6 +23,7 @@
  */
 
 require_once(__DIR__.'/../../config.php');
+require_once($CFG->dirroot.'/local/recompletion/locallib.php');
 require_once($CFG->dirroot.'/course/lib.php');
 require_once($CFG->libdir.'/completionlib.php');
 require_once($CFG->libdir.'/formslib.php');
@@ -66,9 +67,9 @@ $PAGE->set_pagelayout('admin');
 $config = $DB->get_records_menu('local_recompletion_config', array('course' => $course->id), '', 'name, value');
 $idmap =  $DB->get_records_menu('local_recompletion_config', array('course' => $course->id), '', 'name, id');
 
-$setnames = array('enable', 'recompletionduration', 'deletegradedata', 'deletequizdata', 'deletescormdata', 'archivecompletiondata',
+$setnames = array('enable', 'recompletionduration', 'deletegradedata', 'quizdata', 'deletescormdata', 'archivecompletiondata',
     'archivequizdata', 'archivescormdata', 'recompletionemailenable', 'recompletionemailsubject', 'recompletionemailbody',
-    'assignextraattempt');
+    'assignextraattempt', 'quizextraattempt');
 
 // Create the settings form instance.
 $form = new local_recompletion_recompletion_form('recompletion.php?id='.$id, array('course' => $course));

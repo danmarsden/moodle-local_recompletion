@@ -50,6 +50,7 @@ class check_recompletion extends \core\task\scheduled_task {
     public function execute() {
         global $CFG, $DB;
         require_once($CFG->dirroot . '/course/lib.php');
+        require_once($CFG->dirroot . '/local/recompletion/locallib.php');
         require_once($CFG->libdir . '/completionlib.php');
         require_once($CFG->libdir.'/gradelib.php');
 
@@ -194,28 +195,29 @@ class check_recompletion extends \core\task\scheduled_task {
     protected function reset_quiz($user, $config) {
         global $DB;
 
-        if (empty($config->deletequizdata)) {
-            return;
-        }
-        $params = array('userid' => $user->userid, 'course' => $user->course);
-        $selectsql = 'userid = ? AND quiz IN (SELECT id FROM {quiz} WHERE course = ?)';
-        if ($config->archivequizdata) {
-            $quizattempts = $DB->get_records_select('quiz_attempts', $selectsql, $params);
-            foreach ($quizattempts as $qid => $unused) {
-                // Add courseid to records to help with restore process.
-                $quizattempts[$qid]->course = $user->course;
-            }
-            $DB->insert_records('local_recompletion_qa', $quizattempts);
+        if ($config->quizdata == LOCAL_RECOMPLETION_DELETE) {
+            $params = array('userid' => $user->userid, 'course' => $user->course);
+            $selectsql = 'userid = ? AND quiz IN (SELECT id FROM {quiz} WHERE course = ?)';
+            if ($config->archivequizdata) {
+                $quizattempts = $DB->get_records_select('quiz_attempts', $selectsql, $params);
+                foreach ($quizattempts as $qid => $unused) {
+                    // Add courseid to records to help with restore process.
+                    $quizattempts[$qid]->course = $user->course;
+                }
+                $DB->insert_records('local_recompletion_qa', $quizattempts);
 
-            $quizgrades = $DB->get_records_select('quiz_grades', $selectsql, $params);
-            foreach ($quizgrades as $qid => $unused) {
-                // Add courseid to records to help with restore process.
-                $quizgrades[$qid]->course = $user->course;
+                $quizgrades = $DB->get_records_select('quiz_grades', $selectsql, $params);
+                foreach ($quizgrades as $qid => $unused) {
+                    // Add courseid to records to help with restore process.
+                    $quizgrades[$qid]->course = $user->course;
+                }
+                $DB->insert_records('local_recompletion_qg', $quizgrades);
             }
-            $DB->insert_records('local_recompletion_qg', $quizgrades);
+            $DB->delete_records_select('quiz_attempts', $selectsql, $params);
+            $DB->delete_records_select('quiz_grades', $selectsql, $params);
+        } else if ($config->quizdata == LOCAL_RECOMPLETION_EXTRAATTEMPT) {
+
         }
-        $DB->delete_records_select('quiz_attempts', $selectsql, $params);
-        $DB->delete_records_select('quiz_grades', $selectsql, $params);
     }
 
     /**

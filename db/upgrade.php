@@ -284,7 +284,7 @@ function xmldb_local_recompletion_upgrade($oldversion) {
                 'name' => 'deletegradedata',
                 'value' => $r->deletegradedata);
             $newrecords[] = array('course' => $r->course,
-                'name' => 'deletequizdata',
+                'name' => 'quizdata',
                 'value' => $r->deletequizdata);
             $newrecords[] = array('course' => $r->course,
                 'name' => 'deletescormdata',
