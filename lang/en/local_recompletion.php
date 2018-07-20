@@ -63,9 +63,10 @@ $string['emailrecompletiontitle'] = 'Custom recompletion message settings';
 $string['eventrecompletion'] = 'Course recompletion';
 $string['assignattempts'] = 'Assign attempts';
 $string['assignattempts_help'] = 'How to handle assignment attempts within the course.';
-$string['extraattempt'] = 'Give student extra attempt';
+$string['extraattempt'] = 'Give student extra attempt/s';
 $string['quizattempts'] = 'Quiz attempts';
-$string['quizattempts_help'] = 'Should existing Quiz attempts be deleted - if archive is selected, the old quiz attempts will be archived in the local_recompletion tables.';
+$string['quizattempts_help'] = 'What to do with existing Quiz attempts. If delete and archive is selected, the old quiz attempts will be archived in the local_recompletion tables,
+ if set to give extra attempts this will add a quiz override to allow the user to have the maximum number of allowed attempts set.';
 $string['scormattempts'] = 'SCORM attempts';
 $string['scormattempts_help'] = 'Should existing SCORM attempts be deleted - if archive is selected, the old SCORM attempts will be archived in the local_recompletion_sst table.';
 $string['archive'] = 'Archive old attempts';

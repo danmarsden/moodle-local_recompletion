@@ -216,7 +216,62 @@ class check_recompletion extends \core\task\scheduled_task {
             $DB->delete_records_select('quiz_attempts', $selectsql, $params);
             $DB->delete_records_select('quiz_grades', $selectsql, $params);
         } else if ($config->quizdata == LOCAL_RECOMPLETION_EXTRAATTEMPT) {
+            // Get all quizzes that do not have unlimited attempts and have existing data for this user.
+            $sql = "SELECT DISTINCT q.*
+                      FROM {quiz} q
+                      JOIN {quiz_attempts} qa ON q.id = qa.quiz
+                     WHERE q.attempts > 0 AND q.course = ? AND qa.userid = ?";
+            $quizzes = $DB->get_recordset_sql( $sql, array($user->course, $user->userid));
+            foreach ($quizzes as $quiz) {
+                // Get number of this users attempts.
+                $attempts = quiz_get_user_attempts($quiz->id, $user->userid);
+                $countattempts = count($attempts);
 
+                // Allow the user to have the same number of attempts at this quiz as they initially did.
+                // EG if they can have 2 attempts, and they have 1 attempt already, allow them to have 2 more attempts.
+                $nowallowed = $countattempts + $quiz->attempts;
+
+                // Get stuff needed for the events.
+                $cm = get_coursemodule_from_instance('quiz', $quiz->id);
+                $context = \context_module::instance($cm->id);
+
+                $eventparams = array(
+                    'context' => $context,
+                    'other' => array(
+                        'quizid' => $quiz->id
+                    ),
+                    'relateduserid' => $user->userid
+                );
+
+                $conditions = array(
+                    'quiz' => $quiz->id,
+                    'userid' => $user->userid);
+                if ($oldoverride = $DB->get_record('quiz_overrides', $conditions)) {
+                    if ($oldoverride->attempts < $nowallowed) {
+                        $oldoverride->attempts = $nowallowed;
+                        $DB->update_record('quiz_overrides', $oldoverride);
+                        $eventparams['objectid'] = $oldoverride->id;
+                        $event = \mod_quiz\event\user_override_updated::create($eventparams);
+                        $event->trigger();
+                    }
+                } else {
+                    $data = new \stdClass();
+                    $data->attempts = $nowallowed;
+                    $data->quiz = $quiz->id;
+                    $data->userid = $user->userid;
+                    // Merge quiz defaults with data.
+                    $keys = array('timeopen', 'timeclose', 'timelimit', 'password');
+                    foreach ($keys as $key) {
+                        if (!isset($data->{$key})) {
+                            $data->{$key} = $quiz->{$key};
+                        }
+                    }
+                    $newid = $DB->insert_record('quiz_overrides', $data);
+                    $eventparams['objectid'] = $newid;
+                    $event = \mod_quiz\event\user_override_created::create($eventparams);
+                    $event->trigger();
+                }
+            }
         }
     }
 
