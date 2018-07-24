@@ -46,9 +46,8 @@ class backup_local_recompletion_plugin extends backup_local_plugin {
         $plugin = $this->get_plugin_element();
         $recompletion = new backup_nested_element($this->get_recommended_name());
 
-        $recompletiondata = new backup_nested_element('recompletion', null, array(
-            'enable', 'recompletionduration', 'deletegradedata', 'deletequizdata', 'deletescormdata', 'archivecompletiondata',
-            'archivequizdata', 'archivescormdata', 'recompletionemailenable', 'recompletionemailsubject', 'recompletionemailbody'));
+        $recompletiondata = new backup_nested_element('recompletion_config', null, array(
+            'course', 'name', 'value'));
 
         // Handle Historical course completions.
         $cc = new backup_nested_element('course_completion');
@@ -79,7 +78,7 @@ class backup_local_recompletion_plugin extends backup_local_plugin {
         $completions->add_child($completion);
 
         // Set source to populate the data.
-        $recompletiondata->set_source_table('local_recompletion', array(
+        $recompletiondata->set_source_table('local_recompletion_config', array(
             'course' => backup::VAR_PARENTID));
 
         // Only include the archive info if usercompletion is also being saved to backup.

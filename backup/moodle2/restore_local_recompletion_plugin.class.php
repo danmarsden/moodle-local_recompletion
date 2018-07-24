@@ -41,7 +41,7 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
         $paths = array();
 
         $elepath = $this->get_pathfor('/');
-        $paths[] = new restore_path_element('recompletion', $elepath.'/recompletion');
+        $paths[] = new restore_path_element('recompletion', $elepath.'/recompletion_config');
         $paths[] = new restore_path_element('recompletion_cc', $elepath.'/course_completion/coursecompletion');
         $paths[] = new restore_path_element('recompletion_cc_cc',
             $elepath.'/course_completion/course_completion_crit_completions/course_completion_crit_compl');
@@ -63,7 +63,7 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
         $data = (object) $data;
         $data->course = $this->task->get_courseid();
 
-        $DB->insert_record('local_recompletion', $data);
+        $DB->insert_record('local_recompletion_config', $data);
     }
 
     /**

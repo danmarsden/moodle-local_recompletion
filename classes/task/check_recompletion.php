@@ -50,31 +50,50 @@ class check_recompletion extends \core\task\scheduled_task {
     public function execute() {
         global $CFG, $DB;
         require_once($CFG->dirroot . '/course/lib.php');
+        require_once($CFG->dirroot . '/local/recompletion/locallib.php');
         require_once($CFG->libdir . '/completionlib.php');
         require_once($CFG->libdir.'/gradelib.php');
+        require_once($CFG->dirroot . '/mod/assign/locallib.php');
 
         if (!\completion_info::is_enabled_for_site()) {
             return;
         }
-        $sql = 'SELECT cc.userid, cc.course, r.id as rid, r.archivecompletiondata,
-            r.deletegradedata,
-            r.deletequizdata, r.archivequizdata,
-            r.deletescormdata, r.archivescormdata,
-            r.recompletionemailenable, r.recompletionemailsubject, r.recompletionemailbody
+
+        $sql = "SELECT cc.userid, cc.course
             FROM {course_completions} cc
-            JOIN {local_recompletion} r ON r.course = cc.course AND r.enable = 1
+            JOIN {local_recompletion_config} r ON r.course = cc.course AND r.name = 'enable' AND r.value = '1'
+            JOIN {local_recompletion_config} r2 ON r2.course = cc.course AND r2.name = 'recompletionduration'
             JOIN {course} c ON c.id = cc.course
-            WHERE c.enablecompletion = '.COMPLETION_ENABLED.' AND
-            (cc.timecompleted + r.recompletionduration) < ?';
+            WHERE c.enablecompletion = ".COMPLETION_ENABLED." AND cc.timecompleted > 0 AND
+            (cc.timecompleted + ".$DB->sql_cast_char2int('r2.value').") < ?";
         $users = $DB->get_recordset_sql($sql, array(time()));
         $courses = array();
+        $configs = array();
         $clearcache = false;
         foreach ($users as $user) {
+            if (!isset($courses[$user->course])) {
+                // Only get the course record for this course once.
+                $course = get_course($user->course);
+                $courses[$user->course] = $course;
+            } else {
+                $course = $courses[$user->course];
+            }
+
+            // Get recompletion config.
+            if (!isset($configs[$user->course])) {
+                // Only get the recompletion config record for this course once.
+                $config = $DB->get_records_menu('local_recompletion_config', array('course' => $course->id), '', 'name, value');
+                $config = (object) $config;
+                $configs[$user->course] = $config;
+            } else {
+                $config = $configs[$user->course];
+            }
+
             // Archive and delete course completion.
-            $this->reset_completions($user);
+            $this->reset_completions($user->userid, $course, $config);
 
             // Delete current grade information.
-            if ($user->deletegradedata) {
+            if ($config->deletegradedata) {
                 if ($items = \grade_item::fetch_all(array('courseid' => $user->course))) {
                     foreach ($items as $item) {
                         if ($grades = \grade_grade::fetch_all(array('userid' => $user->userid, 'itemid' => $item->id))) {
@@ -87,26 +106,18 @@ class check_recompletion extends \core\task\scheduled_task {
             }
 
             // Archive and delete specific activity data.
-            $this->reset_quiz($user);
-            $this->reset_scorm($user);
+            $this->reset_quiz($user->userid, $course, $config);
+            $this->reset_scorm($user->userid, $course, $config);
+            $this->reset_assign($user->userid, $course, $config);
 
             // Now notify user.
-            if ($user->recompletionemailenable) {
-                if (!isset($courses[$user->course])) {
-                    // Only get the course record for this course once.
-                    $course = get_course($user->course);
-                    $courses[$user->course] = $course;
-                } else {
-                    $course = $courses[$user->course];
-                }
-                $this->notify_user($user, $course);
-            }
+            $this->notify_user($user->userid, $course, $config);
 
             // Trigger completion reset event for this user.
             $context = \context_course::instance($user->course);
             $event = \local_recompletion\event\completion_reset::create(
                 array(
-                    'objectid'      => $user->rid,
+                    'objectid'      => $user->course,
                     'relateduserid' => $user->userid,
                     'courseid' => $user->course,
                     'context' => $context,
@@ -128,12 +139,14 @@ class check_recompletion extends \core\task\scheduled_task {
 
     /**
      * Reset and archive completion records
-     * @param \stdclass $user - record with user information for recompletion
+     * @param \int $userid - user id
+     * @param \stdClass $course - course record.
+     * @param \stdClass $config - recompletion config.
      */
-    protected function reset_completions($user) {
+    protected function reset_completions($userid, $course, $config) {
         global $DB;
-        $params = array('userid' => $user->userid, 'course' => $user->course);
-        if ($user->archivecompletiondata) {
+        $params = array('userid' => $userid, 'course' => $course->id);
+        if ($config->archivecompletiondata) {
             $coursecompletions = $DB->get_records('course_completions', $params);
             $DB->insert_records('local_recompletion_cc', $coursecompletions);
             $criteriacompletions = $DB->get_records('course_completion_crit_compl', $params);
@@ -144,11 +157,11 @@ class check_recompletion extends \core\task\scheduled_task {
 
         // Archive and delete all activity completions.
         $selectsql = 'userid = ? AND coursemoduleid IN (SELECT id FROM {course_modules} WHERE course = ?)';
-        if ($user->archivecompletiondata) {
+        if ($config->archivecompletiondata) {
             $cmc = $DB->get_records_select('course_modules_completion', $selectsql, $params);
             foreach ($cmc as $cid => $unused) {
                 // Add courseid to records to help with restore process.
-                $cmc[$cid]->course = $user->course;
+                $cmc[$cid]->course = $course->id;
             }
             $DB->insert_records('local_recompletion_cmc', $cmc);
         }
@@ -157,76 +170,171 @@ class check_recompletion extends \core\task\scheduled_task {
 
     /**
      * Reset and archive scorm records.
-     * @param \stdclass $user - record with user information for recompletion
+     * @param \stdclass $userid - user id
+     * @param \stdClass $course - course record.
+     * @param \stdClass $config - recompletion config.
      */
-    protected function reset_scorm($user) {
+    protected function reset_scorm($userid, $course, $config) {
         global $DB;
 
-        if (empty($user->deletescormdata)) {
+        if (empty($config->scormdata)) {
             return;
-        }
-        $params = array('userid' => $user->userid, 'course' => $user->course);
-        $selectsql = 'userid = ? AND scormid IN (SELECT id FROM {scorm} WHERE course = ?)';
-        if ($user->archivescormdata) {
-            $scormscoestrack = $DB->get_records_select('scorm_scoes_track', $selectsql, $params);
-            foreach ($scormscoestrack as $sid => $unused) {
-                // Add courseid to records to help with restore process.
-                $scormscoestrack[$sid]->course = $user->course;
+        } else if ($config->scormdata == LOCAL_RECOMPLETION_DELETE) {
+            $params = array('userid' => $userid, 'course' => $course->id);
+            $selectsql = 'userid = ? AND scormid IN (SELECT id FROM {scorm} WHERE course = ?)';
+            if ($config->archivescormdata) {
+                $scormscoestrack = $DB->get_records_select('scorm_scoes_track', $selectsql, $params);
+                foreach ($scormscoestrack as $sid => $unused) {
+                    // Add courseid to records to help with restore process.
+                    $scormscoestrack[$sid]->course = $course->id;
+                }
+                $DB->insert_records('local_recompletion_sst', $scormscoestrack);
             }
-            $DB->insert_records('local_recompletion_sst', $scormscoestrack);
+            $DB->delete_records_select('scorm_scoes_track', $selectsql, $params);
+            $DB->delete_records_select('scorm_aicc_session', $selectsql, $params);
         }
-        $DB->delete_records_select('scorm_scoes_track', $selectsql, $params);
-        $DB->delete_records_select('scorm_aicc_session', $selectsql, $params);
     }
 
     /**
      * Reset and archive quiz records.
-     * @param \stdclass $user - record with user information for recompletion
+     * @param \int $userid - userid
+     * @param \stdclass $course - course record.
+     * @param \stdClass $config - recompletion config.
      */
-    protected function reset_quiz($user) {
+    protected function reset_quiz($userid, $course, $config) {
         global $DB;
-
-        if (empty($user->deletequizdata)) {
+        if (empty($config->quizdata)) {
             return;
-        }
-        $params = array('userid' => $user->userid, 'course' => $user->course);
-        $selectsql = 'userid = ? AND quiz IN (SELECT id FROM {quiz} WHERE course = ?)';
-        if ($user->archivequizdata) {
-            $quizattempts = $DB->get_records_select('quiz_attempts', $selectsql, $params);
-            foreach ($quizattempts as $qid => $unused) {
-                // Add courseid to records to help with restore process.
-                $quizattempts[$qid]->course = $user->course;
-            }
-            $DB->insert_records('local_recompletion_qa', $quizattempts);
+        } else if ($config->quizdata == LOCAL_RECOMPLETION_DELETE) {
+            $params = array('userid' => $userid, 'course' => $course->id);
+            $selectsql = 'userid = ? AND quiz IN (SELECT id FROM {quiz} WHERE course = ?)';
+            if ($config->archivequizdata) {
+                $quizattempts = $DB->get_records_select('quiz_attempts', $selectsql, $params);
+                foreach ($quizattempts as $qid => $unused) {
+                    // Add courseid to records to help with restore process.
+                    $quizattempts[$qid]->course = $course->id;
+                }
+                $DB->insert_records('local_recompletion_qa', $quizattempts);
 
-            $quizgrades = $DB->get_records_select('quiz_grades', $selectsql, $params);
-            foreach ($quizgrades as $qid => $unused) {
-                // Add courseid to records to help with restore process.
-                $quizgrades[$qid]->course = $user->course;
+                $quizgrades = $DB->get_records_select('quiz_grades', $selectsql, $params);
+                foreach ($quizgrades as $qid => $unused) {
+                    // Add courseid to records to help with restore process.
+                    $quizgrades[$qid]->course = $course->id;
+                }
+                $DB->insert_records('local_recompletion_qg', $quizgrades);
             }
-            $DB->insert_records('local_recompletion_qg', $quizgrades);
+            $DB->delete_records_select('quiz_attempts', $selectsql, $params);
+            $DB->delete_records_select('quiz_grades', $selectsql, $params);
+        } else if ($config->quizdata == LOCAL_RECOMPLETION_EXTRAATTEMPT) {
+            // Get all quizzes that do not have unlimited attempts and have existing data for this user.
+            $sql = "SELECT DISTINCT q.*
+                      FROM {quiz} q
+                      JOIN {quiz_attempts} qa ON q.id = qa.quiz
+                     WHERE q.attempts > 0 AND q.course = ? AND qa.userid = ?";
+            $quizzes = $DB->get_recordset_sql( $sql, array($course->id, $userid));
+            foreach ($quizzes as $quiz) {
+                // Get number of this users attempts.
+                $attempts = quiz_get_user_attempts($quiz->id, $userid);
+                $countattempts = count($attempts);
+
+                // Allow the user to have the same number of attempts at this quiz as they initially did.
+                // EG if they can have 2 attempts, and they have 1 attempt already, allow them to have 2 more attempts.
+                $nowallowed = $countattempts + $quiz->attempts;
+
+                // Get stuff needed for the events.
+                $cm = get_coursemodule_from_instance('quiz', $quiz->id);
+                $context = \context_module::instance($cm->id);
+
+                $eventparams = array(
+                    'context' => $context,
+                    'other' => array(
+                        'quizid' => $quiz->id
+                    ),
+                    'relateduserid' => $userid
+                );
+
+                $conditions = array(
+                    'quiz' => $quiz->id,
+                    'userid' => $userid);
+                if ($oldoverride = $DB->get_record('quiz_overrides', $conditions)) {
+                    if ($oldoverride->attempts < $nowallowed) {
+                        $oldoverride->attempts = $nowallowed;
+                        $DB->update_record('quiz_overrides', $oldoverride);
+                        $eventparams['objectid'] = $oldoverride->id;
+                        $event = \mod_quiz\event\user_override_updated::create($eventparams);
+                        $event->trigger();
+                    }
+                } else {
+                    $data = new \stdClass();
+                    $data->attempts = $nowallowed;
+                    $data->quiz = $quiz->id;
+                    $data->userid = $userid;
+                    // Merge quiz defaults with data.
+                    $keys = array('timeopen', 'timeclose', 'timelimit', 'password');
+                    foreach ($keys as $key) {
+                        if (!isset($data->{$key})) {
+                            $data->{$key} = $quiz->{$key};
+                        }
+                    }
+                    $newid = $DB->insert_record('quiz_overrides', $data);
+                    $eventparams['objectid'] = $newid;
+                    $event = \mod_quiz\event\user_override_created::create($eventparams);
+                    $event->trigger();
+                }
+            }
         }
-        $DB->delete_records_select('quiz_attempts', $selectsql, $params);
-        $DB->delete_records_select('quiz_grades', $selectsql, $params);
+    }
+
+    /**
+     * Reset assign records.
+     * @param \int $userid - record with user information for recompletion
+     * @param \stdClass $course - course record.
+     * @param \stdClass $config - recompletion config.
+     */
+    protected function reset_assign($userid, $course, $config) {
+        global $DB;
+        if (empty($config->assigndata)) {
+            return;
+        } else if ($config->assigndata == LOCAL_RECOMPLETION_EXTRAATTEMPT) {
+            $sql = "SELECT DISTINCT a.*
+                      FROM {assign} a
+                      JOIN {assign_submission} s ON a.id = s.assignment
+                     WHERE a.course = ? AND s.userid = ?";
+            $assigns = $DB->get_recordset_sql( $sql, array($course->id, $userid));
+            foreach ($assigns as $assign) {
+                $cm = get_coursemodule_from_instance('assign', $assign->id);
+                $context = \context_module::instance($cm->id);
+
+                // Assign add_attempt() is protected - use reflection so we don't have to write our own.
+                $r = new \ReflectionMethod('assign', 'add_attempt');
+                $r->setAccessible(true);
+                $r->invoke(new \assign($context, $cm, $course), $userid);
+            }
+        }
     }
 
     /**
      * Notify user of recompletion.
-     * @param \stdclass $user - record with user information for recompletion
-     * @param \sdclass $course - record from course table.
+     * @param \int $userid - user id
+     * @param \stdclass $course - record from course table.
+     * @param \stdClass $config - recompletion config.
      */
-    protected function notify_user($user, $course) {
+    protected function notify_user($userid, $course, $config) {
         global $DB, $CFG;
 
-        $userrecord = $DB->get_record('user', array('id' => $user->userid));
+        if (!$config->recompletionemailenable) {
+            return;
+        }
+
+        $userrecord = $DB->get_record('user', array('id' => $userid));
         $context = \context_course::instance($course->id);
         $from = get_admin();
         $a = new \stdClass();
         $a->coursename = format_string($course->fullname, true, array('context' => $context));
         $a->profileurl = "$CFG->wwwroot/user/view.php?id=$userrecord->id&course=$course->id";
         $a->link = course_get_url($course)->out();
-        if (trim($user->recompletionemailbody) !== '') {
-            $message = $user->recompletionemailbody;
+        if (trim($config->recompletionemailbody) !== '') {
+            $message = $config->recompletionemailbody;
             $key = array('{$a->coursename}', '{$a->profileurl}', '{$a->link}', '{$a->fullname}', '{$a->email}');
             $value = array($a->coursename, $a->profileurl, $a->link, fullname($userrecord), $userrecord->email);
             $message = str_replace($key, $value, $message);
@@ -244,8 +352,8 @@ class check_recompletion extends \core\task\scheduled_task {
             $messagetext = get_string('recompletionemaildefaultbody', 'local_recompletion', $a);
             $messagehtml = text_to_html($messagetext, null, false, true);
         }
-        if (trim($user->recompletionemailsubject) !== '') {
-            $subject = $user->recompletionemailsubject;
+        if (trim($config->recompletionemailsubject) !== '') {
+            $subject = $config->recompletionemailsubject;
             $keysub = array('{$a->coursename}', '{$a->fullname}');
             $valuesub = array($a->coursename, fullname($userrecord));
             $subject = str_replace($keysub, $valuesub, $subject);

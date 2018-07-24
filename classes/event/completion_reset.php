@@ -45,7 +45,7 @@ class completion_reset extends \core\event\base {
      * @return void
      */
     protected function init() {
-        $this->data['objecttable'] = 'local_recompletion';
+        $this->data['objecttable'] = 'local_recompletion_config';
         $this->data['crud'] = 'd';
         $this->data['edulevel'] = self::LEVEL_PARTICIPATING;
     }

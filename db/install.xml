@@ -1,29 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="local/recompletion/db" VERSION="20180116" COMMENT="XMLDB file for Moodle local/recompletion"
+<XMLDB PATH="local/recompletion/db" VERSION="20180719" COMMENT="XMLDB file for Moodle local/recompletion"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
   <TABLES>
-    <TABLE NAME="local_recompletion" COMMENT="recompletion settings">
-      <FIELDS>
-        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Course id"/>
-        <FIELD NAME="enable" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Enable recompletion for this course"/>
-        <FIELD NAME="recompletionduration" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Duration for recompletion"/>
-        <FIELD NAME="deletegradedata" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Delete current grade data for this course"/>
-        <FIELD NAME="deletequizdata" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Delete quiz data for this course"/>
-        <FIELD NAME="deletescormdata" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Delete scorm data for this course"/>
-        <FIELD NAME="archivecompletiondata" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Archive completion data for this course"/>
-        <FIELD NAME="archivequizdata" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Archive quiz data for this course"/>
-        <FIELD NAME="archivescormdata" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Archive scorm data for this course"/>
-        <FIELD NAME="recompletionemailenable" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Enable recompletion email message for this course"/>
-        <FIELD NAME="recompletionemailsubject" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Recompletion message subject"/>
-        <FIELD NAME="recompletionemailbody" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Recompletion message body"/>
-      </FIELDS>
-      <KEYS>
-        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-      </KEYS>
-    </TABLE>
     <TABLE NAME="local_recompletion_cc" COMMENT="archive of course_completions table">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
@@ -148,6 +128,20 @@
       <INDEXES>
         <INDEX NAME="userid" UNIQUE="false" FIELDS="userid"/>
         <INDEX NAME="element" UNIQUE="false" FIELDS="element"/>
+        <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_recompletion_config" COMMENT="Configuration for recompletion.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Course id"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="100" NOTNULL="true" SEQUENCE="false" COMMENT="Name of config value"/>
+        <FIELD NAME="value" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Value of config"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
         <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
       </INDEXES>
     </TABLE>

@@ -15,17 +15,17 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details.
+ * Local functions and constants for recompletion plugin.
  *
  * @package    local_recompletion
- * @copyright  2017 Dan Marsden
+ * @copyright  2018 Catalyst IT
+ * @author     Dan Marsden
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version   = 2018072400;
-$plugin->release   = '1.5';
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->requires  = 2017102700; // Requires 3.4.
-$plugin->component = 'local_recompletion';
+// Used by settings to decide if attempts should be deleted or an extra attempt allowed.
+define('LOCAL_RECOMPLETION_NOTHING', 0);
+define('LOCAL_RECOMPLETION_DELETE', 1);
+define('LOCAL_RECOMPLETION_EXTRAATTEMPT', 2);
