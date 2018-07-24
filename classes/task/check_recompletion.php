@@ -53,6 +53,7 @@ class check_recompletion extends \core\task\scheduled_task {
         require_once($CFG->dirroot . '/local/recompletion/locallib.php');
         require_once($CFG->libdir . '/completionlib.php');
         require_once($CFG->libdir.'/gradelib.php');
+        require_once($CFG->dirroot . '/mod/assign/locallib.php');
 
         if (!\completion_info::is_enabled_for_site()) {
             return;
@@ -107,7 +108,7 @@ class check_recompletion extends \core\task\scheduled_task {
             // Archive and delete specific activity data.
             $this->reset_quiz($user, $config);
             $this->reset_scorm($user, $config);
-            $this->reset_assign($user, $config);
+            $this->reset_assign($user, $config, $course);
 
             // Now notify user.
             $this->notify_user($user, $config, $course);
@@ -174,7 +175,9 @@ class check_recompletion extends \core\task\scheduled_task {
     protected function reset_scorm($user, $config) {
         global $DB;
 
-        if ($config->scormdata == LOCAL_RECOMPLETION_DELETE) {
+        if (empty($config->scormdata)) {
+            return;
+        } else if ($config->scormdata == LOCAL_RECOMPLETION_DELETE) {
             $params = array('userid' => $user->userid, 'course' => $user->course);
             $selectsql = 'userid = ? AND scormid IN (SELECT id FROM {scorm} WHERE course = ?)';
             if ($config->archivescormdata) {
@@ -197,8 +200,9 @@ class check_recompletion extends \core\task\scheduled_task {
      */
     protected function reset_quiz($user, $config) {
         global $DB;
-
-        if ($config->quizdata == LOCAL_RECOMPLETION_DELETE) {
+        if (empty($config->quizdata)) {
+            return;
+        } else if ($config->quizdata == LOCAL_RECOMPLETION_DELETE) {
             $params = array('userid' => $user->userid, 'course' => $user->course);
             $selectsql = 'userid = ? AND quiz IN (SELECT id FROM {quiz} WHERE course = ?)';
             if ($config->archivequizdata) {
@@ -283,9 +287,25 @@ class check_recompletion extends \core\task\scheduled_task {
      * @param \stdclass $user - record with user information for recompletion
      * @param \stdClass $config - recompletion config.
      */
-    protected function reset_assign($user, $config) {
-        if ($config->assigndata == LOCAL_RECOMPLETION_EXTRAATTEMPT) {
-            // TODO: Handle Assignment new attempts.
+    protected function reset_assign($user, $config, $course) {
+        global $DB;
+        if (empty($config->assigndata)) {
+            return;
+        } else if ($config->assigndata == LOCAL_RECOMPLETION_EXTRAATTEMPT) {
+            $sql = "SELECT DISTINCT a.*
+                      FROM {assign} a
+                      JOIN {assign_submission} s ON a.id = s.assignment
+                     WHERE a.course = ? AND s.userid = ?";
+            $assigns = $DB->get_recordset_sql( $sql, array($user->course, $user->userid));
+            foreach ($assigns as $assign) {
+                $cm = get_coursemodule_from_instance('assign', $assign->id);
+                $context = \context_module::instance($cm->id);
+
+                // Assign add_attempt() is protected - use reflection so we don't have to write our own.
+                $r = new \ReflectionMethod('assign', 'add_attempt');
+                $r->setAccessible(true);
+                $r->invoke(new \assign($context, $cm, $course), $user->userid);
+            }
         }
     }
 
