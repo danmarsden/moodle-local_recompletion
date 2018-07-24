@@ -65,7 +65,7 @@ $PAGE->set_pagelayout('admin');
 
 // This seems a bit messy - would be nice to tidy this up a bit.
 $config = $DB->get_records_menu('local_recompletion_config', array('course' => $course->id), '', 'name, value');
-$idmap =  $DB->get_records_menu('local_recompletion_config', array('course' => $course->id), '', 'name, id');
+$idmap = $DB->get_records_menu('local_recompletion_config', array('course' => $course->id), '', 'name, id');
 
 $setnames = array('enable', 'recompletionduration', 'deletegradedata', 'quizdata', 'scormdata', 'archivecompletiondata',
     'archivequizdata', 'archivescormdata', 'recompletionemailenable', 'recompletionemailsubject', 'recompletionemailbody',
