@@ -310,6 +310,22 @@ class check_recompletion extends \core\task\scheduled_task {
                 $r->setAccessible(true);
                 $r->invoke(new \assign($context, $cm, $course), $userid);
             }
+            // Now check for assignments that do not have any submission types and remove the internal grade.
+        }
+        if ($config->deletegradedata) {
+            // Delete any of the existing grades from mod_assign. (should have been archived in grades_history already.).
+            // This mainly occurs when the assignment is not setup to allow user submissions, as the add_attempt function
+            // already does this for assignments that support multiple attempts.
+            $sql = "SELECT DISTINCT g.*
+                      FROM {assign} a
+                      JOIN {assign_grades} g ON a.id = g.assignment
+                     WHERE a.course = ? AND g.userid = ? AND g.grade <> -1";
+            $assigngrades = $DB->get_recordset_sql( $sql, array($course->id, $userid));
+            foreach ($assigngrades as $assigngrade) {
+                $assigngrade->grade = "-1";
+                $assigngrade->timemodified = time();
+                $DB->update_record('assign_grades', $assigngrade);
+            }
         }
     }
 
