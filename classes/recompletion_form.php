@@ -24,6 +24,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+global $CFG;
+\MoodleQuickForm::registerElementType("period", "$CFG->dirroot/local/recompletion/classes/form/interval.php", "MoodleQuickForm_period");
+
 /**
  * Defines the course completion settings form.
  *
@@ -43,8 +46,8 @@ class local_recompletion_recompletion_form extends moodleform {
         $mform->addElement('checkbox', 'enable', get_string('enablerecompletion', 'local_recompletion'));
         $mform->addHelpButton('enable', 'enablerecompletion', 'local_recompletion');
 
-        $options = array('optional' => false, 'defaultunit' => 86400);
-        $mform->addElement('duration', 'recompletionduration', get_string('recompletionrange', 'local_recompletion'), $options);
+        $options = array('optional' => false, 'defaultunit' => 'Y');
+        $mform->addElement('interval', 'recompletionduration', get_string('recompletionrange', 'local_recompletion'), $options);
         $mform->addHelpButton('recompletionduration', 'recompletionrange', 'local_recompletion');
         $mform->disabledIf('recompletionduration', 'enable', 'notchecked');
         $mform->addElement('checkbox', 'recompletionemailenable', get_string('recompletionemailenable', 'local_recompletion'));

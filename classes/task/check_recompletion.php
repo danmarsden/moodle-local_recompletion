@@ -59,18 +59,26 @@ class check_recompletion extends \core\task\scheduled_task {
             return;
         }
 
-        $sql = "SELECT cc.userid, cc.course
+        $sql = "SELECT cc.userid, cc.course,cc.timecompleted,r2.value as interval_spec
             FROM {course_completions} cc
             JOIN {local_recompletion_config} r ON r.course = cc.course AND r.name = 'enable' AND r.value = '1'
             JOIN {local_recompletion_config} r2 ON r2.course = cc.course AND r2.name = 'recompletionduration'
             JOIN {course} c ON c.id = cc.course
-            WHERE c.enablecompletion = ".COMPLETION_ENABLED." AND cc.timecompleted > 0 AND
-            (cc.timecompleted + ".$DB->sql_cast_char2int('r2.value').") < ?";
-        $users = $DB->get_recordset_sql($sql, array(time()));
+            WHERE c.enablecompletion = ".COMPLETION_ENABLED;
+        $users = $DB->get_recordset_sql($sql);
         $courses = array();
         $configs = array();
         $clearcache = false;
         foreach ($users as $user) {
+
+            // Checks if the user's completion has expired ,if no ,skip it.
+            $comparisondate = new \DateTime();
+            $comparisondate->setTimestamp($user->timecompleted);
+            $comparisondate->add(new \DateInterval($user->interval_spec));
+            if ((time() < $comparisondate->getTimestamp())) {
+                continue;
+            }
+
             if (!isset($courses[$user->course])) {
                 // Only get the course record for this course once.
                 $course = get_course($user->course);
