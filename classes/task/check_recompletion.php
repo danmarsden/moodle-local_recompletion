@@ -88,52 +88,7 @@ class check_recompletion extends \core\task\scheduled_task {
             } else {
                 $config = $configs[$user->course];
             }
-
-            // Archive and delete course completion.
-            $this->reset_completions($user->userid, $course, $config);
-
-            // Delete current grade information.
-            if ($config->deletegradedata) {
-                if ($items = \grade_item::fetch_all(array('courseid' => $user->course))) {
-                    foreach ($items as $item) {
-                        if ($grades = \grade_grade::fetch_all(array('userid' => $user->userid, 'itemid' => $item->id))) {
-                            foreach ($grades as $grade) {
-                                $grade->delete('local_recompletion');
-                            }
-                        }
-                    }
-                }
-            }
-
-            // Archive and delete specific activity data.
-            $this->reset_quiz($user->userid, $course, $config);
-            $this->reset_scorm($user->userid, $course, $config);
-            $this->reset_assign($user->userid, $course, $config);
-
-            // Now notify user.
-            $this->notify_user($user->userid, $course, $config);
-
-            // Trigger completion reset event for this user.
-            $context = \context_course::instance($user->course);
-            $event = \local_recompletion\event\completion_reset::create(
-                array(
-                    'objectid'      => $user->course,
-                    'relateduserid' => $user->userid,
-                    'courseid' => $user->course,
-                    'context' => $context,
-                )
-            );
-            $event->trigger();
-
-            $clearcache = true; // We have made some changes, clear completion cache.
-        }
-        if ($clearcache) {
-            // Difficult to find affected users, just purge all completion cache.
-            \cache::make('core', 'completion')->purge();
-            // Clear coursecompletion cache which was added in Moodle 3.2.
-            if ($CFG->version >= 2016120500) {
-                \cache::make('core', 'coursecompletion')->purge();
-            }
+            $this->reset_user($user->userid, $course, $config);
         }
     }
 
@@ -294,23 +249,31 @@ class check_recompletion extends \core\task\scheduled_task {
     protected function reset_assign($userid, $course, $config) {
         global $DB;
         if (empty($config->assigndata)) {
-            return;
+            return '';
         } else if ($config->assigndata == LOCAL_RECOMPLETION_EXTRAATTEMPT) {
             $sql = "SELECT DISTINCT a.*
                       FROM {assign} a
                       JOIN {assign_submission} s ON a.id = s.assignment
                      WHERE a.course = ? AND s.userid = ?";
             $assigns = $DB->get_recordset_sql( $sql, array($course->id, $userid));
+            $nopermissions = false;
             foreach ($assigns as $assign) {
                 $cm = get_coursemodule_from_instance('assign', $assign->id);
                 $context = \context_module::instance($cm->id);
-
-                // Assign add_attempt() is protected - use reflection so we don't have to write our own.
-                $r = new \ReflectionMethod('assign', 'add_attempt');
-                $r->setAccessible(true);
-                $r->invoke(new \assign($context, $cm, $course), $userid);
+                if (has_capability('mod/assign:grade', $context)) {
+                    // Assign add_attempt() is protected - use reflection so we don't have to write our own.
+                    $r = new \ReflectionMethod('assign', 'add_attempt');
+                    $r->setAccessible(true);
+                    $r->invoke(new \assign($context, $cm, $course), $userid);
+                } else {
+                    $nopermissions = true;
+                }
+            }
+            if ($nopermissions) {
+                return get_string('noassigngradepermission', 'local_recompletion');
             }
         }
+        return '';
     }
 
     /**
@@ -362,5 +325,62 @@ class check_recompletion extends \core\task\scheduled_task {
         }
         // Directly emailing recompletion message rather than using messaging.
         email_to_user($userrecord, $from, $subject, $messagetext, $messagehtml);
+    }
+
+    /**
+     * Reset user completion.
+     * @param \int $userid - id of user.
+     * @param \stdClass $course - course record.
+     * @param \stdClass $config - recompletion config.
+     */
+    public function reset_user($userid, $course, $config) {
+        global $CFG;
+        // Archive and delete course completion.
+        $this->reset_completions($userid, $course, $config);
+
+        // Delete current grade information.
+        if ($config->deletegradedata) {
+            if ($items = \grade_item::fetch_all(array('courseid' => $course->id))) {
+                foreach ($items as $item) {
+                    if ($grades = \grade_grade::fetch_all(array('userid' => $userid, 'itemid' => $item->id))) {
+                        foreach ($grades as $grade) {
+                            $grade->delete('local_recompletion');
+                        }
+                    }
+                }
+            }
+        }
+
+        // Archive and delete specific activity data.
+        $this->reset_quiz($userid, $course, $config);
+        $this->reset_scorm($userid, $course, $config);
+        $errors = $this->reset_assign($userid, $course, $config);
+
+        // Now notify user.
+        $this->notify_user($userid, $course, $config);
+
+        // Trigger completion reset event for this user.
+        $context = \context_course::instance($course->id);
+        $event = \local_recompletion\event\completion_reset::create(
+            array(
+                'objectid'      => $course->id,
+                'relateduserid' => $userid,
+                'courseid' => $course->id,
+                'context' => $context,
+            )
+        );
+        $event->trigger();
+
+        $clearcache = true; // We have made some changes, clear completion cache.
+
+        if ($clearcache) {
+            // Difficult to find affected users, just purge all completion cache.
+            \cache::make('core', 'completion')->purge();
+            // Clear coursecompletion cache which was added in Moodle 3.2.
+            if ($CFG->version >= 2016120500) {
+                \cache::make('core', 'coursecompletion')->purge();
+            }
+        }
+        return $errors;
     }
 }
