@@ -28,6 +28,7 @@ require_once($CFG->dirroot.'/course/lib.php');
 require_once($CFG->libdir.'/completionlib.php');
 require_once($CFG->libdir.'/gradelib.php');
 require_once($CFG->dirroot . '/mod/assign/locallib.php');
+require_once($CFG->dirroot . '/mod/quiz/lib.php');
 
 $id = required_param('id', PARAM_INT); // Course id.
 $confirm = optional_param('confirm', '', PARAM_INT);

@@ -54,6 +54,7 @@ class check_recompletion extends \core\task\scheduled_task {
         require_once($CFG->libdir . '/completionlib.php');
         require_once($CFG->libdir.'/gradelib.php');
         require_once($CFG->dirroot . '/mod/assign/locallib.php');
+        require_once($CFG->dirroot . '/mod/quiz/lib.php');
 
         if (!\completion_info::is_enabled_for_site()) {
             return;
@@ -189,7 +190,7 @@ class check_recompletion extends \core\task\scheduled_task {
             $quizzes = $DB->get_recordset_sql( $sql, array($course->id, $userid));
             foreach ($quizzes as $quiz) {
                 // Get number of this users attempts.
-                $attempts = quiz_get_user_attempts($quiz->id, $userid);
+                $attempts = \quiz_get_user_attempts($quiz->id, $userid);
                 $countattempts = count($attempts);
 
                 // Allow the user to have the same number of attempts at this quiz as they initially did.
