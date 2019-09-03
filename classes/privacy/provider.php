@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 
 use context;
 use core_privacy\local\metadata\collection;
-use core_privacy\local\request\{writer, transform, helper, contextlist, approved_contextlist};
+use core_privacy\local\request\{writer, transform, helper, contextlist, approved_contextlist, approved_userlist, userlist};
 use stdClass;
 
 /**
@@ -38,8 +38,9 @@ use stdClass;
  * @copyright  2018 Catalyst IT
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-final class provider implements
+class provider implements
     \core_privacy\local\request\plugin\provider,
+    \core_privacy\local\request\core_userlist_provider,
     \core_privacy\local\metadata\provider
 {
 
@@ -279,5 +280,125 @@ final class provider implements
         $contextlist->add_from_sql($sql, $params);
 
         return $contextlist;
+    }
+    /**
+     * Get the list of users who have data within a context.
+     *
+     * @param   userlist    $userlist   The userlist containing the list of users who have data in this context/plugin combination.
+     */
+    public static function get_users_in_context(userlist $userlist) {
+        $context = $userlist->get_context();
+        if (!$context instanceof \context_course) {
+            return;
+        }
+
+        $params = array('contextlevel' => CONTEXT_COURSE, 'contextid' => $context->id);
+        $sql = "SELECT rc.userid
+                  FROM {local_recompletion_cc} rc
+                  JOIN {course} c ON rc.course = c.id
+                  JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                  WHERE ctx.id = :contextid";
+        $userlist->add_from_sql('userid', $sql, $params);
+
+        $sql = "SELECT rc.userid
+                  FROM {local_recompletion_cc_cc} rc
+                  JOIN {course} c ON rc.course = c.id
+                  JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                  WHERE ctx.id = :contextid";
+        $userlist->add_from_sql('userid', $sql, $params);
+
+        $sql = "SELECT rc.userid
+                  FROM {local_recompletion_cmc} rc
+                  JOIN {course} c ON rc.course = c.id
+                  JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                  WHERE ctx.id = :contextid";
+        $userlist->add_from_sql('userid', $sql, $params);
+
+        $sql = "SELECT rc.userid
+                  FROM {local_recompletion_qa} rc
+                  JOIN {course} c ON rc.course = c.id
+                  JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                  WHERE ctx.id = :contextid";
+        $userlist->add_from_sql('userid', $sql, $params);
+
+        $sql = "SELECT rc.userid
+                  FROM {local_recompletion_qg} rc
+                  JOIN {course} c ON rc.course = c.id
+                  JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                  WHERE ctx.id = :contextid";
+        $userlist->add_from_sql('userid', $sql, $params);
+
+        $sql = "SELECT rc.userid
+                  FROM {local_recompletion_sst} rc
+                  JOIN {course} c ON rc.course = c.id
+                  JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                  WHERE ctx.id = :contextid";
+        $userlist->add_from_sql('userid', $sql, $params);
+    }
+    /**
+     * Delete multiple users within a single context.
+     *
+     * @param   approved_userlist       $userlist The approved context and user information to delete information for.
+     */
+    public static function delete_data_for_users(approved_userlist $userlist) {
+        global $DB;
+        $context = $userlist->get_context();
+        if (!$context instanceof \context_course) {
+            return;
+        }
+        // Prepare SQL to gather all completed IDs.
+        $userids = $userlist->get_userids();
+        list($insql, $inparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+
+        // Should probably make this simpler using some helper functions... but for now...
+
+        $sql = "SELECT rc.id
+                  FROM {local_recompletion_cc} rc
+                  JOIN {course} c ON rc.course = c.id
+                  JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                  WHERE ctx.id = :contextid AND rc.userid $insql";
+        $params = array_merge($inparams, ['contextid' => $context->id]);
+        $DB->delete_records_select('local_recompletion_cc', "id $sql", $params);
+
+        $sql = "SELECT rc.id
+                  FROM {local_recompletion_cc_cc} rc
+                  JOIN {course} c ON rc.course = c.id
+                  JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                  WHERE ctx.id = :contextid AND rc.userid $insql";
+        $params = array_merge($inparams, ['contextid' => $context->id]);
+        $DB->delete_records_select('local_recompletion_cc_cc', "id $sql", $params);
+
+        $sql = "SELECT rc.id
+                  FROM {local_recompletion_cmc} rc
+                  JOIN {course} c ON rc.course = c.id
+                  JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                  WHERE ctx.id = :contextid AND rc.userid $insql";
+        $params = array_merge($inparams, ['contextid' => $context->id]);
+        $DB->delete_records_select('local_recompletion_cmc', "id $sql", $params);
+
+        $sql = "SELECT rc.id
+                  FROM {local_recompletion_qa} rc
+                  JOIN {course} c ON rc.course = c.id
+                  JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                  WHERE ctx.id = :contextid AND rc.userid $insql";
+        $params = array_merge($inparams, ['contextid' => $context->id]);
+        $DB->delete_records_select('local_recompletion_qa', "id $sql", $params);
+
+        $sql = "SELECT rc.id
+                  FROM {local_recompletion_qg} rc
+                  JOIN {course} c ON rc.course = c.id
+                  JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                  WHERE ctx.id = :contextid AND rc.userid $insql";
+        $params = array_merge($inparams, ['contextid' => $context->id]);
+        $DB->delete_records_select('local_recompletion_qg', "id $sql", $params);
+
+        $sql = "SELECT rc.id
+                  FROM {local_recompletion_sst} rc
+                  JOIN {course} c ON rc.course = c.id
+                  JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                  WHERE ctx.id = :contextid AND rc.userid $insql";
+        $params = array_merge($inparams, ['contextid' => $context->id]);
+        $DB->delete_records_select('local_recompletion_sst', "id $sql", $params);
+
     }
 }
