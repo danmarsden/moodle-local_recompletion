@@ -65,7 +65,8 @@ class check_recompletion extends \core\task\scheduled_task {
             JOIN {local_recompletion_config} r ON r.course = cc.course AND r.name = 'enable' AND r.value = '1'
             JOIN {local_recompletion_config} r2 ON r2.course = cc.course AND r2.name = 'recompletionduration'
             JOIN {course} c ON c.id = cc.course
-            WHERE c.enablecompletion = ".COMPLETION_ENABLED;
+            WHERE c.enablecompletion = ".COMPLETION_ENABLED." AND cc.timecompleted > 0";
+
         $users = $DB->get_recordset_sql($sql);
         $courses = array();
         $configs = array();

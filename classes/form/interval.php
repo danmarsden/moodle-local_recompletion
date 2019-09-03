@@ -46,10 +46,7 @@ class MoodleQuickForm_interval extends MoodleQuickForm_duration {
                 'Y' => get_string('years'),
                 'M' => get_string('months'),
                 'D' => get_string('days'),
-                'W' => get_string('weeks'),
-                'TH' => get_string('hours'),
-                'TM' => get_string('minutes'),  // needs special handle.
-                'TS' => get_string('seconds'),
+                'W' => get_string('weeks')
         ];
     }
 
@@ -110,12 +107,7 @@ class MoodleQuickForm_interval extends MoodleQuickForm_duration {
             return array(0, $this->_options['defaultunit']);
         }
 
-        if ($intervalspec[1] == 'T') {
-            return array(substr($intervalspec, 2, -1), 'T' . substr($intervalspec, -1));
-        } else {
-            return array(substr($intervalspec, 1, -1), substr($intervalspec, -1));
-        }
-
+        return array(substr($intervalspec, 1, -1), substr($intervalspec, -1));
     }
 
     /**
@@ -143,12 +135,8 @@ class MoodleQuickForm_interval extends MoodleQuickForm_duration {
         if ($this->_options['optional'] && empty($valuearray['enabled'])) {
             return array($this->getName() => 0);
         }
-        if (strlen($valuearray['timeunit']) == 1) {
-            return array($this->getName() => 'P' . $valuearray['number'] . $valuearray['timeunit']);
-        }
-        if (strlen($valuearray['timeunit']) == 2) {
-            return array($this->getName() => 'PT' . $valuearray['number'] . $valuearray['timeunit'][1]);
-        }
+
+        return array($this->getName() => 'P' . $valuearray['number'] . $valuearray['timeunit']);
     }
 
 }
