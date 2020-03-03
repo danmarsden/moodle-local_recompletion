@@ -57,7 +57,7 @@ class local_recompletion_recompletion_form extends moodleform {
         $mform->setExpanded('emailheader', false);
         $mform->addElement('text', 'recompletionemailsubject', get_string('recompletionemailsubject', 'local_recompletion'),
                 'size = "80"');
-        $mform->setType('recompletionemailsubject', PARAM_RAW);
+        $mform->setType('recompletionemailsubject', PARAM_TEXT);
         $mform->addHelpButton('recompletionemailsubject', 'recompletionemailsubject', 'local_recompletion');
         $mform->disabledIf('recompletionemailsubject', 'enable', 'notchecked');
         $mform->disabledIf('recompletionemailsubject', 'recompletionemailenable', 'notchecked');
