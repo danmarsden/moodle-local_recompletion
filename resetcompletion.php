@@ -32,6 +32,7 @@ require_once($CFG->dirroot . '/mod/quiz/lib.php');
 
 $id = required_param('id', PARAM_INT); // Course id.
 $confirm = optional_param('confirm', '', PARAM_INT);
+$userid = optional_param('user', 0, PARAM_INT);
 
 if ($id == SITEID) {
     // Don't allow editing of 'site course' using this form.
@@ -43,8 +44,18 @@ if (!$course = $DB->get_record('course', array('id' => $id))) {
 }
 require_login($course);
 
+if (empty($userid)) {
+    $userid = $USER->id;
+}
+
 $context = context_course::instance($course->id);
-require_capability('local/recompletion:resetmycompletion', $context);
+if ($USER->id <> $userid) {
+    require_capability('local/recompletion:manage', $context);
+    $user = $DB->get_record('user', array('id' => $userid));
+} else {
+    require_capability('local/recompletion:resetmycompletion', $context);
+    $user = $USER;
+}
 
 $config = $DB->get_records_menu('local_recompletion_config', array('course' => $course->id), '', 'name, value');
 $config = (object) $config;
@@ -55,29 +66,35 @@ if (empty($config->enable)) {
 
 if (!empty($confirm) && confirm_sesskey()) {
     $reset = new local_recompletion\task\check_recompletion();
-    $errors = $reset->reset_user($USER->id, $course, $config);
-    if (!empty($errors)) {
-        redirect(course_get_url($course), $errors, '',  \core\output\notification::NOTIFY_WARNING);
+    $errors = $reset->reset_user($userid, $course, $config);
+    if ($USER->id <> $userid) {
+        $returnurl = new moodle_url('/local/recompletion/participants.php', array('id' => $course->id));
     } else {
-        redirect(course_get_url($course), get_string('completionreset', 'local_recompletion'));
+        $returnurl = course_get_url($course);
+    }
+    if (!empty($errors)) {
+        redirect($returnurl, $errors, '',  \core\output\notification::NOTIFY_WARNING);
+    } else {
+        redirect($returnurl, get_string('completionresetuser', 'local_recompletion', fullname($user)));
     }
 
 }
 
 // Set up the page.
 $PAGE->set_course($course);
-$PAGE->set_url('/local/recompletion/resetmycompletion.php', array('id' => $course->id));
+$PAGE->set_url('/local/recompletion/resetcompletion.php', array('id' => $course->id));
 $PAGE->set_title($course->shortname);
 $PAGE->set_heading($course->fullname);
 
 // Print the form.
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('resetmycompletion', 'local_recompletion'));
+echo $OUTPUT->heading(get_string("resetcompletionfor", "local_recompletion", fullname($user)));
 
 $cancelurl = course_get_url($course);
 $confirmurl = $PAGE->url;
 $confirmurl->param('confirm', 1);
-$message = get_string("resetmycompletionconfirm", "local_recompletion");
+$confirmurl->param('user', $userid);
+$message = get_string("resetcompletionconfirm", "local_recompletion", fullname($user));
 echo $OUTPUT->confirm($message, $confirmurl, $cancelurl);
 
 echo $OUTPUT->footer();

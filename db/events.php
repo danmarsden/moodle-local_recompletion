@@ -15,17 +15,19 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details.
+ * URKUND observers.
  *
  * @package    local_recompletion
- * @copyright  2017 Dan Marsden
+ * @author     Dan Marsden http://danmarsden.com
+ * @copyright  2020 Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die;
+defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2020061000;
-$plugin->release   = '1.9';
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->requires  = 2018050800; // Requires 3.5.
-$plugin->component = 'local_recompletion';
+$observers = array (
+    array(
+        'eventname' => '\mod_assign\event\submission_graded',
+        'callback' => 'local_recompletion_observer::submission_graded'
+    ),
+);

@@ -19,6 +19,8 @@ You can choose to delete all existing SCORM attempt data with the option to arch
 3) Assignment
 You can choose to give the student another attempt (if the assignment is configured to allow reopening and the maximum number of attempts has not been reached.
 
+If a user has already completed the course, and a teacher performs a grading action on an assignment, you can choose to have the course completion date updated at the same time.
+
 Other activities that store user data will have the activity completion data reset, but may require manual intervention as they are not yet supported fully.
 Get in touch privately if you would like to fund support for other activities with user data.
 

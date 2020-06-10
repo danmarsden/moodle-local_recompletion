@@ -39,6 +39,7 @@ class local_recompletion_recompletion_form extends moodleform {
 
         $mform = $this->_form;
         $course = $this->_customdata['course'];
+        $config = get_config('local_recompletion');
 
         $mform->addElement('checkbox', 'enable', get_string('enablerecompletion', 'local_recompletion'));
         $mform->addHelpButton('enable', 'enablerecompletion', 'local_recompletion');
@@ -47,8 +48,10 @@ class local_recompletion_recompletion_form extends moodleform {
         $mform->addElement('duration', 'recompletionduration', get_string('recompletionrange', 'local_recompletion'), $options);
         $mform->addHelpButton('recompletionduration', 'recompletionrange', 'local_recompletion');
         $mform->disabledIf('recompletionduration', 'enable', 'notchecked');
+        $mform->setDefault('recompletionduration', $config->duration);
+
         $mform->addElement('checkbox', 'recompletionemailenable', get_string('recompletionemailenable', 'local_recompletion'));
-        $mform->setDefault('recompletionemailenable', 1);
+        $mform->setDefault('recompletionemailenable', $config->emailenable);
         $mform->addHelpButton('recompletionemailenable', 'recompletionemailenable', 'local_recompletion');
         $mform->disabledIf('recompletionemailenable', 'enable', 'notchecked');
 
@@ -61,12 +64,15 @@ class local_recompletion_recompletion_form extends moodleform {
         $mform->addHelpButton('recompletionemailsubject', 'recompletionemailsubject', 'local_recompletion');
         $mform->disabledIf('recompletionemailsubject', 'enable', 'notchecked');
         $mform->disabledIf('recompletionemailsubject', 'recompletionemailenable', 'notchecked');
+        $mform->setDefault('recompletionemailsubject', $config->emailsubject);
+
         $options = array('cols' => '60', 'rows' => '8');
         $mform->addElement('textarea', 'recompletionemailbody', get_string('recompletionemailbody', 'local_recompletion'),
                 $options);
         $mform->addHelpButton('recompletionemailbody', 'recompletionemailbody', 'local_recompletion');
         $mform->disabledIf('recompletionemailbody', 'enable', 'notchecked');
         $mform->disabledIf('recompletionemailbody', 'recompletionemailenable', 'notchecked');
+        $mform->setDefault('recompletionemailbody', $config->emailbody);
 
         // Advanced recompletion settings.
         // Delete data section.
@@ -74,11 +80,11 @@ class local_recompletion_recompletion_form extends moodleform {
         $mform->setExpanded('advancedheader', false);
 
         $mform->addElement('checkbox', 'deletegradedata', get_string('deletegradedata', 'local_recompletion'));
-        $mform->setDefault('deletegradedata', 1);
+        $mform->setDefault('deletegradedata', $config->deletegradedata);
         $mform->addHelpButton('deletegradedata', 'deletegradedata', 'local_recompletion');
 
         $mform->addElement('checkbox', 'archivecompletiondata', get_string('archivecompletiondata', 'local_recompletion'));
-        $mform->setDefault('archivecompletiondata', 1);
+        $mform->setDefault('archivecompletiondata', $config->archivecompletiondata);
         $mform->addHelpButton('archivecompletiondata', 'archivecompletiondata', 'local_recompletion');
 
         $cba = array();
@@ -89,9 +95,11 @@ class local_recompletion_recompletion_form extends moodleform {
 
         $mform->addGroup($cba, 'scorm', get_string('scormattempts', 'local_recompletion'), array(' '), false);
         $mform->addHelpButton('scorm', 'scormattempts', 'local_recompletion');
+        $mform->setDefault('scormdata', $config->scormattempts);
 
         $mform->addElement('checkbox', 'archivescormdata',
             get_string('archive', 'local_recompletion'));
+        $mform->setDefault('archivescormdata', $config->archivescormdata);
 
         $cba = array();
         $cba[] = $mform->createElement('radio', 'quizdata', '',
@@ -103,18 +111,23 @@ class local_recompletion_recompletion_form extends moodleform {
 
         $mform->addGroup($cba, 'quiz', get_string('quizattempts', 'local_recompletion'), array(' '), false);
         $mform->addHelpButton('quiz', 'quizattempts', 'local_recompletion');
+        $mform->setDefault('quizdata', $config->quizattempts);
 
         $mform->addElement('checkbox', 'archivequizdata',
             get_string('archive', 'local_recompletion'));
+        $mform->setDefault('archivequizdata', $config->archivequizdata);
 
         $cba = array();
         $cba[] = $mform->createElement('radio', 'assigndata', '',
             get_string('donothing', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING);
         $cba[] = $mform->createElement('radio', 'assigndata', '',
             get_string('extraattempt', 'local_recompletion'), LOCAL_RECOMPLETION_EXTRAATTEMPT);
-
+        $cba[] = $mform->createElement('checkbox', 'assignevent', '', get_string('assignevent', 'local_recompletion'));
         $mform->addGroup($cba, 'assign', get_string('assignattempts', 'local_recompletion'), array(' '), false);
         $mform->addHelpButton('assign', 'assignattempts', 'local_recompletion');
+
+        $mform->setDefault('assigndata', $config->assignattempts);
+        $mform->setDefault('assignevent', $config->assignevent);
 
         $mform->disabledIf('scormdata', 'enable', 'notchecked');
         $mform->disabledIf('deletegradedata', 'enable', 'notchecked');
