@@ -209,7 +209,9 @@ class participants_table extends \table_sql {
         $this->define_headers($headers);
 
         // The name column is a header.
-        $this->define_header_column('fullname');
+        if (method_exists($this, 'define_header_column')) { // Remove when only 3.7+ supported.
+            $this->define_header_column('fullname');
+        }
 
         // Make this table sorted by last name by default.
         $this->sortable(true, 'lastname');
