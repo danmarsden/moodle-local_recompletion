@@ -54,6 +54,10 @@ if ($hassiteconfig) {
         new lang_string('archivecompletiondata', 'local_recompletion'),
         new lang_string('archivecompletiondata_help', 'local_recompletion'), 1));
 
+    $settings->add(new admin_setting_configcheckbox('local_recompletion/forcearchivecompletiondata',
+        new lang_string('forcearchivecompletiondata', 'local_recompletion'),
+        new lang_string('forcearchivecompletiondata_help', 'local_recompletion'), 0));
+
     $choices = array(LOCAL_RECOMPLETION_NOTHING => get_string('donothing', 'local_recompletion'),
                      LOCAL_RECOMPLETION_DELETE => get_string('delete', 'local_recompletion'));
 
