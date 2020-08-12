@@ -84,7 +84,9 @@ class local_recompletion_recompletion_form extends moodleform {
         $mform->addHelpButton('deletegradedata', 'deletegradedata', 'local_recompletion');
 
         $mform->addElement('checkbox', 'archivecompletiondata', get_string('archivecompletiondata', 'local_recompletion'));
-        $mform->setDefault('archivecompletiondata', $config->archivecompletiondata);
+        // If we are forcing completion data archive, always be ticked.
+        $archivedefault = $config->forcearchivecompletiondata ? 1 : $config->archivecompletiondata;
+        $mform->setDefault('archivecompletiondata', $archivedefault);
         $mform->addHelpButton('archivecompletiondata', 'archivecompletiondata', 'local_recompletion');
 
         $cba = array();
@@ -133,6 +135,7 @@ class local_recompletion_recompletion_form extends moodleform {
         $mform->disabledIf('deletegradedata', 'enable', 'notchecked');
         $mform->disabledIf('quizdata', 'enable', 'notchecked');
         $mform->disabledIf('archivecompletiondata', 'enable', 'notchecked');
+        $mform->disabledIf('archivecompletiondata', 'forcearchive', 'eq');
         $mform->disabledIf('archivequizdata', 'enable', 'notchecked');
         $mform->disabledIf('archivescormdata', 'enable', 'notchecked');
         $mform->disabledIf('assigndata', 'enable', 'notchecked');
@@ -145,5 +148,7 @@ class local_recompletion_recompletion_form extends moodleform {
         // Add hidden fields.
         $mform->addElement('hidden', 'course', $course->id);
         $mform->setType('course', PARAM_INT);
+        $mform->addElement('hidden', 'forcearchive', $config->forcearchivecompletiondata);
+        $mform->setType('forcearchive', PARAM_BOOL);
     }
 }
