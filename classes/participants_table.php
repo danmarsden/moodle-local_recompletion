@@ -152,7 +152,7 @@ class participants_table extends \table_sql {
      */
     public function __construct($courseid, $currentgroup, $accesssince, $roleid, $enrolid, $status, $search,
                                 $bulkoperations, $selectall) {
-        global $CFG, $DB;
+        global $CFG, $DB, $OUTPUT;
 
         parent::__construct('user-index-participants-' . $courseid);
 
@@ -166,7 +166,17 @@ class participants_table extends \table_sql {
         $columns = [];
 
         if ($bulkoperations) {
-            $headers[] = get_string('select');
+            $options = [
+                'id' => 'check-user',
+                'name' => 'check-user',
+                'class' => 'usercheckbox',
+                'value' => 1,
+            ];
+            if ($selectall) {
+                $options['checked'] = true;
+            }
+            $toggleall = new \core\output\checkbox_toggleall('users', true, $options);
+            $headers[] = $OUTPUT->render($toggleall);
             $columns[] = 'select';
         }
 
@@ -271,7 +281,8 @@ class participants_table extends \table_sql {
         } else {
             $checked = '';
         }
-        return '<input type="checkbox" class="usercheckbox" name="user' . $data->id . '" ' . $checked . '/>';
+        $toggle = 'data-togglegroup="users" data-action="toggle" data-toggle="slave"';
+        return '<input type="checkbox" class="usercheckbox" ' . $toggle . ' name="user' . $data->id . '" ' . $checked . '/>';
     }
 
     /**
