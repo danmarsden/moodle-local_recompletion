@@ -1,5 +1,14 @@
 The recompletion plugin is supported and maintained by Dan Marsden
 
+Branches
+--------
+The git branches here support the following versions.
+
+| Moodle version     | Branch      |
+| ----------------- | ----------- |
+| Mooodle 3.5 - 3.7  | MOODLE_37_STABLE |
+| Moodle 3.8 and higher | main |
+
 This plugin adds course level settings for recompletion - clearing all course and activity completion for a user based on the duration set notifying the student they need to return to the course and recomplete it.
 
 This plugin could be used to facilitate annual re-certification.
