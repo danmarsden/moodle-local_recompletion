@@ -131,6 +131,8 @@ class local_recompletion_recompletion_form extends moodleform {
         $mform->setDefault('assigndata', $config->assignattempts);
         $mform->setDefault('assignevent', $config->assignevent);
 
+        $this->add_lti_options();
+
         $mform->disabledIf('scormdata', 'enable', 'notchecked');
         $mform->disabledIf('deletegradedata', 'enable', 'notchecked');
         $mform->disabledIf('quizdata', 'enable', 'notchecked');
@@ -150,5 +152,30 @@ class local_recompletion_recompletion_form extends moodleform {
         $mform->setType('course', PARAM_INT);
         $mform->addElement('hidden', 'forcearchive', $config->forcearchivecompletiondata);
         $mform->setType('forcearchive', PARAM_BOOL);
+    }
+
+    /**
+     * Add lti radio elements if lti is enabled.
+     *
+     * @throws coding_exception
+     */
+    private function add_lti_options() : void {
+
+        if (!enrol_is_enabled('lti')) {
+            return;
+        }
+
+        $mform = $this->_form;
+
+        $cba = [];
+        $cba[] = $mform->createElement('radio', 'ltigrade', '',
+            get_string('donothing', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING);
+        $cba[] = $mform->createElement('radio', 'ltigrade', '',
+            get_string('resetltigrade', 'local_recompletion'), LOCAL_RECOMPLETION_EXTRAATTEMPT);
+
+        $mform->addGroup($cba, 'lti', get_string('resetltigrades', 'local_recompletion'), [' '], false);
+        $mform->addHelpButton('lti', 'resetltigrades', 'local_recompletion');
+
+        $mform->disabledIf('ltigrade', 'enable', 'notchecked');
     }
 }
