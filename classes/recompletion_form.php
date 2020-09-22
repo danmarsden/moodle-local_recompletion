@@ -167,13 +167,13 @@ class local_recompletion_recompletion_form extends moodleform {
 
         $mform = $this->_form;
 
-        $cba = [];
-        $cba[] = $mform->createElement('radio', 'ltigrade', '',
+        $options = [];
+        $options[] = $mform->createElement('radio', 'ltigrade', '',
             get_string('donothing', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING);
-        $cba[] = $mform->createElement('radio', 'ltigrade', '',
-            get_string('resetltigrade', 'local_recompletion'), LOCAL_RECOMPLETION_EXTRAATTEMPT);
+        $options[] = $mform->createElement('radio', 'ltigrade', '',
+            get_string('resetltigrade', 'local_recompletion'), LOCAL_RECOMPLETION_DELETE);
 
-        $mform->addGroup($cba, 'lti', get_string('resetltigrades', 'local_recompletion'), [' '], false);
+        $mform->addGroup($options, 'lti', get_string('resetltigrades', 'local_recompletion'), [' '], false);
         $mform->addHelpButton('lti', 'resetltigrades', 'local_recompletion');
 
         $mform->disabledIf('ltigrade', 'enable', 'notchecked');

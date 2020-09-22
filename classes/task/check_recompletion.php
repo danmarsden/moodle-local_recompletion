@@ -388,12 +388,13 @@ class check_recompletion extends \core\task\scheduled_task {
     }
 
     /**
-     * Reset lti
+     * Reset lti grade
      *
      * @param int       $userid
      * @param \stdClass $course
      * @param \stdClass $config
      *
+     * @throws \coding_exception
      * @throws \dml_exception
      */
     private function reset_lti(int $userid, \stdClass $course, \stdClass $config) : void {
@@ -415,14 +416,23 @@ class check_recompletion extends \core\task\scheduled_task {
             return;
         }
 
+        $params = [
+            'userid' => $userid,
+            'toolid' => $toolid,
+        ];
+
+        // Check if we need to duplicate records.
+        if (!empty($config->archivecompletiondata)) {
+            $ltiusers = $DB->get_records('enrol_lti_users', $params, '', 'toolid,userid,lastaccess,lastgrade,timecreated');
+            $DB->insert_records('local_recompletion_ltia', $ltiusers);
+        }
+
+        // Reset.
         $sql = 'UPDATE {enrol_lti_users}
                 SET lastgrade = 0 
                 WHERE userid = :userid 
                 AND toolid = :toolid';
 
-        $DB->execute($sql, [
-            'userid' => $userid,
-            'toolid' => $toolid,
-        ]);
+        $DB->execute($sql, $params);
     }
 }
