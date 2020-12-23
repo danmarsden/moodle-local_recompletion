@@ -421,11 +421,9 @@ class check_recompletion extends \core\task\scheduled_task {
             'toolid' => $toolid,
         ];
 
-        // Check if we need to duplicate records.
-        if (!empty($config->archivecompletiondata)) {
-            $ltiusers = $DB->get_records('enrol_lti_users', $params, '', 'toolid,userid,lastaccess,lastgrade,timecreated');
-            $DB->insert_records('local_recompletion_ltia', $ltiusers);
-        }
+        // If enabled we always archive records.
+        $ltiusers = $DB->get_records('enrol_lti_users', $params, '', 'toolid,userid,lastaccess,lastgrade,timecreated');
+        $DB->insert_records('local_recompletion_ltia', $ltiusers);
 
         // Reset.
         $sql = 'UPDATE {enrol_lti_users}
