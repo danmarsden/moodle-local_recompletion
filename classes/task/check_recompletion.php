@@ -429,8 +429,8 @@ class check_recompletion extends \core\task\scheduled_task {
 
         // Reset.
         $sql = 'UPDATE {enrol_lti_users}
-                SET lastgrade = 0 
-                WHERE userid = :userid 
+                SET lastgrade = 0
+                WHERE userid = :userid
                 AND toolid = :toolid';
 
         $DB->execute($sql, $params);
