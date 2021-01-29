@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -36,6 +37,7 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class check_recompletion extends \core\task\scheduled_task {
+
     /**
      * Returns the name of this task.
      */
@@ -52,7 +54,7 @@ class check_recompletion extends \core\task\scheduled_task {
         require_once($CFG->dirroot . '/course/lib.php');
         require_once($CFG->dirroot . '/local/recompletion/locallib.php');
         require_once($CFG->libdir . '/completionlib.php');
-        require_once($CFG->libdir.'/gradelib.php');
+        require_once($CFG->libdir . '/gradelib.php');
         require_once($CFG->dirroot . '/mod/assign/locallib.php');
         require_once($CFG->dirroot . '/mod/quiz/lib.php');
 
@@ -65,8 +67,8 @@ class check_recompletion extends \core\task\scheduled_task {
             JOIN {local_recompletion_config} r ON r.course = cc.course AND r.name = 'enable' AND r.value = '1'
             JOIN {local_recompletion_config} r2 ON r2.course = cc.course AND r2.name = 'recompletionduration'
             JOIN {course} c ON c.id = cc.course
-            WHERE c.enablecompletion = ".COMPLETION_ENABLED." AND cc.timecompleted > 0 AND
-            (cc.timecompleted + ".$DB->sql_cast_char2int('r2.value').") < ?";
+            WHERE c.enablecompletion = " . COMPLETION_ENABLED . " AND cc.timecompleted > 0 AND
+            (cc.timecompleted + " . $DB->sql_cast_char2int('r2.value') . ") < ?";
         $users = $DB->get_recordset_sql($sql, array(time()));
         $courses = array();
         $configs = array();
@@ -187,7 +189,7 @@ class check_recompletion extends \core\task\scheduled_task {
                       FROM {quiz} q
                       JOIN {quiz_attempts} qa ON q.id = qa.quiz
                      WHERE q.attempts > 0 AND q.course = ? AND qa.userid = ?";
-            $quizzes = $DB->get_recordset_sql( $sql, array($course->id, $userid));
+            $quizzes = $DB->get_recordset_sql($sql, array($course->id, $userid));
             foreach ($quizzes as $quiz) {
                 // Get number of this users attempts.
                 $attempts = \quiz_get_user_attempts($quiz->id, $userid);
@@ -256,7 +258,7 @@ class check_recompletion extends \core\task\scheduled_task {
                       FROM {assign} a
                       JOIN {assign_submission} s ON a.id = s.assignment
                      WHERE a.course = ? AND s.userid = ?";
-            $assigns = $DB->get_recordset_sql( $sql, array($course->id, $userid));
+            $assigns = $DB->get_recordset_sql($sql, array($course->id, $userid));
             $nopermissions = false;
             foreach ($assigns as $assign) {
                 $cm = get_coursemodule_from_instance('assign', $assign->id);
@@ -275,6 +277,26 @@ class check_recompletion extends \core\task\scheduled_task {
             }
         }
         return '';
+    }
+
+    /**
+     * Reset assign records.
+     * @param \int $userid - record with user information for recompletion
+     * @param \stdClass $course - course record.
+     * @param \stdClass $config - recompletion config.
+     */
+    protected function reset_certprint($userid, $course) {
+        global $DB;
+           $certificates = $DB->get_records('certprint_certificates', array('userid' => $userid, 'course' => $course->id));
+           if($certificates) {
+            foreach ($certificates as $certificate) {
+                $certificate->archived = 1;
+                $DB->update_record('certprint_certificates', $certificate);
+            }
+        } else {
+
+            return '';
+        }
     }
 
     /**
@@ -356,6 +378,7 @@ class check_recompletion extends \core\task\scheduled_task {
         $this->reset_quiz($userid, $course, $config);
         $this->reset_scorm($userid, $course, $config);
         $errors = $this->reset_assign($userid, $course, $config);
+        $this->reset_certprint($userid, $course);
 
         // Now notify user.
         $this->notify_user($userid, $course, $config);
@@ -363,12 +386,12 @@ class check_recompletion extends \core\task\scheduled_task {
         // Trigger completion reset event for this user.
         $context = \context_course::instance($course->id);
         $event = \local_recompletion\event\completion_reset::create(
-            array(
-                'objectid'      => $course->id,
-                'relateduserid' => $userid,
-                'courseid' => $course->id,
-                'context' => $context,
-            )
+                        array(
+                            'objectid' => $course->id,
+                            'relateduserid' => $userid,
+                            'courseid' => $course->id,
+                            'context' => $context,
+                        )
         );
         $event->trigger();
 
@@ -384,4 +407,5 @@ class check_recompletion extends \core\task\scheduled_task {
         }
         return $errors;
     }
+
 }
