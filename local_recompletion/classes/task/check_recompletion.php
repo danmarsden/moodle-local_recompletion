@@ -279,6 +279,44 @@ class check_recompletion extends \core\task\scheduled_task {
         return '';
     }
 
+    protected function reset_lesson($userid, $course, $config = null) {
+        global $DB, $CFG;
+        require_once($CFG->dirroot . '/mod/lesson/locallib.php');
+        $slq = "SELECT l.id FROM {lesson_attempts} a INNER JOIN {lesson} l ON a.lessonid = l.id WHERE a.userid={$userid} AND l.course = {$course->id} GROUP BY a.lessonid";
+        $lessonsattempts = $DB->get_records_sql($slq);
+        $time = time();
+        if ($lessonsattempts) {
+            foreach ($lessonsattempts as $lessonattempt) {
+                $lessonarchive = new \stdClass();
+                $lesson = new \lesson($DB->get_record('lesson', array('id' => $lessonattempt->id), '*', MUST_EXIST));
+
+                $timers = $DB->get_records('lesson_timer', array('lessonid' => $lesson->id, 'userid' => $userid));
+                $DB->delete_records('lesson_timer', array('lessonid' => $lesson->id, 'userid' => $userid));
+                $params = array("userid" => $userid, "lessonid" => $lesson->id);
+                // Remove the grade from the grades tables - this is silly, it should be linked to specific attempt (skodak).
+                $grades = $DB->get_records('lesson_grades', array('lessonid' => $lesson->id, 'userid' => $userid));
+                $DB->delete_records('lesson_grades', array('lessonid' => $lesson->id, 'userid' => $userid));
+
+                /// Remove attempts and update the retry number
+                $attempts = $DB->get_records('lesson_attempts', array('lessonid' => $lesson->id, 'userid' => $userid));
+                $DB->delete_records('lesson_attempts', array('userid' => $userid, 'lessonid' => $lesson->id));
+
+                /// Remove seen branches and update the retry number
+                $branches = $DB->get_records('lesson_branch', array('lessonid' => $lesson->id, 'userid' => $userid));
+                $DB->delete_records('lesson_branch', array('userid' => $userid, 'lessonid' => $lesson->id));
+
+               
+                //Backup of all deleted data
+                $DB->insert_records('local_recompletion_lesa', $attempts);
+                $DB->insert_records('local_recompletion_lesg', $grades);
+                $DB->insert_records('local_recompletion_lesb', $branches);
+                $DB->insert_records('local_recompletion_lest', $timers);
+
+                lesson_update_grades($lesson, $userid);
+            }
+        }
+    }
+
     /**
      * Reset assign records.
      * @param \int $userid - record with user information for recompletion
@@ -287,8 +325,8 @@ class check_recompletion extends \core\task\scheduled_task {
      */
     protected function reset_certprint($userid, $course) {
         global $DB;
-           $certificates = $DB->get_records('certprint_certificates', array('userid' => $userid, 'course' => $course->id));
-           if($certificates) {
+        $certificates = $DB->get_records('certprint_certificates', array('userid' => $userid, 'course' => $course->id));
+        if ($certificates) {
             foreach ($certificates as $certificate) {
                 $certificate->archived = 1;
                 $DB->update_record('certprint_certificates', $certificate);
@@ -379,7 +417,7 @@ class check_recompletion extends \core\task\scheduled_task {
         $this->reset_scorm($userid, $course, $config);
         $errors = $this->reset_assign($userid, $course, $config);
         $this->reset_certprint($userid, $course);
-
+        $this->reset_lesson($userid, $course);
         // Now notify user.
         $this->notify_user($userid, $course, $config);
 
