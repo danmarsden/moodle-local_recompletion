@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -22,7 +23,6 @@
  * @copyright  2018 Dan Marsden
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 defined('MOODLE_INTERNAL') || die();
 
 /**
@@ -396,10 +396,8 @@ function xmldb_local_recompletion_upgrade($oldversion) {
         }
         
         // Recompletion savepoint reached.
-        upgrade_plugin_savepoint(true, 2018071100, 'local', 'recompletion');
+        upgrade_plugin_savepoint(true, 2020082601, 'local', 'recompletion');
     }
     
-    
-
     return true;
 }
