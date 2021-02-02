@@ -256,6 +256,7 @@ if ($bulkoperations) {
         $showalllink = false;
     }
     echo '<input type="submit" name="submit" value="'.get_string('bulkchangedate', 'local_recompletion').'"/>';
+    echo '<button type="submit" formaction="resetcompletion.php" name="action" value="selected">'.get_string('resetcompletionselected', 'local_recompletion').'</button>';
     echo '<input type="hidden" name="id" value="' . $course->id . '" />';
     echo '</div></div></div>';
     echo '</form>';

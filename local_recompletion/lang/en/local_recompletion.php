@@ -129,3 +129,4 @@ $string['assignevent'] = 'Update course completion on grade change';
 $string['defaultsettings'] = 'Recompletion default settings';
 $string['archivequizdata'] = 'Archive old quiz attempts';
 $string['archivescormdata'] = 'Archive old SCORM attempts';
+$string['resetcompletionselected'] = 'Reset completion for selected users';
