@@ -332,5 +332,30 @@ function xmldb_local_recompletion_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2018071902, 'local', 'recompletion');
     }
 
+    if ($oldversion < 2020092200) {
+
+        // Define table local_recompletion_ltia to be created.
+        $table = new xmldb_table('local_recompletion_ltia');
+
+        // Adding fields to table local_recompletion_ltia.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('toolid', XMLDB_TYPE_INTEGER, '11', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '11', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('lastgrade', XMLDB_TYPE_NUMBER, '10, 5', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('lastaccess', XMLDB_TYPE_INTEGER, '11', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '11', null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table local_recompletion_ltia.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Conditionally launch create table for local_recompletion_ltia.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Recompletion savepoint reached.
+        upgrade_plugin_savepoint(true, 2020092200, 'local', 'recompletion');
+    }
+
     return true;
 }

@@ -131,3 +131,8 @@ $string['assignevent'] = 'Update course completion on grade change';
 $string['defaultsettings'] = 'Recompletion default settings';
 $string['archivequizdata'] = 'Archive old quiz attempts';
 $string['archivescormdata'] = 'Archive old SCORM attempts';
+$string['resetltigrade'] = 'Reset LTI grades';
+$string['resetltigrades'] = 'LTI grades';
+$string['resetltigrades_help'] = 'How to handle LTI grades within the course.
+If the setting \'Reset LTI grades\' is used, all `lastgrade` LTI results will be reset to 0.
+When user achieved new completion in the course, the updated course grade will be resend to the LTI provider.';

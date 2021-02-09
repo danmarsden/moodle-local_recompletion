@@ -355,6 +355,8 @@ class check_recompletion extends \core\task\scheduled_task {
         // Archive and delete specific activity data.
         $this->reset_quiz($userid, $course, $config);
         $this->reset_scorm($userid, $course, $config);
+        $this->reset_lti($userid, $course, $config);
+
         $errors = $this->reset_assign($userid, $course, $config);
 
         // Now notify user.
@@ -383,5 +385,52 @@ class check_recompletion extends \core\task\scheduled_task {
             }
         }
         return $errors;
+    }
+
+    /**
+     * Reset lti grade
+     *
+     * @param int       $userid
+     * @param \stdClass $course
+     * @param \stdClass $config
+     *
+     * @throws \coding_exception
+     * @throws \dml_exception
+     */
+    private function reset_lti(int $userid, \stdClass $course, \stdClass $config) : void {
+        global $DB;
+
+        if (empty($config->ltigrade)) {
+            return;
+        }
+
+        // Make sure LTI is enabled.
+        if (!enrol_is_enabled('lti')) {
+            return;
+        }
+
+        $context = \context_course::instance($course->id);
+        $toolid = $DB->get_field('enrol_lti_tools', 'id', ['contextid' => $context->id]);
+
+        if (empty($toolid)) {
+            return;
+        }
+
+        $params = [
+            'userid' => $userid,
+            'toolid' => $toolid,
+        ];
+
+        // If enabled we always archive records.
+        $ltiusers = $DB->get_records('enrol_lti_users', $params, '', 'toolid,userid,lastaccess,lastgrade,timecreated');
+        $DB->insert_records('local_recompletion_ltia', $ltiusers);
+
+        // Reset.
+        $sql = 'UPDATE {enrol_lti_users}
+                SET lastgrade = 0
+                WHERE userid = :userid
+                AND toolid = :toolid';
+
+        $DB->execute($sql, $params);
     }
 }
