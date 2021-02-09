@@ -176,6 +176,12 @@ class local_recompletion_recompletion_form extends moodleform {
         $mform->addGroup($options, 'lti', get_string('resetltigrades', 'local_recompletion'), [' '], false);
         $mform->addHelpButton('lti', 'resetltigrades', 'local_recompletion');
 
+        $mform->addElement('checkbox', 'archiveltidata',
+            get_string('archive', 'local_recompletion'));
+        $mform->setDefault('archiveltidata', get_config('local_recompletion', 'archiveltidata'));
+
         $mform->disabledIf('ltigrade', 'enable', 'notchecked');
+        $mform->disabledIf('archiveltidata', 'enable', 'notchecked');
+        $mform->hideIf('archiveltidata', 'ltigrade', 'noteq', LOCAL_RECOMPLETION_DELETE);
     }
 }

@@ -420,10 +420,11 @@ class check_recompletion extends \core\task\scheduled_task {
             'userid' => $userid,
             'toolid' => $toolid,
         ];
-
-        // If enabled we always archive records.
-        $ltiusers = $DB->get_records('enrol_lti_users', $params, '', 'toolid,userid,lastaccess,lastgrade,timecreated');
-        $DB->insert_records('local_recompletion_ltia', $ltiusers);
+        if ($config->archiveltidata) {
+            // If set we archive records.
+            $ltiusers = $DB->get_records('enrol_lti_users', $params, '', 'toolid,userid,lastaccess,lastgrade,timecreated');
+            $DB->insert_records('local_recompletion_ltia', $ltiusers);
+        }
 
         // Reset.
         $sql = 'UPDATE {enrol_lti_users}
