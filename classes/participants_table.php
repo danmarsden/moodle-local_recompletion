@@ -351,7 +351,7 @@ class participants_table extends \table_sql {
      */
     public function col_coursecompletion($data) {
         global $OUTPUT;
-        // Load completion from cache (hopefully?)
+        // Load completion from cache.
         $params = array(
             'userid'    => $data->id,
             'course'    => $this->course->id
