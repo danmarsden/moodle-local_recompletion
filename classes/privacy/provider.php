@@ -105,6 +105,14 @@ class provider implements
             'timemodified' => 'privacy:metadata:timemodified'
         ], 'privacy:metadata:scorm_scoes_track');
 
+        $collection->add_database_table('local_recompletion_ltia', [
+            'toolid' => 'privacy:metadata:local_recompletion_ltia:toolid',
+            'userid' => 'privacy:metadata:local_recompletion_ltia:userid',
+            'lastgrade' => 'privacy:metadata:local_recompletion_ltia:lastgrade',
+            'lastaccess' => 'privacy:metadata:local_recompletion_ltia:lastaccess',
+            'timecreated' => 'privacy:metadata:local_recompletion_ltia:timecreated',
+        ], 'privacy:metadata:local_recompletion_ltia');
+
         return $collection;
     }
 
