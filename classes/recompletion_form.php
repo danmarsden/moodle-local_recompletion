@@ -89,60 +89,16 @@ class local_recompletion_recompletion_form extends moodleform {
         $mform->setDefault('archivecompletiondata', $archivedefault);
         $mform->addHelpButton('archivecompletiondata', 'archivecompletiondata', 'local_recompletion');
 
-        $cba = array();
-        $cba[] = $mform->createElement('radio', 'scormdata', '',
-            get_string('donothing', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING);
-        $cba[] = $mform->createElement('radio', 'scormdata', '',
-            get_string('delete', 'local_recompletion'), LOCAL_RECOMPLETION_DELETE);
+        // Get all plugins that are supported.
+        $activities = local_recompletion_get_supported_activities();
+        foreach ($activities as $activity) {
+            $fqn = 'local_recompletion\\activities\\' . $activity;
+            $fqn::editingform($mform);
+        }
 
-        $mform->addGroup($cba, 'scorm', get_string('scormattempts', 'local_recompletion'), array(' '), false);
-        $mform->addHelpButton('scorm', 'scormattempts', 'local_recompletion');
-        $mform->setDefault('scormdata', $config->scormattempts);
-
-        $mform->addElement('checkbox', 'archivescormdata',
-            get_string('archive', 'local_recompletion'));
-        $mform->setDefault('archivescormdata', $config->archivescormdata);
-
-        $cba = array();
-        $cba[] = $mform->createElement('radio', 'quizdata', '',
-            get_string('donothing', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING);
-        $cba[] = $mform->createElement('radio', 'quizdata', '',
-            get_string('delete', 'local_recompletion'), LOCAL_RECOMPLETION_DELETE);
-        $cba[] = $mform->createElement('radio', 'quizdata', '',
-            get_string('extraattempt', 'local_recompletion'), LOCAL_RECOMPLETION_EXTRAATTEMPT);
-
-        $mform->addGroup($cba, 'quiz', get_string('quizattempts', 'local_recompletion'), array(' '), false);
-        $mform->addHelpButton('quiz', 'quizattempts', 'local_recompletion');
-        $mform->setDefault('quizdata', $config->quizattempts);
-
-        $mform->addElement('checkbox', 'archivequizdata',
-            get_string('archive', 'local_recompletion'));
-        $mform->setDefault('archivequizdata', $config->archivequizdata);
-
-        $cba = array();
-        $cba[] = $mform->createElement('radio', 'assigndata', '',
-            get_string('donothing', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING);
-        $cba[] = $mform->createElement('radio', 'assigndata', '',
-            get_string('extraattempt', 'local_recompletion'), LOCAL_RECOMPLETION_EXTRAATTEMPT);
-        $cba[] = $mform->createElement('checkbox', 'assignevent', '', get_string('assignevent', 'local_recompletion'));
-        $mform->addGroup($cba, 'assign', get_string('assignattempts', 'local_recompletion'), array(' '), false);
-        $mform->addHelpButton('assign', 'assignattempts', 'local_recompletion');
-
-        $mform->setDefault('assigndata', $config->assignattempts);
-        $mform->setDefault('assignevent', $config->assignevent);
-
-        $this->add_lti_options();
-
-        $mform->disabledIf('scormdata', 'enable', 'notchecked');
         $mform->disabledIf('deletegradedata', 'enable', 'notchecked');
-        $mform->disabledIf('quizdata', 'enable', 'notchecked');
         $mform->disabledIf('archivecompletiondata', 'enable', 'notchecked');
         $mform->disabledIf('archivecompletiondata', 'forcearchive', 'eq');
-        $mform->disabledIf('archivequizdata', 'enable', 'notchecked');
-        $mform->disabledIf('archivescormdata', 'enable', 'notchecked');
-        $mform->disabledIf('assigndata', 'enable', 'notchecked');
-        $mform->hideIf('archivequizdata', 'quizdata', 'noteq', LOCAL_RECOMPLETION_DELETE);
-        $mform->hideIf('archivescormdata', 'scormdata', 'notchecked');
 
         // Add common action buttons.
         $this->add_action_buttons();
@@ -152,36 +108,5 @@ class local_recompletion_recompletion_form extends moodleform {
         $mform->setType('course', PARAM_INT);
         $mform->addElement('hidden', 'forcearchive', $config->forcearchivecompletiondata);
         $mform->setType('forcearchive', PARAM_BOOL);
-    }
-
-    /**
-     * Add lti radio elements if lti is enabled.
-     *
-     * @throws coding_exception
-     */
-    private function add_lti_options() : void {
-
-        if (!enrol_is_enabled('lti')) {
-            return;
-        }
-
-        $mform = $this->_form;
-
-        $options = [];
-        $options[] = $mform->createElement('radio', 'ltigrade', '',
-            get_string('donothing', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING);
-        $options[] = $mform->createElement('radio', 'ltigrade', '',
-            get_string('resetltigrade', 'local_recompletion'), LOCAL_RECOMPLETION_DELETE);
-
-        $mform->addGroup($options, 'lti', get_string('resetltigrades', 'local_recompletion'), [' '], false);
-        $mform->addHelpButton('lti', 'resetltigrades', 'local_recompletion');
-
-        $mform->addElement('checkbox', 'archiveltidata',
-            get_string('archive', 'local_recompletion'));
-        $mform->setDefault('archiveltidata', get_config('local_recompletion', 'archiveltidata'));
-
-        $mform->disabledIf('ltigrade', 'enable', 'notchecked');
-        $mform->disabledIf('archiveltidata', 'enable', 'notchecked');
-        $mform->hideIf('archiveltidata', 'ltigrade', 'noteq', LOCAL_RECOMPLETION_DELETE);
     }
 }

@@ -58,30 +58,9 @@ if ($hassiteconfig) {
         new lang_string('forcearchivecompletiondata', 'local_recompletion'),
         new lang_string('forcearchivecompletiondata_help', 'local_recompletion'), 0));
 
-    $choices = array(LOCAL_RECOMPLETION_NOTHING => get_string('donothing', 'local_recompletion'),
-                     LOCAL_RECOMPLETION_DELETE => get_string('delete', 'local_recompletion'));
-
-    $settings->add(new admin_setting_configselect('local_recompletion/scormattempts',
-        new lang_string('scormattempts', 'local_recompletion'),
-        new lang_string('scormattempts_help', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING, $choices));
-
-    $settings->add(new admin_setting_configcheckbox('local_recompletion/archivescormdata',
-        new lang_string('archivescormdata', 'local_recompletion'), '', 1));
-
-    $choices[LOCAL_RECOMPLETION_EXTRAATTEMPT] = get_string('extraattempt', 'local_recompletion');
-    $settings->add(new admin_setting_configselect('local_recompletion/quizattempts',
-        new lang_string('quizattempts', 'local_recompletion'),
-        new lang_string('quizattempts_help', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING, $choices));
-
-    $settings->add(new admin_setting_configcheckbox('local_recompletion/archivequizdata',
-        new lang_string('archivequizdata', 'local_recompletion'), '', 1));
-
-    unset($choices[LOCAL_RECOMPLETION_DELETE]); // Not supported in assign.
-    $settings->add(new admin_setting_configselect('local_recompletion/assignattempts',
-        new lang_string('assignattempts', 'local_recompletion'),
-        new lang_string('assignattempts_help', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING, $choices));
-
-    $settings->add(new admin_setting_configcheckbox('local_recompletion/assignevent',
-        new lang_string('assignevent', 'local_recompletion'),
-        '', 0));
+    $activities = local_recompletion_get_supported_activities();
+    foreach ($activities as $activity) {
+        $fqn = 'local_recompletion\\activities\\' . $activity;
+        $fqn::settings($settings);
+    }
 }

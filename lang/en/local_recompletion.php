@@ -73,6 +73,8 @@ $string['extraattempt'] = 'Give student extra attempt/s';
 $string['quizattempts'] = 'Quiz attempts';
 $string['quizattempts_help'] = 'What to do with existing Quiz attempts. If delete and archive is selected, the old quiz attempts will be archived in the local_recompletion tables,
  if set to give extra attempts this will add a quiz override to allow the user to have the maximum number of allowed attempts set.';
+$string['questionnaireattempts'] = 'Questionnaire attempts';
+$string['questionnaireattempts_help'] = 'What to do with existing Questionnaire attempts. If delete and archive is selected, the old Questionnaire attempts will be archived in the local_recompletion tables.';
 $string['scormattempts'] = 'SCORM attempts';
 $string['scormattempts_help'] = 'Should existing SCORM attempts be deleted - if archive is selected, the old SCORM attempts will be archived in the local_recompletion_sst table.';
 $string['archive'] = 'Archive old attempts';
@@ -136,6 +138,7 @@ $string['modifycompletiondates'] = 'Modify course completion dates';
 $string['assignevent'] = 'Update course completion on grade change';
 $string['defaultsettings'] = 'Recompletion default settings';
 $string['archivequizdata'] = 'Archive old quiz attempts';
+$string['archivequestionnairedata'] = 'Archive old questionnaire attempts';
 $string['archivescormdata'] = 'Archive old SCORM attempts';
 $string['resetltigrade'] = 'Reset LTI grades';
 $string['resetltigrades'] = 'LTI grades';

@@ -73,7 +73,7 @@ if (!empty($confirm) && confirm_sesskey()) {
         $returnurl = course_get_url($course);
     }
     if (!empty($errors)) {
-        redirect($returnurl, $errors, '',  \core\output\notification::NOTIFY_WARNING);
+        redirect($returnurl, explode(',', $errors), '',  \core\output\notification::NOTIFY_WARNING);
     } else {
         redirect($returnurl, get_string('completionresetuser', 'local_recompletion', fullname($user)));
     }
