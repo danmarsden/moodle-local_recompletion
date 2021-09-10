@@ -40,11 +40,12 @@ defined('MOODLE_INTERNAL') || die();
  */
 class assign {
     /**
-     * Add lti radio elements if lti is enabled to form.
-     *
-     * @throws coding_exception
+     * Add params to form.
+     * @param moodleform $mform
+     * @throws \coding_exception
+     * @throws \dml_exception
      */
-    public static function editingform($mform) : void {
+    public static function editingform($mform): void {
         $config = get_config('local_recompletion');
 
         $cba = array();
@@ -63,13 +64,13 @@ class assign {
     }
 
     /**
-     * Default settings.
-     * @param $settings
-     * @throws \coding_exception
+     * Add sitelevel settings for this plugin.
+     *
+     * @param admin_settingpage $settings
      */
     public static function settings($settings) {
         $choices = array(LOCAL_RECOMPLETION_NOTHING => new lang_string('donothing', 'local_recompletion'),
-                         LOCAL_RECOMPLETION_EXTRAATTEMPT => new lang_string('extraattempt', 'local_recompletion'));
+            LOCAL_RECOMPLETION_EXTRAATTEMPT => new lang_string('extraattempt', 'local_recompletion'));
 
         $settings->add(new \admin_setting_configselect('local_recompletion/assignattempts',
             new lang_string('assignattempts', 'local_recompletion'),
@@ -95,7 +96,7 @@ class assign {
                       FROM {assign} a
                       JOIN {assign_submission} s ON a.id = s.assignment
                      WHERE a.course = ? AND s.userid = ?";
-            $assigns = $DB->get_recordset_sql( $sql, array($course->id, $userid));
+            $assigns = $DB->get_recordset_sql($sql, array($course->id, $userid));
             $nopermissions = false;
             foreach ($assigns as $assign) {
                 $cm = get_coursemodule_from_instance('assign', $assign->id);

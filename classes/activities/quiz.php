@@ -40,9 +40,10 @@ defined('MOODLE_INTERNAL') || die();
  */
 class quiz {
     /**
-     * Add lti radio elements if lti is enabled to form.
-     *
-     * @throws coding_exception
+     * Add params to form.
+     * @param moodleform $mform
+     * @throws \coding_exception
+     * @throws \dml_exception
      */
     public static function editingform($mform) : void {
         $config = get_config('local_recompletion');
@@ -69,9 +70,9 @@ class quiz {
     }
 
     /**
-     * Default settings.
-     * @param $settings
-     * @throws \coding_exception
+     * Add sitelevel settings for this plugin.
+     *
+     * @param admin_settingpage $settings
      */
     public static function settings($settings) {
         $choices = array(LOCAL_RECOMPLETION_NOTHING => new lang_string('donothing', 'local_recompletion'),

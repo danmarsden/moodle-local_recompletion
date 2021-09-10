@@ -40,9 +40,10 @@ defined('MOODLE_INTERNAL') || die();
  */
 class questionnaire {
     /**
-     * Add lti radio elements if lti is enabled to form.
-     *
-     * @throws coding_exception
+     * Add params to form.
+     * @param moodleform $mform
+     * @throws \coding_exception
+     * @throws \dml_exception
      */
     public static function editingform($mform) : void {
         if (!self::installed()) {
@@ -70,9 +71,9 @@ class questionnaire {
     }
 
     /**
-     * Default settings.
-     * @param $settings
-     * @throws \coding_exception
+     * Add sitelevel settings for this plugin.
+     *
+     * @param admin_settingpage $settings
      */
     public static function settings($settings) {
         if (!self::installed()) {
@@ -108,34 +109,37 @@ class questionnaire {
             $params = array('userid' => $userid, 'course' => $course->id);
             $selectsql = 'userid = ? AND questionnaire IN (SELECT id FROM {questionnaire} WHERE course = ?)';
 
-                $questionnaireattempts = $DB->get_records_select('questionnaire_response', $selectsql, $params);
-                foreach ($questionnaireattempts as $qid => $unused) {
-                    if ($config->archivequestionnairedata) {
-                        // Add courseid to repsonse records to help with restore process.
-                        $questionnaireattempts[$qid]->course = $course->id;
+            $questionnaireattempts = $DB->get_records_select('questionnaire_response', $selectsql, $params);
+            foreach ($questionnaireattempts as $qid => $unused) {
+                if ($config->archivequestionnairedata) {
+                    // Add courseid to repsonse records to help with restore process.
+                    $questionnaireattempts[$qid]->course = $course->id;
 
-                        // TODO: - Archive extra table data.
-                    }
-                    // Delete extra table data for this response.
-                    $DB->delete_records('questionnaire_response_bool', array('response_id' => $qid));
-                    $DB->delete_records('questionnaire_response_date', array('response_id' => $qid));
-                    $DB->delete_records('questionnaire_resp_multiple', array('response_id' => $qid));
-                    $DB->delete_records('questionnaire_response_other', array('response_id' => $qid));
-                    $DB->delete_records('questionnaire_response_rank', array('response_id' => $qid));
-                    $DB->delete_records('questionnaire_resp_single', array('response_id' => $qid));
-                    $DB->delete_records('questionnaire_response_text', array('response_id' => $qid));
+                    // TODO: - Archive extra table data.
                 }
+                // Delete extra table data for this response.
+                $DB->delete_records('questionnaire_response_bool', array('response_id' => $qid));
+                $DB->delete_records('questionnaire_response_date', array('response_id' => $qid));
+                $DB->delete_records('questionnaire_resp_multiple', array('response_id' => $qid));
+                $DB->delete_records('questionnaire_response_other', array('response_id' => $qid));
+                $DB->delete_records('questionnaire_response_rank', array('response_id' => $qid));
+                $DB->delete_records('questionnaire_resp_single', array('response_id' => $qid));
+                $DB->delete_records('questionnaire_response_text', array('response_id' => $qid));
             }
+
             if ($config->archivequestionnairedata) {
                 // Archive main response table.
                 $DB->insert_records('local_recompletion_qr', $questionnaireattempts);
             }
 
-
             $DB->delete_records_select('questionnaire_response', $selectsql, $params);
         }
     }
 
+    /**
+     * Helper function to check if questionnaire is installed.
+     * @return bool
+     */
     public static function installed() {
         global $CFG;
         if (!file_exists($CFG->dirroot.'/mod/questionnaire/version.php')) {

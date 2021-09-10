@@ -232,6 +232,4 @@ class check_recompletion extends \core\task\scheduled_task {
         }
         return $errors;
     }
-
-
 }

@@ -34,12 +34,10 @@ $id = required_param('id', PARAM_INT);
 if ($id) {
     if ($id == SITEID) {
         // Don't allow editing of 'site course' using this form.
-        print_error('cannoteditsiteform');
+        throw new moodle_exception('cannoteditsiteform');
     }
+    $course = $DB->get_record('course', array('id' => $id), '*', MUST_EXIST);
 
-    if (!$course = $DB->get_record('course', array('id' => $id))) {
-        print_error('invalidcourseid');
-    }
     require_login($course);
     $context = context_course::instance($course->id);
     require_capability('local/recompletion:manage', $context);
@@ -48,12 +46,12 @@ if ($id) {
 
     // Check if completion is enabled site-wide, or for the course.
     if (!$completion->is_enabled()) {
-        print_error('completionnotenabled', 'local_recompletion');
+        throw new moodle_exception('completionnotenabled', 'local_recompletion');
     }
 
 } else {
     require_login();
-    print_error('needcourseid');
+    throw new moodle_exception('needcourseid');
 }
 
 // Set up the page.
