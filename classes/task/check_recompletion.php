@@ -200,9 +200,13 @@ class check_recompletion extends \core\task\scheduled_task {
         }
 
         $activities = local_recompletion_get_supported_activities();
+        $errors = [];
         foreach ($activities as $activity) {
             $fqn = 'local_recompletion\\activities\\' . $activity;
-            $errors[] = $fqn::reset($userid, $course, $config);
+            $error = $fqn::reset($userid, $course, $config);
+            if (!empty($errors)) {
+                $errors[] = $error;
+            }
         }
 
         // Now notify user.
