@@ -177,6 +177,14 @@ class provider implements
                     [get_string('recompletion', 'local_recompletion'), 'scorm_tracks'],
                     (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]);
             }
+
+            $records = $DB->get_records('local_recompletion_ltia', ['userid' => $userid]);
+            foreach ($records as $record) {
+                $context = \context_course::instance($record->course);
+                writer::with_context($context)->export_data(
+                    [get_string('recompletion', 'local_recompletion'), 'enrol_lti_users'],
+                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]);
+            }
         }
     }
 
@@ -243,6 +251,7 @@ class provider implements
             $DB->delete_records('local_recompletion_qa', $params);
             $DB->delete_records('local_recompletion_qg', $params);
             $DB->delete_records('local_recompletion_sst', $params);
+            $DB->delete_records('local_recompletion_ltia', ['userid' => $userid]);
         }
     }
 
@@ -408,5 +417,9 @@ class provider implements
         $params = array_merge($inparams, ['contextid' => $context->id]);
         $DB->delete_records_select('local_recompletion_sst', "id $sql", $params);
 
+        $sql = "SELECT rc.id
+                  FROM {local_recompletion_ltia} rc
+                  WHERE rc.userid $insql";
+        $DB->delete_records_select('local_recompletion_ltia', "id $sql", $inparams);
     }
 }
