@@ -73,6 +73,8 @@ $string['extraattempt'] = 'Give student extra attempt/s';
 $string['quizattempts'] = 'Quiz attempts';
 $string['quizattempts_help'] = 'What to do with existing Quiz attempts. If delete and archive is selected, the old quiz attempts will be archived in the local_recompletion tables,
  if set to give extra attempts this will add a quiz override to allow the user to have the maximum number of allowed attempts set.';
+$string['questionnaireattempts'] = 'Questionnaire attempts';
+$string['questionnaireattempts_help'] = 'What to do with existing Questionnaire attempts. If delete and archive is selected, the old Questionnaire attempts will be archived in the local_recompletion tables.';
 $string['scormattempts'] = 'SCORM attempts';
 $string['scormattempts_help'] = 'Should existing SCORM attempts be deleted - if archive is selected, the old SCORM attempts will be archived in the local_recompletion_sst table.';
 $string['archive'] = 'Archive old attempts';
@@ -122,6 +124,11 @@ $string['privacy:metadata:completionstate'] = 'If the activity has been complete
 $string['privacy:metadata:viewed'] = 'If the activity was viewed';
 $string['privacy:metadata:attempt'] = 'The attempt number';
 $string['privacy:metadata:scorm_scoes_track'] = 'Archive of the tracked data of the SCOes belonging to the activity';
+$string['privacy:metadata:local_recompletion_qr:questionnaireid'] = 'Questionnaire id';
+$string['privacy:metadata:local_recompletion_qr:submitted'] = 'Submitted';
+$string['privacy:metadata:local_recompletion_qr:complete'] = 'complete';
+$string['privacy:metadata:local_recompletion_qr:grade'] = 'Grade';
+$string['privacy:metadata:local_recompletion_qr'] = 'Recompletion Questionnaire response table';
 $string['noassigngradepermission'] = 'Your completion was reset, but this course contains an assignment that could not be reset, please ask your teacher to do this for you if required.';
 $string['editcompletion'] = 'Edit course completion date';
 $string['editcompletion_desc'] = 'Modify the course completion date for the following users:';
@@ -135,10 +142,11 @@ $string['completionresetuser'] = 'Completion for {$a} in this course has been re
 $string['modifycompletiondates'] = 'Modify course completion dates';
 $string['assignevent'] = 'Update course completion on grade change';
 $string['defaultsettings'] = 'Recompletion default settings';
-$string['archivequizdata'] = 'Archive old quiz attempts';
-$string['archivescormdata'] = 'Archive old SCORM attempts';
-$string['resetltigrade'] = 'Reset LTI grades';
-$string['resetltigrades'] = 'LTI grades';
-$string['resetltigrades_help'] = 'How to handle LTI grades within the course.
+$string['archivequiz'] = 'Archive old quiz attempts';
+$string['archivequestionnaire'] = 'Archive old questionnaire attempts';
+$string['archivescorm'] = 'Archive old SCORM attempts';
+$string['resetlti'] = 'Reset LTI grades';
+$string['resetltis'] = 'LTI grades';
+$string['resetltis_help'] = 'How to handle LTI grades within the course.
 If the setting \'Reset LTI grades\' is used, all grade LTI results will be reset to 0.
 When user achieved new completion in the course, the updated course grade will be resend to the LTI provider.';

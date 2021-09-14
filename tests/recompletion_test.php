@@ -14,20 +14,22 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace local_recompletion;
+
 /**
- * URKUND observers.
+ * Class dialogue_test.
  *
  * @package    local_recompletion
- * @author     Dan Marsden http://danmarsden.com
- * @copyright  2020 Catalyst IT
+ * @copyright  2021 Dan Marsden
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-defined('MOODLE_INTERNAL') || die();
-
-$observers = array (
-    array(
-        'eventname' => '\mod_assign\event\submission_graded',
-        'callback' => 'local_recompletion_observer::submission_graded'
-    ),
-);
+class recompletion_test extends \advanced_testcase {
+    /**
+     * Basic test for creating dialogue.
+     */
+    public function test_local_recompletion() {
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $course = $this->getDataGenerator()->create_course();
+    }
+}

@@ -36,12 +36,9 @@ $userid = optional_param('user', 0, PARAM_INT);
 
 if ($id == SITEID) {
     // Don't allow editing of 'site course' using this form.
-    print_error('cannoteditsiteform');
+    throw new moodle_exception('cannoteditsiteform');
 }
-
-if (!$course = $DB->get_record('course', array('id' => $id))) {
-    print_error('invalidcourseid');
-}
+$course = $DB->get_record('course', array('id' => $id), '*', MUST_EXIST);
 require_login($course);
 
 if (empty($userid)) {
@@ -61,7 +58,7 @@ $config = $DB->get_records_menu('local_recompletion_config', array('course' => $
 $config = (object) $config;
 
 if (empty($config->enable)) {
-    print_error('recompletionnotenabled', 'local_recompletion');
+    throw new moodle_exception('recompletionnotenabled', 'local_recompletion');
 }
 
 if (!empty($confirm) && confirm_sesskey()) {
@@ -73,7 +70,7 @@ if (!empty($confirm) && confirm_sesskey()) {
         $returnurl = course_get_url($course);
     }
     if (!empty($errors)) {
-        redirect($returnurl, $errors, '',  \core\output\notification::NOTIFY_WARNING);
+        redirect($returnurl, explode(',', $errors), '',  \core\output\notification::NOTIFY_WARNING);
     } else {
         redirect($returnurl, get_string('completionresetuser', 'local_recompletion', fullname($user)));
     }

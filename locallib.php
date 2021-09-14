@@ -29,3 +29,22 @@ defined('MOODLE_INTERNAL') || die;
 define('LOCAL_RECOMPLETION_NOTHING', 0);
 define('LOCAL_RECOMPLETION_DELETE', 1);
 define('LOCAL_RECOMPLETION_EXTRAATTEMPT', 2);
+
+/**
+ * Get list of supported activity classes.
+ * @return array
+ * @throws coding_exception
+ */
+function local_recompletion_get_supported_activities() {
+    global $CFG;
+    $activites = [];
+    $files = scandir($CFG->dirroot. '/local/recompletion/classes/activities');
+    foreach ($files as $file) {
+        $activity = clean_param(str_replace('.php', '', $file), PARAM_ALPHA);
+        if (!empty($activity) && file_exists($CFG->dirroot.'/mod/'.$activity)) {
+            $activities[] = $activity;
+        }
+
+    }
+    return $activities;
+}
