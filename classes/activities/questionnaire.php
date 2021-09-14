@@ -102,6 +102,13 @@ class questionnaire {
         if (!self::installed()) {
             return;
         }
+        $extratables = ['local_recompletion_qr_bool'   => 'questionnaire_response_bool' ,
+                        'local_recompletion_qr_date'   => 'questionnaire_response_date',
+                        'local_recompletion_qr_m'      => 'questionnaire_resp_multiple',
+                        'local_recompletion_qr_other'  => 'questionnaire_response_other',
+                        'local_recompletion_qr_rank'   => 'questionnaire_response_rank',
+                        'local_recompletion_qr_single' => 'questionnaire_resp_single',
+                        'local_recompletion_qr_text'   => 'questionnaire_response_text'];
 
         if (empty($config->questionnaire)) {
             return;
@@ -114,17 +121,20 @@ class questionnaire {
                 if ($config->archivequestionnaire) {
                     // Add courseid to repsonse records to help with restore process.
                     $questionnaireattempts[$qid]->course = $course->id;
+                    $questionnaireattempts[$qid]->originalresponseid = $qid;
 
-                    // TODO: - Archive extra table data.
+                    foreach ($extratables as $newtable => $table) {
+                        $extrarows = $DB->get_records($table, ['response_id' => $qid]);
+                        if (!empty($extrarows)) {
+                            $DB->insert_records($newtable, $extrarows);
+                        }
+                    }
                 }
+
                 // Delete extra table data for this response.
-                $DB->delete_records('questionnaire_response_bool', array('response_id' => $qid));
-                $DB->delete_records('questionnaire_response_date', array('response_id' => $qid));
-                $DB->delete_records('questionnaire_resp_multiple', array('response_id' => $qid));
-                $DB->delete_records('questionnaire_response_other', array('response_id' => $qid));
-                $DB->delete_records('questionnaire_response_rank', array('response_id' => $qid));
-                $DB->delete_records('questionnaire_resp_single', array('response_id' => $qid));
-                $DB->delete_records('questionnaire_response_text', array('response_id' => $qid));
+                foreach ($extratables as $table) {
+                    $DB->delete_records($table, ['response_id' => $qid]);
+                }
             }
 
             if ($config->archivequestionnaire) {
