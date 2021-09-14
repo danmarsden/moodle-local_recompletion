@@ -49,18 +49,18 @@ class assign {
         $config = get_config('local_recompletion');
 
         $cba = array();
-        $cba[] = $mform->createElement('radio', 'assigndata', '',
+        $cba[] = $mform->createElement('radio', 'assign', '',
             get_string('donothing', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING);
-        $cba[] = $mform->createElement('radio', 'assigndata', '',
+        $cba[] = $mform->createElement('radio', 'assign', '',
             get_string('extraattempt', 'local_recompletion'), LOCAL_RECOMPLETION_EXTRAATTEMPT);
         $cba[] = $mform->createElement('checkbox', 'assignevent', '', get_string('assignevent', 'local_recompletion'));
         $mform->addGroup($cba, 'assign', get_string('assignattempts', 'local_recompletion'), array(' '), false);
         $mform->addHelpButton('assign', 'assignattempts', 'local_recompletion');
 
-        $mform->setDefault('assigndata', $config->assignattempts);
+        $mform->setDefault('assign', $config->assignattempts);
         $mform->setDefault('assignevent', $config->assignevent);
 
-        $mform->disabledIf('assigndata', 'enable', 'notchecked');
+        $mform->disabledIf('assign', 'enable', 'notchecked');
     }
 
     /**
@@ -89,9 +89,9 @@ class assign {
      */
     public static function reset($userid, $course, $config) {
         global $DB;
-        if (empty($config->assigndata)) {
+        if (empty($config->assign)) {
             return '';
-        } else if ($config->assigndata == LOCAL_RECOMPLETION_EXTRAATTEMPT) {
+        } else if ($config->assign == LOCAL_RECOMPLETION_EXTRAATTEMPT) {
             $sql = "SELECT DISTINCT a.*
                       FROM {assign} a
                       JOIN {assign_submission} s ON a.id = s.assignment

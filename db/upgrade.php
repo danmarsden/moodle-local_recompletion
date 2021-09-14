@@ -384,5 +384,36 @@ function xmldb_local_recompletion_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2021091000, 'local', 'recompletion');
     }
 
+    if ($oldversion < 2021091400) {
+        // We renamed some site level config settings.
+        set_config('archivequiz', get_config('archivequizdata', 'local_recompletion'), 'local_recompletion');
+        set_config('archivescorm', get_config('archivescormdata', 'local_recompletion'), 'local_recompletion');
+
+        // We also renamed some coursemodule level config items.
+        $sql = "UPDATE {local_recompletion_config} SET name = 'assign' WHERE name = 'assigndata'";
+        $DB->execute($sql);
+
+        $sql = "UPDATE {local_recompletion_config} SET name = 'lti' WHERE name = 'ltigrade'";
+        $DB->execute($sql);
+
+        $sql = "UPDATE {local_recompletion_config} SET name = 'archivelti' WHERE name = 'archiveltidata'";
+        $DB->execute($sql);
+
+        $sql = "UPDATE {local_recompletion_config} SET name = 'quiz' WHERE name = 'quizdata'";
+        $DB->execute($sql);
+
+        $sql = "UPDATE {local_recompletion_config} SET name = 'archivequiz' WHERE name = 'archivequizdata'";
+        $DB->execute($sql);
+
+        $sql = "UPDATE {local_recompletion_config} SET name = 'scorm' WHERE name = 'scormdata'";
+        $DB->execute($sql);
+
+        $sql = "UPDATE {local_recompletion_config} SET name = 'archivescorm' WHERE name = 'archivescormdata'";
+        $DB->execute($sql);
+
+        // Recompletion savepoint reached.
+        upgrade_plugin_savepoint(true, 2021091400, 'local', 'recompletion');
+    }
+
     return true;
 }

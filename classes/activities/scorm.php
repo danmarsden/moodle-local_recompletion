@@ -49,22 +49,22 @@ class scorm {
         $config = get_config('local_recompletion');
 
         $cba = array();
-        $cba[] = $mform->createElement('radio', 'scormdata', '',
+        $cba[] = $mform->createElement('radio', 'scorm', '',
             get_string('donothing', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING);
-        $cba[] = $mform->createElement('radio', 'scormdata', '',
+        $cba[] = $mform->createElement('radio', 'scorm', '',
             get_string('delete', 'local_recompletion'), LOCAL_RECOMPLETION_DELETE);
 
         $mform->addGroup($cba, 'scorm', get_string('scormattempts', 'local_recompletion'), array(' '), false);
         $mform->addHelpButton('scorm', 'scormattempts', 'local_recompletion');
-        $mform->setDefault('scormdata', $config->scormattempts);
+        $mform->setDefault('scorm', $config->scormattempts);
 
-        $mform->addElement('checkbox', 'archivescormdata',
+        $mform->addElement('checkbox', 'archivescorm',
             get_string('archive', 'local_recompletion'));
-        $mform->setDefault('archivescormdata', $config->archivescormdata);
+        $mform->setDefault('archivescorm', $config->archivescorm);
 
-        $mform->disabledIf('archivescormdata', 'enable', 'notchecked');
-        $mform->hideIf('archivescormdata', 'scormdata', 'notchecked');
-        $mform->disabledIf('scormdata', 'enable', 'notchecked');
+        $mform->disabledIf('archivescorm', 'enable', 'notchecked');
+        $mform->hideIf('archivescorm', 'scorm', 'notchecked');
+        $mform->disabledIf('scorm', 'enable', 'notchecked');
 
     }
 
@@ -80,8 +80,8 @@ class scorm {
             new lang_string('scormattempts', 'local_recompletion'),
             new lang_string('scormattempts_help', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING, $choices));
 
-        $settings->add(new \admin_setting_configcheckbox('local_recompletion/archivescormdata',
-            new lang_string('archivescormdata', 'local_recompletion'), '', 1));
+        $settings->add(new \admin_setting_configcheckbox('local_recompletion/archivescorm',
+            new lang_string('archivescorm', 'local_recompletion'), '', 1));
     }
 
     /**
@@ -93,12 +93,12 @@ class scorm {
     public static function reset($userid, $course, $config) {
         global $DB;
 
-        if (empty($config->scormdata)) {
+        if (empty($config->scorm)) {
             return;
-        } else if ($config->scormdata == LOCAL_RECOMPLETION_DELETE) {
+        } else if ($config->scorm == LOCAL_RECOMPLETION_DELETE) {
             $params = array('userid' => $userid, 'course' => $course->id);
             $selectsql = 'userid = ? AND scormid IN (SELECT id FROM {scorm} WHERE course = ?)';
-            if ($config->archivescormdata) {
+            if ($config->archivescorm) {
                 $scormscoestrack = $DB->get_records_select('scorm_scoes_track', $selectsql, $params);
                 foreach ($scormscoestrack as $sid => $unused) {
                     // Add courseid to records to help with restore process.

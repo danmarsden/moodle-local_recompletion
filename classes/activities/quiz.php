@@ -49,24 +49,24 @@ class quiz {
         $config = get_config('local_recompletion');
 
         $cba = array();
-        $cba[] = $mform->createElement('radio', 'quizdata', '',
+        $cba[] = $mform->createElement('radio', 'quiz', '',
             get_string('donothing', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING);
-        $cba[] = $mform->createElement('radio', 'quizdata', '',
+        $cba[] = $mform->createElement('radio', 'quiz', '',
             get_string('delete', 'local_recompletion'), LOCAL_RECOMPLETION_DELETE);
-        $cba[] = $mform->createElement('radio', 'quizdata', '',
+        $cba[] = $mform->createElement('radio', 'quiz', '',
             get_string('extraattempt', 'local_recompletion'), LOCAL_RECOMPLETION_EXTRAATTEMPT);
 
         $mform->addGroup($cba, 'quiz', get_string('quizattempts', 'local_recompletion'), array(' '), false);
         $mform->addHelpButton('quiz', 'quizattempts', 'local_recompletion');
-        $mform->setDefault('quizdata', $config->quizattempts);
+        $mform->setDefault('quiz', $config->quizattempts);
 
-        $mform->addElement('checkbox', 'archivequizdata',
+        $mform->addElement('checkbox', 'archivequiz',
             get_string('archive', 'local_recompletion'));
-        $mform->setDefault('archivequizdata', $config->archivequizdata);
+        $mform->setDefault('archivequiz', $config->archivequiz);
 
-        $mform->disabledIf('quizdata', 'enable', 'notchecked');
-        $mform->disabledIf('archivequizdata', 'enable', 'notchecked');
-        $mform->hideIf('archivequizdata', 'quizdata', 'noteq', LOCAL_RECOMPLETION_DELETE);
+        $mform->disabledIf('quiz', 'enable', 'notchecked');
+        $mform->disabledIf('archivequiz', 'enable', 'notchecked');
+        $mform->hideIf('archivequiz', 'quiz', 'noteq', LOCAL_RECOMPLETION_DELETE);
     }
 
     /**
@@ -83,8 +83,8 @@ class quiz {
             new lang_string('quizattempts', 'local_recompletion'),
             new lang_string('quizattempts_help', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING, $choices));
 
-        $settings->add(new \admin_setting_configcheckbox('local_recompletion/archivequizdata',
-            new lang_string('archivequizdata', 'local_recompletion'), '', 1));
+        $settings->add(new \admin_setting_configcheckbox('local_recompletion/archivequiz',
+            new lang_string('archivequiz', 'local_recompletion'), '', 1));
     }
 
     /**
@@ -95,12 +95,12 @@ class quiz {
      */
     public static function reset($userid, $course, $config) {
         global $DB;
-        if (empty($config->quizdata)) {
+        if (empty($config->quiz)) {
             return;
-        } else if ($config->quizdata == LOCAL_RECOMPLETION_DELETE) {
+        } else if ($config->quiz == LOCAL_RECOMPLETION_DELETE) {
             $params = array('userid' => $userid, 'course' => $course->id);
             $selectsql = 'userid = ? AND quiz IN (SELECT id FROM {quiz} WHERE course = ?)';
-            if ($config->archivequizdata) {
+            if ($config->archivequiz) {
                 $quizattempts = $DB->get_records_select('quiz_attempts', $selectsql, $params);
                 foreach ($quizattempts as $qid => $unused) {
                     // Add courseid to records to help with restore process.
@@ -117,7 +117,7 @@ class quiz {
             }
             $DB->delete_records_select('quiz_attempts', $selectsql, $params);
             $DB->delete_records_select('quiz_grades', $selectsql, $params);
-        } else if ($config->quizdata == LOCAL_RECOMPLETION_EXTRAATTEMPT) {
+        } else if ($config->quiz == LOCAL_RECOMPLETION_EXTRAATTEMPT) {
             // Get all quizzes that do not have unlimited attempts and have existing data for this user.
             $sql = "SELECT DISTINCT q.*
                       FROM {quiz} q

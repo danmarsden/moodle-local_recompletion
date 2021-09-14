@@ -51,21 +51,21 @@ class lti {
         }
 
         $options = [];
-        $options[] = $mform->createElement('radio', 'ltigrade', '',
+        $options[] = $mform->createElement('radio', 'lti', '',
             get_string('donothing', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING);
-        $options[] = $mform->createElement('radio', 'ltigrade', '',
-            get_string('resetltigrade', 'local_recompletion'), LOCAL_RECOMPLETION_DELETE);
+        $options[] = $mform->createElement('radio', 'lti', '',
+            get_string('resetlti', 'local_recompletion'), LOCAL_RECOMPLETION_DELETE);
 
-        $mform->addGroup($options, 'lti', get_string('resetltigrades', 'local_recompletion'), [' '], false);
-        $mform->addHelpButton('lti', 'resetltigrades', 'local_recompletion');
+        $mform->addGroup($options, 'lti', get_string('resetltis', 'local_recompletion'), [' '], false);
+        $mform->addHelpButton('lti', 'resetltis', 'local_recompletion');
 
-        $mform->addElement('checkbox', 'archiveltidata',
+        $mform->addElement('checkbox', 'archivelti',
             get_string('archive', 'local_recompletion'));
-        $mform->setDefault('archiveltidata', get_config('local_recompletion', 'archiveltidata'));
+        $mform->setDefault('archivelti', get_config('local_recompletion', 'archivelti'));
 
-        $mform->disabledIf('ltigrade', 'enable', 'notchecked');
-        $mform->disabledIf('archiveltidata', 'enable', 'notchecked');
-        $mform->hideIf('archiveltidata', 'ltigrade', 'noteq', LOCAL_RECOMPLETION_DELETE);
+        $mform->disabledIf('lti', 'enable', 'notchecked');
+        $mform->disabledIf('archivelti', 'enable', 'notchecked');
+        $mform->hideIf('archivelti', 'lti', 'noteq', LOCAL_RECOMPLETION_DELETE);
     }
 
     /**
@@ -90,7 +90,7 @@ class lti {
     public static function reset(int $userid, \stdClass $course, \stdClass $config) : void {
         global $DB;
 
-        if (empty($config->ltigrade)) {
+        if (empty($config->lti)) {
             return;
         }
 
@@ -110,7 +110,7 @@ class lti {
             'userid' => $userid,
             'toolid' => $toolid,
         ];
-        if ($config->archiveltidata) {
+        if ($config->archivelti) {
             // If set we archive records.
             $ltiusers = $DB->get_records('enrol_lti_users', $params, '', 'toolid,userid,lastaccess,lastgrade,timecreated');
             $DB->insert_records('local_recompletion_ltia', $ltiusers);

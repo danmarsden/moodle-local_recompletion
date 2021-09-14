@@ -52,22 +52,22 @@ class questionnaire {
         $config = get_config('local_recompletion');
 
         $cba = array();
-        $cba[] = $mform->createElement('radio', 'questionnairedata', '',
+        $cba[] = $mform->createElement('radio', 'questionnaire', '',
             get_string('donothing', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING);
-        $cba[] = $mform->createElement('radio', 'questionnairedata', '',
+        $cba[] = $mform->createElement('radio', 'questionnaire', '',
             get_string('delete', 'local_recompletion'), LOCAL_RECOMPLETION_DELETE);
 
         $mform->addGroup($cba, 'questionnaire', get_string('questionnaireattempts', 'local_recompletion'), array(' '), false);
         $mform->addHelpButton('questionnaire', 'questionnaireattempts', 'local_recompletion');
-        $mform->setDefault('questionnairedata', $config->questionnaireattempts);
+        $mform->setDefault('questionnaire', $config->questionnaireattempts);
 
-        $mform->addElement('checkbox', 'archivequestionnairedata',
+        $mform->addElement('checkbox', 'archivequestionnaire',
             get_string('archive', 'local_recompletion'));
-        $mform->setDefault('archivequestionnairedata', $config->archivequestionnairedata);
+        $mform->setDefault('archivequestionnaire', $config->archivequestionnaire);
 
-        $mform->disabledIf('questionnairedata', 'enable', 'notchecked');
-        $mform->disabledIf('archivequestionnairedata', 'enable', 'notchecked');
-        $mform->hideIf('archivequestionnairedata', 'questionnairedata', 'noteq', LOCAL_RECOMPLETION_DELETE);
+        $mform->disabledIf('questionnaire', 'enable', 'notchecked');
+        $mform->disabledIf('archivequestionnaire', 'enable', 'notchecked');
+        $mform->hideIf('archivequestionnaire', 'questionnaire', 'noteq', LOCAL_RECOMPLETION_DELETE);
     }
 
     /**
@@ -87,8 +87,8 @@ class questionnaire {
             new lang_string('questionnaireattempts', 'local_recompletion'),
             new lang_string('questionnaireattempts_help', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING, $choices));
 
-        $settings->add(new \admin_setting_configcheckbox('local_recompletion/archivequestionnairedata',
-            new lang_string('archivequestionnairedata', 'local_recompletion'), '', 1));
+        $settings->add(new \admin_setting_configcheckbox('local_recompletion/archivequestionnaire',
+            new lang_string('archivequestionnaire', 'local_recompletion'), '', 1));
     }
 
     /**
@@ -103,15 +103,15 @@ class questionnaire {
             return;
         }
 
-        if (empty($config->questionnairedata)) {
+        if (empty($config->questionnaire)) {
             return;
-        } else if ($config->questionnairedata == LOCAL_RECOMPLETION_DELETE) {
+        } else if ($config->questionnaire == LOCAL_RECOMPLETION_DELETE) {
             $params = array('userid' => $userid, 'course' => $course->id);
-            $selectsql = 'userid = ? AND questionnaire IN (SELECT id FROM {questionnaire} WHERE course = ?)';
+            $selectsql = 'userid = ? AND questionnaireid IN (SELECT id FROM {questionnaire} WHERE course = ?)';
 
             $questionnaireattempts = $DB->get_records_select('questionnaire_response', $selectsql, $params);
             foreach ($questionnaireattempts as $qid => $unused) {
-                if ($config->archivequestionnairedata) {
+                if ($config->archivequestionnaire) {
                     // Add courseid to repsonse records to help with restore process.
                     $questionnaireattempts[$qid]->course = $course->id;
 
@@ -127,7 +127,7 @@ class questionnaire {
                 $DB->delete_records('questionnaire_response_text', array('response_id' => $qid));
             }
 
-            if ($config->archivequestionnairedata) {
+            if ($config->archivequestionnaire) {
                 // Archive main response table.
                 $DB->insert_records('local_recompletion_qr', $questionnaireattempts);
             }

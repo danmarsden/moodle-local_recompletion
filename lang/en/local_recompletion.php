@@ -142,11 +142,11 @@ $string['completionresetuser'] = 'Completion for {$a} in this course has been re
 $string['modifycompletiondates'] = 'Modify course completion dates';
 $string['assignevent'] = 'Update course completion on grade change';
 $string['defaultsettings'] = 'Recompletion default settings';
-$string['archivequizdata'] = 'Archive old quiz attempts';
-$string['archivequestionnairedata'] = 'Archive old questionnaire attempts';
-$string['archivescormdata'] = 'Archive old SCORM attempts';
-$string['resetltigrade'] = 'Reset LTI grades';
-$string['resetltigrades'] = 'LTI grades';
-$string['resetltigrades_help'] = 'How to handle LTI grades within the course.
+$string['archivequiz'] = 'Archive old quiz attempts';
+$string['archivequestionnaire'] = 'Archive old questionnaire attempts';
+$string['archivescorm'] = 'Archive old SCORM attempts';
+$string['resetlti'] = 'Reset LTI grades';
+$string['resetltis'] = 'LTI grades';
+$string['resetltis_help'] = 'How to handle LTI grades within the course.
 If the setting \'Reset LTI grades\' is used, all grade LTI results will be reset to 0.
 When user achieved new completion in the course, the updated course grade will be resend to the LTI provider.';

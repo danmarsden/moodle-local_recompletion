@@ -65,9 +65,15 @@ $PAGE->set_pagelayout('admin');
 $config = $DB->get_records_menu('local_recompletion_config', array('course' => $course->id), '', 'name, value');
 $idmap = $DB->get_records_menu('local_recompletion_config', array('course' => $course->id), '', 'name, id');
 
-$setnames = array('enable', 'recompletionduration', 'deletegradedata', 'quizdata', 'scormdata', 'archivecompletiondata',
-    'archivequizdata', 'archivescormdata', 'recompletionemailenable', 'recompletionemailsubject', 'recompletionemailbody',
-    'assigndata', 'ltigrade', 'archiveltidata', 'assignevent');
+$setnames = array('enable', 'recompletionduration', 'deletegradedata', 'archivecompletiondata',
+    'recompletionemailenable', 'recompletionemailsubject', 'recompletionemailbody',
+    'assignevent');
+
+$activities = local_recompletion_get_supported_activities();
+foreach ($activities as $activity) {
+    $setnames[] = $activity;
+    $setnames[] = 'archive'.$activity;
+}
 
 // Create the settings form instance.
 $form = new local_recompletion_recompletion_form('recompletion.php?id='.$id, array('course' => $course));
