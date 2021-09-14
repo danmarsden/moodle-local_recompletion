@@ -32,15 +32,19 @@ defined('MOODLE_INTERNAL') || die;
  * @param context         $context    The context of the course
  */
 function local_recompletion_extend_navigation_course($navigation, $course, $context) {
+    global $DB;
     $completion = new completion_info($course);
     if (!$completion->is_enabled()) {
         return;
     }
 
     if (has_capability('local/recompletion:resetmycompletion', $context)) {
-        $url = new moodle_url('/local/recompletion/resetcompletion.php', array('id' => $course->id));
-        $name = get_string('resetmycompletion', 'local_recompletion');
-        $navigation->add($name, $url, navigation_node::TYPE_SETTING, null, null, new pix_icon('i/settings', ''));
+        $enabled = $DB->get_field('local_recompletion_config', 'value', ['name' => 'enable', 'course' => $course->id]);
+        if (!empty($enabled)) {
+            $url = new moodle_url('/local/recompletion/resetcompletion.php', array('id' => $course->id));
+            $name = get_string('resetmycompletion', 'local_recompletion');
+            $navigation->add($name, $url, navigation_node::TYPE_SETTING, null, null, new pix_icon('i/settings', ''));
+        }
     }
 
     if (has_capability('local/recompletion:manage', $context)) {
