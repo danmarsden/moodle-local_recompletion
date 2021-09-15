@@ -44,6 +44,11 @@ require_once($CFG->dirroot . '/user/lib.php');
 class participants extends \core_user\table\participants {
 
     /**
+     * @var bool|mixed Is recompletion enabled in this course.
+     */
+    protected $recompletionenabled;
+
+    /**
      * Render the participants table.
      *
      * @param int $pagesize Size of page for paginated displayed table.
@@ -142,6 +147,8 @@ class participants extends \core_user\table\participants {
         $this->assignableroles = get_assignable_roles($this->context, ROLENAME_BOTH, false);
         $this->profileroles = get_profile_roles($this->context);
         $this->viewableroles = get_viewable_roles($this->context);
+        $this->recompletionenabled = $DB->get_field('local_recompletion_config',
+            'value', array('course' => $this->course->id, 'name' => 'enable'));
 
         if (!$this->columns) {
             $onerow = $DB->get_record_sql("SELECT {$this->sql->fields} FROM {$this->sql->from} WHERE {$this->sql->where}",

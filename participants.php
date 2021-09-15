@@ -44,7 +44,7 @@ $newcourse    = optional_param('newcourse', false, PARAM_BOOL);
 $roleid       = optional_param('roleid', 0, PARAM_INT);
 $urlgroupid   = optional_param('group', 0, PARAM_INT);
 
-$PAGE->set_url('/user/index.php', array(
+$PAGE->set_url('/local/recompletion/participants.php', array(
     'page' => $page,
     'perpage' => $perpage,
     'contextid' => $contextid,
@@ -91,13 +91,6 @@ $PAGE->set_pagetype('course-view-' . $course->format);
 $PAGE->set_docs_path('enrol/users');
 $PAGE->add_body_class('path-user');                     // So we can style it independently.
 $PAGE->set_other_editing_capability('moodle/course:manageactivities');
-
-// Expand the users node in the settings navigation when it exists because those pages
-// are related to this one.
-$node = $PAGE->settingsnav->find('users', navigation_node::TYPE_CONTAINER);
-if ($node) {
-    $node->force_open();
-}
 
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('participants'));
