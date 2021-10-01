@@ -106,7 +106,7 @@ class lti {
             return;
         }
 
-        foreach($tools as $tool) {
+        foreach ($tools as $tool) {
 
             $params = [
                 'userid' => $userid,
