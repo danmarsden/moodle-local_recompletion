@@ -100,13 +100,13 @@ class lti {
         }
 
         $context = \context_course::instance($course->id);
-        $tools = $DB->get_records('enrol_lti_tools', ['contextid' => $context->id] , '' , 'id');
+        $tools = $DB->get_records('enrol_lti_tools', ['contextid' => $context->id], '', 'id');
 
         if (empty($tools)) {
             return;
         }
 
-        foreach($tools as $tool) {
+        foreach ($tools as $tool) {
 
             $params = [
                 'userid' => $userid,
