@@ -100,28 +100,32 @@ class lti {
         }
 
         $context = \context_course::instance($course->id);
-        $toolid = $DB->get_field('enrol_lti_tools', 'id', ['contextid' => $context->id]);
+        $tools = $DB->get_records('enrol_lti_tools', ['contextid' => $context->id], '', 'id');
 
-        if (empty($toolid)) {
+        if (empty($tools)) {
             return;
         }
 
-        $params = [
-            'userid' => $userid,
-            'toolid' => $toolid,
-        ];
-        if ($config->archivelti) {
-            // If set we archive records.
-            $ltiusers = $DB->get_records('enrol_lti_users', $params, '', 'toolid,userid,lastaccess,lastgrade,timecreated');
-            $DB->insert_records('local_recompletion_ltia', $ltiusers);
-        }
+        foreach ($tools as $tool) {
 
-        // Reset.
-        $sql = 'UPDATE {enrol_lti_users}
+            $params = [
+                'userid' => $userid,
+                'toolid' => $tool->id,
+            ];
+
+            if ($config->archivelti) {
+                // If set we archive records.
+                $ltiusers = $DB->get_records('enrol_lti_users', $params, '', 'toolid,userid,lastaccess,lastgrade,timecreated');
+                $DB->insert_records('local_recompletion_ltia', $ltiusers);
+            }
+
+            // Reset.
+            $sql = 'UPDATE {enrol_lti_users}
                 SET lastgrade = 0
                 WHERE userid = :userid
                 AND toolid = :toolid';
 
-        $DB->execute($sql, $params);
+            $DB->execute($sql, $params);
+        }
     }
 }
