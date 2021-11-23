@@ -401,7 +401,7 @@ function xmldb_local_recompletion_upgrade($oldversion) {
         $table->add_field('complete', XMLDB_TYPE_CHAR, '1', null, XMLDB_NOTNULL, null, 'n');
         $table->add_field('grade', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
         $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
-        $table->add_field('course', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('course', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
 
         // Adding keys to table local_recompletion_qr.
         $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
@@ -556,6 +556,15 @@ function xmldb_local_recompletion_upgrade($oldversion) {
 
         // Recompletion savepoint reached.
         upgrade_plugin_savepoint(true, 2021091500, 'local', 'recompletion');
+    }
+
+    if ($oldversion < 2021100101) {
+        // Correct default value for couse on the local_recompletion_qr table to be zero.
+        $table = new xmldb_table('local_recompletion_qr');
+        $field = new xmldb_field('course', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'userid');
+        $dbman->change_field_default($table, $field);
+        // Recompletion savepoint reached.
+        upgrade_plugin_savepoint(true, 2021100101, 'local', 'recompletion');
     }
 
     return true;
