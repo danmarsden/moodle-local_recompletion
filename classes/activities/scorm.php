@@ -27,8 +27,6 @@ namespace local_recompletion\activities;
 
 use lang_string;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * SCORM handler event.
  *

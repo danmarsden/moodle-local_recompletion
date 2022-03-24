@@ -25,8 +25,6 @@
 
 namespace local_recompletion\event;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * completion_reset event class.
  *

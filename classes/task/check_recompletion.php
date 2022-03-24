@@ -25,8 +25,6 @@
 
 namespace local_recompletion\task;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Check for users that need to recomplete.
  *

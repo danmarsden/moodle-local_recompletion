@@ -23,8 +23,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die;
-
 // Used by settings to decide if attempts should be deleted or an extra attempt allowed.
 define('LOCAL_RECOMPLETION_NOTHING', 0);
 define('LOCAL_RECOMPLETION_DELETE', 1);

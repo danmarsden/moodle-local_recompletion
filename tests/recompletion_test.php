@@ -24,6 +24,7 @@ namespace local_recompletion;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class recompletion_test extends \advanced_testcase {
+
     /**
      * Basic test for creating dialogue.
      */
