@@ -35,11 +35,16 @@ define('LOCAL_RECOMPLETION_EXTRAATTEMPT', 2);
  */
 function local_recompletion_get_supported_activities() {
     global $CFG;
-    $activites = [];
+    $activities = [];
     $files = scandir($CFG->dirroot. '/local/recompletion/classes/activities');
     foreach ($files as $file) {
-        $activity = clean_param(str_replace('.php', '', $file), PARAM_ALPHA);
-        if (!empty($activity) && file_exists($CFG->dirroot.'/mod/'.$activity)) {
+        // Check  the activity type
+        $type=strpos($file,'_')!==false?strstr($file,'_',true):'mod';
+        $activity = clean_param(str_replace('.php', '', $file), PARAM_ALPHAEXT);
+        $foldername=$type!='mod'?str_replace($type.'_','',$activity):$activity;
+        $activityfolder='/'.$type.'/'.$foldername;
+
+        if (!empty($activity) && (file_exists($CFG->dirroot.$activityfolder))) {
             $activities[] = $activity;
         }
 
