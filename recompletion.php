@@ -69,10 +69,10 @@ $setnames = array('enable', 'recompletionduration', 'deletegradedata', 'archivec
     'recompletionemailenable', 'recompletionemailsubject', 'recompletionemailbody',
     'assignevent');
 
-$activities = local_recompletion_get_supported_activities();
-foreach ($activities as $activity) {
-    $setnames[] = $activity;
-    $setnames[] = 'archive'.$activity;
+$plugins = local_recompletion_get_supported_plugins();
+foreach ($plugins as $plugin) {
+    $setnames[] = $plugin;
+    $setnames[] = 'archive'.$plugin;
 }
 
 // Create the settings form instance.

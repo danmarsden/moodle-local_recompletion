@@ -23,7 +23,7 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace local_recompletion\activities;
+namespace local_recompletion\plugins;
 
 use lang_string;
 
@@ -36,7 +36,7 @@ use lang_string;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  */
-class assign {
+class mod_assign {
     /**
      * Add params to form.
      * @param moodleform $mform
