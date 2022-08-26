@@ -126,6 +126,7 @@ class participants extends \core_user\table\participants {
 
         $this->no_sorting('select');
         $this->no_sorting('roles');
+        $this->no_sorting('coursecompletion');
         if ($canseegroups) {
             $this->no_sorting('groups');
         }
