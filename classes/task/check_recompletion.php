@@ -197,10 +197,10 @@ class check_recompletion extends \core\task\scheduled_task {
             }
         }
 
-        $activities = local_recompletion_get_supported_activities();
+        $plugins = local_recompletion_get_supported_plugins();
         $errors = [];
-        foreach ($activities as $activity) {
-            $fqn = 'local_recompletion\\activities\\' . $activity;
+        foreach ($plugins as $plugin) {
+            $fqn = 'local_recompletion\\plugins\\' . $plugin;
             $error = $fqn::reset($userid, $course, $config);
             if (!empty($errors)) {
                 $errors[] = $error;

@@ -20,6 +20,7 @@
  * @package    local_recompletion
  * @copyright  2018 Catalyst IT
  * @author     Dan Marsden
+ * @contributor    Lukas Celinak
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -29,20 +30,26 @@ define('LOCAL_RECOMPLETION_DELETE', 1);
 define('LOCAL_RECOMPLETION_EXTRAATTEMPT', 2);
 
 /**
- * Get list of supported activity classes.
+ * Get list of supported plugin classes.
  * @return array
  * @throws coding_exception
  */
-function local_recompletion_get_supported_activities() {
+function local_recompletion_get_supported_plugins() {
     global $CFG;
-    $activites = [];
-    $files = scandir($CFG->dirroot. '/local/recompletion/classes/activities');
+    $plugins = [];
+    $files = scandir($CFG->dirroot. '/local/recompletion/classes/plugins');
     foreach ($files as $file) {
-        $activity = clean_param(str_replace('.php', '', $file), PARAM_ALPHA);
-        if (!empty($activity) && file_exists($CFG->dirroot.'/mod/'.$activity)) {
-            $activities[] = $activity;
+        $component = clean_param(str_replace('.php', '', $file), PARAM_ALPHAEXT);
+        list($plugin, $type) = core_component::normalize_component($component);
+
+        if(!core_component::is_valid_plugin_name($type,$plugin)){
+            continue;
+        }
+
+        if ($plugin!='core' && core_component::get_component_directory($component)) {
+            $plugins[] = core_component::normalize_componentname($component);
         }
 
     }
-    return $activities;
+    return $plugins;
 }

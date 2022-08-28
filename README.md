@@ -11,7 +11,7 @@ The git branches here support the following versions.
 | Mooodle 3.9 - 3.10  | MOODLE_39_STABLE |
 | Moodle 3.11 and higher | MOODLE_311_STABLE |
 
-This plugin adds course level settings for recompletion - clearing all course and activity completion for a user based on the duration set notifying the student they need to return to the course and recomplete it.
+This plugin adds course level settings for recompletion - clearing all course, activity completion and all other related moodle plugins data for a user based on the duration set notifying the student they need to return to the course and recomplete it.
 
 This plugin could be used to facilitate annual re-certification.
 
@@ -32,7 +32,7 @@ You can choose to give the student another attempt (if the assignment is configu
 
 If a user has already completed the course, and a teacher performs a grading action on an assignment, you can choose to have the course completion date updated at the same time.
 
-Other activities that store user data will have the activity completion data reset, but may require manual intervention as they are not yet supported fully.
+Other plugins that store user data will have the activity completion data, and all related data reset, but may require manual intervention as they are not yet supported fully.
 Get in touch privately if you would like to fund support for other activities with user data.
 
 

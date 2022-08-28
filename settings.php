@@ -58,9 +58,9 @@ if ($hassiteconfig) {
         new lang_string('forcearchivecompletiondata', 'local_recompletion'),
         new lang_string('forcearchivecompletiondata_help', 'local_recompletion'), 0));
 
-    $activities = local_recompletion_get_supported_activities();
-    foreach ($activities as $activity) {
-        $fqn = 'local_recompletion\\activities\\' . $activity;
+    $plugins = local_recompletion_get_supported_plugins();
+    foreach ($plugins as $plugin) {
+        $fqn = 'local_recompletion\\plugins\\' . $plugin;
         $fqn::settings($settings);
     }
 }
