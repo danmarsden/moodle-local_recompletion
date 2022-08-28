@@ -20,7 +20,6 @@
  * @package    local_recompletion
  * @copyright  2018 Catalyst IT
  * @author     Dan Marsden
- * @contributor    Lukas Celinak
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -42,11 +41,11 @@ function local_recompletion_get_supported_plugins() {
         $component = clean_param(str_replace('.php', '', $file), PARAM_ALPHAEXT);
         list($plugin, $type) = core_component::normalize_component($component);
 
-        if(!core_component::is_valid_plugin_name($type,$plugin)){
+        if (!core_component::is_valid_plugin_name($type, $plugin)) {
             continue;
         }
 
-        if ($plugin!='core' && core_component::get_component_directory($component)) {
+        if ($plugin != 'core' && core_component::get_component_directory($component)) {
             $plugins[] = core_component::normalize_componentname($component);
         }
 
