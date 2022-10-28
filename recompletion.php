@@ -71,6 +71,10 @@ $setnames = array('enable', 'recompletionduration', 'deletegradedata', 'archivec
 
 $plugins = local_recompletion_get_supported_plugins();
 foreach ($plugins as $plugin) {
+    if (substr($plugin, 0, 4) == 'mod_') {
+        // Backwards compatibility - module form fields use "assign" rather than "mod_assign.
+        $plugin = str_replace('mod_', '', $plugin);
+    }
     $setnames[] = $plugin;
     $setnames[] = 'archive'.$plugin;
 }
