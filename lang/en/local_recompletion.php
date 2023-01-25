@@ -150,3 +150,6 @@ $string['resetltis'] = 'LTI grades';
 $string['resetltis_help'] = 'How to handle LTI grades within the course.
 If the setting \'Reset LTI grades\' is used, all grade LTI results will be reset to 0.
 When user achieved new completion in the course, the updated course grade will be resend to the LTI provider.';
+$string['pulsenotifications'] = 'Pulse notifications';
+$string['pulsenotifications_help'] = 'Should Pulse notifications which have already been sent be reset?';
+$string['pulseresetnotifications'] = 'Reset notifications';
