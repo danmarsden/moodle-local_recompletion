@@ -27,8 +27,6 @@ namespace local_recompletion\plugins;
 
 use lang_string;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Pulse handler event.
  *
