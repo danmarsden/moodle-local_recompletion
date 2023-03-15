@@ -22,6 +22,9 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+
+use local_recompletion\dao\recompletion_configuration as recompletion_configuration;
+
 require_once(__DIR__.'/../../config.php');
 require_once($CFG->dirroot.'/local/recompletion/locallib.php');
 require_once($CFG->dirroot.'/course/lib.php');
@@ -61,23 +64,9 @@ $PAGE->set_title($course->shortname);
 $PAGE->set_heading($course->fullname);
 $PAGE->set_pagelayout('admin');
 
-// This seems a bit messy - would be nice to tidy this up a bit.
-$config = $DB->get_records_menu('local_recompletion_config', array('course' => $course->id), '', 'name, value');
-$idmap = $DB->get_records_menu('local_recompletion_config', array('course' => $course->id), '', 'name, id');
+$config = new recompletion_configuration($course->id);
 
-$setnames = array('enable', 'recompletionduration', 'deletegradedata', 'archivecompletiondata',
-    'recompletionemailenable', 'recompletionemailsubject', 'recompletionemailbody',
-    'assignevent');
-
-$plugins = local_recompletion_get_supported_plugins();
-foreach ($plugins as $plugin) {
-    if (substr($plugin, 0, 4) == 'mod_') {
-        // Backwards compatibility - module form fields use "assign" rather than "mod_assign.
-        $plugin = str_replace('mod_', '', $plugin);
-    }
-    $setnames[] = $plugin;
-    $setnames[] = 'archive'.$plugin;
-}
+$setnames = $config->setnames();
 
 // Create the settings form instance.
 $form = new local_recompletion_recompletion_form('recompletion.php?id='.$id, array('course' => $course));
@@ -86,20 +75,24 @@ if ($form->is_cancelled()) {
     redirect($CFG->wwwroot.'/course/view.php?id='.$course->id);
 
 } else if ($data = $form->get_data()) {
+    // Insert or update DB with form data.
+    $data = $config->set_form_data($data);
+
     foreach ($setnames as $name) {
-        if (isset($data->$name)) {
-            $value = $data->$name;
+        if (isset($data[$name])) {
+            $value = $data[$name];
         } else {
-            if ($name == 'recompletionemailsubject' || $name == 'recompletionemailbody') {
+            if (in_array($name, array('recompletionemailsubject', 'recompletionemailbody_text', 'recompletionemailbody_format'))) {
                 $value = '';
             } else {
                 $value = 0;
             }
         }
-        if (!isset($config[$name]) || $config[$name] <> $value) {
+        if (!property_exists($config, $name) || $config->$name->value <> $value) {
             $rc = new stdclass();
-            if (isset($idmap[$name])) {
-                $rc->id = $idmap[$name];
+
+            if (property_exists($config, $name)) {
+                $rc->id = $config->$name->id;
             }
             $rc->name = $name;
             $rc->value = $value;
@@ -118,8 +111,9 @@ if ($form->is_cancelled()) {
     // Redirect to the course main page.
     $url = new moodle_url('/course/view.php', array('id' => $course->id));
     redirect($url, get_string('recompletionsettingssaved', 'local_recompletion'));
-} else if (!empty($config)) {
-    $form->set_data($config);
+} else if (!$config->is_empty()) {
+    // Load from with data from DB.
+    $form->set_data($config->prepare_form_data());
 }
 
 // Print the form.
