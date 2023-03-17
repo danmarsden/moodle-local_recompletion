@@ -284,6 +284,7 @@
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="choice_id" TYPE="foreign" FIELDS="choice_id" REFTABLE="choice" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
   </TABLES>
