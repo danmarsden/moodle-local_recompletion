@@ -61,13 +61,11 @@ $PAGE->set_title($course->shortname);
 $PAGE->set_heading($course->fullname);
 $PAGE->set_pagelayout('admin');
 
-// This seems a bit messy - would be nice to tidy this up a bit.
-$config = $DB->get_records_menu('local_recompletion_config', array('course' => $course->id), '', 'name, value');
-$idmap = $DB->get_records_menu('local_recompletion_config', array('course' => $course->id), '', 'name, id');
+$config = $DB->get_records_list('local_recompletion_config', 'course', array($course->id), '', 'name, id, value');
 
 $setnames = array('enable', 'recompletionduration', 'deletegradedata', 'archivecompletiondata',
     'recompletionemailenable', 'recompletionemailsubject', 'recompletionemailbody',
-    'assignevent');
+    'recompletionemailbody_format', 'assignevent');
 
 $plugins = local_recompletion_get_supported_plugins();
 foreach ($plugins as $plugin) {
@@ -86,6 +84,7 @@ if ($form->is_cancelled()) {
     redirect($CFG->wwwroot.'/course/view.php?id='.$course->id);
 
 } else if ($data = $form->get_data()) {
+    $data = local_recompletion_set_form_data($data);
     foreach ($setnames as $name) {
         if (isset($data->$name)) {
             $value = $data->$name;
@@ -96,10 +95,10 @@ if ($form->is_cancelled()) {
                 $value = 0;
             }
         }
-        if (!isset($config[$name]) || $config[$name] <> $value) {
+        if (!isset($config[$name]) || $config[$name]->value <> $value) {
             $rc = new stdclass();
-            if (isset($idmap[$name])) {
-                $rc->id = $idmap[$name];
+            if (isset($config[$name])) {
+                $rc->id = $config[$name]->id;
             }
             $rc->name = $name;
             $rc->value = $value;
@@ -119,7 +118,7 @@ if ($form->is_cancelled()) {
     $url = new moodle_url('/course/view.php', array('id' => $course->id));
     redirect($url, get_string('recompletionsettingssaved', 'local_recompletion'));
 } else if (!empty($config)) {
-    $form->set_data($config);
+    $form->set_data(local_recompletion_get_data($config));
 }
 
 // Print the form.

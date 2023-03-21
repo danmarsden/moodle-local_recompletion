@@ -52,3 +52,40 @@ function local_recompletion_get_supported_plugins() {
     }
     return $plugins;
 }
+
+/**
+ * Loads form data.
+ *
+ * @param string[] $mformdata
+ * @return object
+ */
+function local_recompletion_set_form_data($mformdata) {
+    $data = (array)$mformdata;
+    if (key_exists('recompletionemailbody', $data)) {
+        $recompletionemailbody = $data['recompletionemailbody'];
+        $data['recompletionemailbody_format'] = $recompletionemailbody['format'];
+        $data['recompletionemailbody'] = $recompletionemailbody['text'];
+    }
+    return (object)$data;
+}
+
+/**
+ * Return the data that will be used upon saving.
+ * @param string[] $data
+ * @return array|false
+ */
+function local_recompletion_get_data(array $data) {
+    $keys = array_column($data, 'name');
+    $values = array_column($data, 'value');
+    $result = array_combine($keys, $values);
+    // Set default format for email body editor.
+    if (isset($result['recompletionemailbody']) && !isset($result['recompletionemailbody_format'])) {
+        $result['recompletionemailbody_format'] = FORMAT_HTML;
+    }
+    // Prepare email body for editor.
+    $emailbody = array('text' => $result['recompletionemailbody'], 'format' => $result['recompletionemailbody_format']);
+    $result['recompletionemailbody'] = $emailbody;
+
+    return $result;
+}
+
