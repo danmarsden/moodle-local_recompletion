@@ -153,3 +153,6 @@ When user achieved new completion in the course, the updated course grade will b
 $string['pulsenotifications'] = 'Pulse notifications';
 $string['pulsenotifications_help'] = 'Should Pulse notifications which have already been sent be reset?';
 $string['pulseresetnotifications'] = 'Reset notifications';
+$string['choiceattempts'] = "Choice attempts";
+$string['archivechoice'] = "Archive old choice attempts";
+$string['choiceattempts_help'] = 'Should existing Choice attempts be deleted - if archive is selected, the old Choice attempts will be archived in the local_recompletion_cha table.';

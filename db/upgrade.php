@@ -565,5 +565,34 @@ function xmldb_local_recompletion_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2021112400, 'local', 'recompletion');
     }
 
+    if ($oldversion < 2023022100) {
+
+        // Define field id to be added to local_recompletion_cha.
+        $table = new xmldb_table('local_recompletion_cha');
+
+        // Adding fields to table local_recompletion_cha.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null, null);
+        $table->add_field('choiceid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'id');
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'choiceid');
+        $table->add_field('optionid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'userid');
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'optionid');
+        $table->add_field('course', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'timemodified');
+
+        // Adding keys to table local_recompletion_cha.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('choiceid', XMLDB_KEY_FOREIGN, ['choiceid'], 'choice', ['id']);
+
+        // Adding indexes to table local_recompletion_cha.
+        $table->add_index('course', XMLDB_INDEX_NOTUNIQUE, ['course']);
+
+        // Conditionally launch create table for local_recompletion_cha.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Recompletion savepoint reached.
+        upgrade_plugin_savepoint(true, 2023022100, 'local', 'recompletion');
+    }
+
     return true;
 }

@@ -119,6 +119,13 @@ class provider implements
             'grade' => 'privacy:metadata:local_recompletion_qr:grade',
         ], 'privacy:metadata:local_recompletion_qr');
 
+        $collection->add_database_table('local_recompletion_cha', [
+            'choiceid' => 'privacy:metadata:local_recompletion_cha:choiceid',
+            'userid' => 'privacy:metadata:userid',
+            'optionid' => 'privacy:metadata:local_recompletion_cha:optionid',
+            'timemodified' => 'privacy:metadata:timemodified'
+        ], 'privacy:metadata:local_recompletion_cha');
+
         return $collection;
     }
 
@@ -199,6 +206,14 @@ class provider implements
                     [get_string('recompletion', 'local_recompletion'), 'recompletion_qr'],
                     (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]);
             }
+
+            $records = $DB->get_records('local_recompletion_cha', $params);
+            foreach ($records as $record) {
+                $context = \context_course::instance($record->course);
+                writer::with_context($context)->export_data(
+                    [get_string('recompletion', 'local_recompletion'), 'recompletion_cha'],
+                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]);
+            }
         }
     }
 
@@ -244,6 +259,7 @@ class provider implements
         $DB->delete_records('local_recompletion_qg', $params);
         $DB->delete_records('local_recompletion_sst', $params);
         $DB->delete_records('local_recompletion_qr', $params);
+        $DB->delete_records('local_recompletion_cha', $params);
     }
 
     /**
@@ -268,6 +284,7 @@ class provider implements
             $DB->delete_records('local_recompletion_sst', $params);
             $DB->delete_records('local_recompletion_ltia', ['userid' => $userid]);
             $DB->delete_records('local_recompletion_qr', $params);
+            $DB->delete_records('local_recompletion_cha', $params);
         }
     }
 
@@ -315,6 +332,11 @@ class provider implements
                   FROM {course} c
                   JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
                   JOIN {local_recompletion_qr} rc ON rc.course = c.id and rc.userid = :userid";
+        $contextlist->add_from_sql($sql, $params);
+        $sql = "SELECT ctx.id
+                  FROM {course} c
+                  JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                  JOIN {local_recompletion_cha} rc ON rc.course = c.id and rc.userid = :userid";
         $contextlist->add_from_sql($sql, $params);
         return $contextlist;
     }
@@ -374,6 +396,13 @@ class provider implements
 
         $sql = "SELECT rc.userid
                   FROM {local_recompletion_qr} rc
+                  JOIN {course} c ON rc.course = c.id
+                  JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                  WHERE ctx.id = :contextid";
+        $userlist->add_from_sql('userid', $sql, $params);
+
+        $sql = "SELECT rc.userid
+                  FROM {local_recompletion_cha} rc
                   JOIN {course} c ON rc.course = c.id
                   JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
                   WHERE ctx.id = :contextid";
@@ -456,5 +485,13 @@ class provider implements
                   WHERE ctx.id = :contextid AND rc.userid $insql";
         $params = array_merge($inparams, ['contextid' => $context->id]);
         $DB->delete_records_select('local_recompletion_qr', "id $sql", $params);
+
+        $sql = "SELECT rc.id
+                  FROM {local_recompletion_cha} rc
+                  JOIN {course} c ON rc.course = c.id
+                  JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                  WHERE ctx.id = :contextid AND rc.userid $insql";
+        $params = array_merge($inparams, ['contextid' => $context->id]);
+        $DB->delete_records_select('local_recompletion_cha', "id $sql", $params);
     }
 }

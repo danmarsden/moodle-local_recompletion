@@ -47,6 +47,7 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
         $paths[] = new restore_path_element('recompletion_qa', $elepath.'/quizattempts/attempt');
         $paths[] = new restore_path_element('recompletion_qg', $elepath.'/quizgrades/grade');
         $paths[] = new restore_path_element('recompletion_sst', $elepath.'/scormtracks/sco_track');
+        $paths[] = new restore_path_element('recompletion_cha', $elepath.'/choiceanswers/choiceanswer');
 
         return $paths;
     }
@@ -150,6 +151,20 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
     }
 
     /**
+     * Process local_recompletion_cha table.
+     * @param stdClass $data
+     */
+    public function process_recompletion_cha($data) {
+        global $DB;
+
+        $data = (object) $data;
+        $data->course = $this->task->get_courseid();
+        $data->userid = $this->get_mappingid('user', $data->userid);
+
+        $DB->insert_record('local_recompletion_cha', $data);
+    }
+
+    /**
      * We call the after restore_course to update the coursemodule ids we didn't know when creating.
      */
     protected function after_restore_course() {
@@ -186,5 +201,14 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
             $DB->update_record('local_recompletion_qa', $rc);
         }
         $rcm->close();
+
+        // Fix Choice answers.
+        $rcm = $DB->get_recordset('local_recompletion_cha', array('course' => $this->task->get_courseid()));
+        foreach ($rcm as $rc) {
+            $rc->choiceid = $this->get_mappingid('choice', $rc->choiceid);
+            $DB->update_record('local_recompletion_cha', $rc);
+        }
+        $rcm->close();
+
     }
 }
