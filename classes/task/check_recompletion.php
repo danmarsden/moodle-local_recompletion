@@ -147,15 +147,22 @@ class check_recompletion extends \core\task\scheduled_task {
             $key = array('{$a->coursename}', '{$a->profileurl}', '{$a->link}', '{$a->fullname}', '{$a->email}');
             $value = array($a->coursename, $a->profileurl, $a->link, fullname($userrecord), $userrecord->email);
             $message = str_replace($key, $value, $message);
-            if (strpos($message, '<') === false) {
-                // Plain text only.
-                $messagetext = $message;
-                $messagehtml = text_to_html($messagetext, null, false, true);
-            } else {
-                // This is most probably the tag/newline soup known as FORMAT_MOODLE.
-                $messagehtml = format_text($message, FORMAT_MOODLE, array('context' => $context,
+            if (property_exists($config, "recompletionemailbody_format")) {
+                $messagehtml = format_text($message, FORMAT_HTML, array('context' => $context,
                     'para' => false, 'newlines' => true, 'filter' => true));
                 $messagetext = html_to_text($messagehtml);
+            } else {
+                // Handle older data record created with textarea element.
+                if (strpos($message, '<') === false) {
+                    // Plain text only.
+                    $messagetext = $message;
+                    $messagehtml = text_to_html($messagetext, null, false, true);
+                } else {
+                    // This is most probably the tag/newline soup known as FORMAT_MOODLE.
+                    $messagehtml = format_text($message, FORMAT_MOODLE, array('context' => $context,
+                        'para' => false, 'newlines' => true, 'filter' => true));
+                    $messagetext = html_to_text($messagehtml);
+                }
             }
         } else {
             $messagetext = get_string('recompletionemaildefaultbody', 'local_recompletion', $a);

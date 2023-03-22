@@ -39,6 +39,20 @@ class local_recompletion_recompletion_form extends moodleform {
         $course = $this->_customdata['course'];
         $config = get_config('local_recompletion');
 
+        $context = \context_course::instance($course->id);
+
+        $editoroptions = array(
+            'subdirs' => 0,
+            'maxbytes' => 0,
+            'maxfiles' => 0,
+            'changeformat' => 0,
+            'context' => $context,
+            'noclean' => 0,
+            'trusttext' => 0,
+            'cols' => '50',
+            'rows' => '8'
+        );
+
         $mform->addElement('checkbox', 'enable', get_string('enablerecompletion', 'local_recompletion'));
         $mform->addHelpButton('enable', 'enablerecompletion', 'local_recompletion');
 
@@ -64,13 +78,13 @@ class local_recompletion_recompletion_form extends moodleform {
         $mform->disabledIf('recompletionemailsubject', 'recompletionemailenable', 'notchecked');
         $mform->setDefault('recompletionemailsubject', $config->emailsubject);
 
-        $options = array('cols' => '60', 'rows' => '8');
-        $mform->addElement('textarea', 'recompletionemailbody', get_string('recompletionemailbody', 'local_recompletion'),
-                $options);
+        $mform->addElement('editor', 'recompletionemailbody', get_string('recompletionemailbody', 'local_recompletion'),
+            $editoroptions);
+        $mform->setDefault('recompletionemailbody', array('text' => $config->emailbody,
+            'format' => FORMAT_HTML));
         $mform->addHelpButton('recompletionemailbody', 'recompletionemailbody', 'local_recompletion');
         $mform->disabledIf('recompletionemailbody', 'enable', 'notchecked');
         $mform->disabledIf('recompletionemailbody', 'recompletionemailenable', 'notchecked');
-        $mform->setDefault('recompletionemailbody', $config->emailbody);
 
         // Advanced recompletion settings.
         // Delete data section.
