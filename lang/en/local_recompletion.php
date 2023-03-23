@@ -139,6 +139,8 @@ $string['nousersselected'] = 'No users were selected';
 $string['resetallcompletion'] = 'Reset all completion';
 $string['resetcompletionfor'] = 'Reset completion for {$a}';
 $string['completionresetuser'] = 'Completion for {$a} in this course has been reset.';
+$string['completionreset'] = 'Completion for the selected students in this course has been reset.';
+
 $string['modifycompletiondates'] = 'Modify course completion dates';
 $string['assignevent'] = 'Update course completion on grade change';
 $string['defaultsettings'] = 'Recompletion default settings';
@@ -153,6 +155,5 @@ When user achieved new completion in the course, the updated course grade will b
 $string['pulsenotifications'] = 'Pulse notifications';
 $string['pulsenotifications_help'] = 'Should Pulse notifications which have already been sent be reset?';
 $string['pulseresetnotifications'] = 'Reset notifications';
-$string['choiceattempts'] = "Choice attempts";
-$string['archivechoice'] = "Archive old choice attempts";
-$string['choiceattempts_help'] = 'Should existing Choice attempts be deleted - if archive is selected, the old Choice attempts will be archived in the local_recompletion_cha table.';
+$string['bulkresetallcompletion'] = 'Reset all completion for selected users';
+
