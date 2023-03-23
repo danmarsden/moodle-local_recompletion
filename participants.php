@@ -199,12 +199,12 @@ echo $participanttablehtml;
 if ($bulkoperations) {
     echo '<br /><div class="buttons"><div class="form-inline">';
     echo '<input type="submit" name="submit" value="'.get_string('bulkchangedate', 'local_recompletion').'"/>';
+    echo '<input type="submit" name="reset_completion" value="'.get_string('bulkresetallcompletion', 'local_recompletion').'"/>';
     echo '<input type="hidden" name="id" value="' . $course->id . '" />';
     echo '</div></div>';
 }
 
 echo '</form>';
-
 echo '</div>';  // Userlist.
 
 $enrolrenderer = $PAGE->get_renderer('core_enrol');
