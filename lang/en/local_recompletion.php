@@ -137,6 +137,7 @@ $string['completionupdated'] = 'Course completion dates were updated';
 $string['bulkchangedate'] = 'Change completion date for selected users';
 $string['nousersselected'] = 'No users were selected';
 $string['resetallcompletion'] = 'Reset all completion';
+$string['bulkresetallcompletion'] = 'Reset all completion for selected users';
 $string['resetcompletionfor'] = 'Reset completion for {$a}';
 $string['completionresetuser'] = 'Completion for {$a} in this course has been reset.';
 $string['completionreset'] = 'Completion for the selected students in this course has been reset.';
@@ -155,5 +156,7 @@ When user achieved new completion in the course, the updated course grade will b
 $string['pulsenotifications'] = 'Pulse notifications';
 $string['pulsenotifications_help'] = 'Should Pulse notifications which have already been sent be reset?';
 $string['pulseresetnotifications'] = 'Reset notifications';
-$string['bulkresetallcompletion'] = 'Reset all completion for selected users';
+$string['choiceattempts'] = "Choice attempts";
+$string['archivechoice'] = "Archive old choice attempts";
+$string['choiceattempts_help'] = 'Should existing Choice attempts be deleted - if archive is selected, the old Choice attempts will be archived in the local_recompletion_cha table.';
 
