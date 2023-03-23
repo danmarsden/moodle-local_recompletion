@@ -25,19 +25,10 @@
 require_once('../../config.php');
 require_once($CFG->dirroot.'/user/lib.php');
 require_once($CFG->libdir.'/formslib.php');
-require_once($CFG->dirroot.'/local/recompletion/locallib.php');
-require_once($CFG->dirroot.'/course/lib.php');
-require_once($CFG->libdir.'/completionlib.php');
-require_once($CFG->libdir.'/gradelib.php');
-require_once($CFG->dirroot . '/mod/assign/locallib.php');
-require_once($CFG->dirroot . '/mod/quiz/lib.php');
 
 $courseid = required_param('id', PARAM_INT);
 $userid   = optional_param('user', 0, PARAM_INT);
 $users   = optional_param_array('users', array(), PARAM_INT);
-
-//var_dump($users);
-//die();
 
 $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
 require_login($course);
@@ -78,22 +69,6 @@ if (empty($date)) {
     // Use current time as default.
     $date = time();
 }
-
-//function to reset completion for $users
-if (isset($_POST['reset_completion'])) {
-    $config = $DB->get_records_menu('local_recompletion_config', array('course' => $course->id), '', 'name, value');
-    $config = (object) $config;
-
-    foreach ($users as $user) {
-        $userid = $user;
-        $reset = new local_recompletion\task\check_recompletion();
-        $errors = $reset->reset_user($userid, $course, $config);
-    }
-
-    redirect($CFG->wwwroot.'/local/recompletion/participants.php?id='.$course->id,
-        get_string('completionreset', 'local_recompletion'));
-}
-
 
 $form = new local_recompletion_coursecompletion_form('editcompletion.php',
     array('course' => $courseid, 'users' => $users, 'date' => $date));
