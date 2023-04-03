@@ -291,5 +291,23 @@
         <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
       </INDEXES>
     </TABLE>
+    <TABLE NAME="local_recompletion_ccert_is" COMMENT="archive of customcert_issues table">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="customcertid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="code" TYPE="char" LENGTH="40" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="emailed" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id" COMMENT="Primary key for customcert_issues"/>
+        <KEY NAME="customcert" TYPE="foreign" FIELDS="customcertid" REFTABLE="customcert" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
+      </INDEXES>
+    </TABLE>
   </TABLES>
 </XMLDB>
