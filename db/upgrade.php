@@ -594,5 +594,32 @@ function xmldb_local_recompletion_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2023022100, 'local', 'recompletion');
     }
 
+    if ($oldversion < 2023040300) {
+
+        // Update the format of older recompletionemailbody field data to html.
+        $recompletionconfig = $DB->get_recordset('local_recompletion_config', array('name' => 'recompletionemailbody'));
+        foreach ($recompletionconfig as $record) {
+            $message = $record->value;
+            if (strpos($message, '<') === false) {
+                // Plain text only.
+                $messagehtml = text_to_html($message, null, false, true);
+            } else {
+                // This is most probably the tag/newline soup known as FORMAT_MOODLE.
+                $messagehtml = format_text($message, FORMAT_MOODLE, array('para' => false,
+                    'newlines' => true, 'filter' => true));
+            }
+            // Update record with html formatted text.
+            $record->value = $messagehtml;
+            $DB->update_record('local_recompletion_config', $record);
+            // Add format record for editor element.
+            $record->name = 'recompletionemailbody_format';
+            $record->value = '1';
+            $DB->insert_record('local_recompletion_config', $record);
+        }
+
+        // Recompletion savepoint reached.
+        upgrade_plugin_savepoint(true, 2023040300, 'local', 'recompletion');
+    }
+
     return true;
 }
