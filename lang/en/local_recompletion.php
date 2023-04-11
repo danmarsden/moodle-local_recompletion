@@ -84,6 +84,9 @@ $string['resetcompletionconfirm'] = 'Are you sure you want to reset all completi
 $string['privacy:metadata:local_recompletion_cc'] = 'Archive of previous course completions.';
 $string['privacy:metadata:local_recompletion_cmc'] = 'Archive of previous course module completions.';
 $string['privacy:metadata:local_recompletion_cc_cc'] = 'Archive of previous course_completion_crit_compl';
+$string['privacy:metadata:local_recompletion_cha'] = 'Archive of choice answers';
+$string['privacy:metadata:local_recompletion_cha:choiceid'] = 'The Choice ID of the Archive of choice answers';
+$string['privacy:metadata:local_recompletion_cha:optionid'] = 'The Option ID of the Archive of choice answers';
 $string['privacy:metadata:local_recompletion_ltia'] = 'User access log and gradeback data.';
 $string['privacy:metadata:local_recompletion_ltia:toolid'] = 'The ID of the tool of LTI enrolment method.';
 $string['privacy:metadata:local_recompletion_ltia:userid'] = 'The ID of the user.';
@@ -153,3 +156,6 @@ When user achieved new completion in the course, the updated course grade will b
 $string['pulsenotifications'] = 'Pulse notifications';
 $string['pulsenotifications_help'] = 'Should Pulse notifications which have already been sent be reset?';
 $string['pulseresetnotifications'] = 'Reset notifications';
+$string['choiceattempts'] = "Choice attempts";
+$string['archivechoice'] = "Archive old choice attempts";
+$string['choiceattempts_help'] = 'Should existing Choice attempts be deleted - if archive is selected, the old Choice attempts will be archived in the local_recompletion_cha table.';
