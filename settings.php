@@ -42,7 +42,7 @@ if ($hassiteconfig) {
         new lang_string('recompletionemailsubject', 'local_recompletion'),
         new lang_string('recompletionemailsubject_help', 'local_recompletion'), '', PARAM_TEXT));
 
-    $settings->add(new admin_setting_configtextarea('local_recompletion/emailbody',
+    $settings->add(new admin_setting_confightmleditor('local_recompletion/emailbody',
         new lang_string('recompletionemailbody', 'local_recompletion'),
         new lang_string('recompletionemailbody_help', 'local_recompletion'), ''));
 
