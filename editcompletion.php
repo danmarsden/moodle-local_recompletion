@@ -36,9 +36,6 @@ $courseid = required_param('id', PARAM_INT);
 $userid   = optional_param('user', 0, PARAM_INT);
 $users   = optional_param_array('users', array(), PARAM_INT);
 
-//var_dump($users);
-//die();
-
 $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
 require_login($course);
 
@@ -80,7 +77,8 @@ if (empty($date)) {
 }
 
 //function to reset completion for $users
-if (isset($_POST['reset_completion'])) {
+$reset_completion = optional_param('reset_completion', 0, PARAM_BOOL);
+if ($reset_completion && confirm_sesskey()) {
     $config = $DB->get_records_menu('local_recompletion_config', array('course' => $course->id), '', 'name, value');
     $config = (object) $config;
 
@@ -93,6 +91,7 @@ if (isset($_POST['reset_completion'])) {
     redirect($CFG->wwwroot.'/local/recompletion/participants.php?id='.$course->id,
         get_string('completionreset', 'local_recompletion'));
 }
+
 
 
 $form = new local_recompletion_coursecompletion_form('editcompletion.php',

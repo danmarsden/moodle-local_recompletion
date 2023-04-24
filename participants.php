@@ -206,14 +206,7 @@ if ($bulkoperations) {
 }
 
 echo '</form>';
-
-
 echo '</div>';  // Userlist.
-
-
-
-
-
 
 $enrolrenderer = $PAGE->get_renderer('core_enrol');
 // Need to re-generate the buttons to avoid having elements with duplicate ids on the page.
