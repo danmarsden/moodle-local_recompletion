@@ -62,6 +62,12 @@ $PAGE->set_heading($course->fullname);
 $PAGE->set_pagelayout('admin');
 
 $config = $DB->get_records_list('local_recompletion_config', 'course', array($course->id), '', 'name, id, value');
+// If forcearchive completed is set, make sure the UI shows it as ticked too.
+if (!empty(get_config('local_recompletion', 'forcearchivecompletiondata'))) {
+    if (!empty($config['archivecompletiondata']) && $config['archivecompletiondata']->value == 0) {
+        $config['archivecompletiondata']->value = 1;
+    }
+}
 
 $setnames = array('enable', 'recompletionduration', 'deletegradedata', 'archivecompletiondata',
     'recompletionemailenable', 'recompletionemailsubject', 'recompletionemailbody',
