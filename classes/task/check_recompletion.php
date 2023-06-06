@@ -144,9 +144,12 @@ class check_recompletion extends \core\task\scheduled_task {
         $a->link = course_get_url($course)->out();
         if (trim($config->recompletionemailbody) !== '') {
             $message = $config->recompletionemailbody;
-            $key = array('{$a->coursename}', '{$a->profileurl}', '{$a->link}', '{$a->fullname}', '{$a->email}');
-            $value = array($a->coursename, $a->profileurl, $a->link, fullname($userrecord), $userrecord->email);
+            $key = ['{$a->coursename}', '{$a->profileurl}', '{$a->link}', '{$a->fullname}', '{$a->email}'];
+            $value = [$a->coursename, $a->profileurl, $a->link, fullname($userrecord), $userrecord->email];
             $message = str_replace($key, $value, $message);
+            // Message body now stored as html - some might be non-html though, so we have to handle both - not clean but it works for now.
+            $keyhtml = ['{$a-&gt;coursename}', '{$a-&gt;profileurl}', '{$a-&gt;link}', '{$a-&gt;fullname}', '{$a-&gt;email}'];
+            $message = str_replace($keyhtml, $value, $message);
             $messagehtml = format_text($message, FORMAT_HTML, array('context' => $context,
                 'para' => false, 'newlines' => true, 'filter' => true));
             $messagetext = html_to_text($messagehtml);
