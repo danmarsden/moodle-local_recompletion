@@ -126,6 +126,13 @@ class provider implements
             'timemodified' => 'privacy:metadata:timemodified'
         ], 'privacy:metadata:local_recompletion_cha');
 
+        $collection->add_database_table('local_recompletion_ccert_is', [
+            'userid' => 'privacy:metadata:userid',
+            'emailed' => 'privacy:metadata:local_recompletion_ccert_is:emailed',
+            'timecreated' => 'privacy:metadata:local_recompletion_ccert_is:timecreated',
+            'course' => 'privacy:metadata:course',
+        ], 'privacy:metadata:local_recompletion_ccert_is');
+
         return $collection;
     }
 
