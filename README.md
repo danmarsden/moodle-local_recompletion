@@ -1,3 +1,7 @@
+<a href="https://github.com/danmarsden/moodle-local_recompletion/actions/workflows/ci.yml?query=branch%3AMOODLE_311_STABLE">
+    <img src="https://github.com/danmarsden/moodle-local_recompletion/workflows/ci/badge.svg?branch=MOODLE_311_STABLE">
+</a>
+
 The recompletion plugin is supported and maintained by Dan Marsden
 
 Branches
