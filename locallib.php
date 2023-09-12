@@ -89,3 +89,20 @@ function local_recompletion_get_data(array $data) {
     return $result;
 }
 
+/**
+ * Update course completions
+ * @param int $courseid
+ * @param array[] $users
+ * @param int $timecompleted
+ */
+function local_recompletion_update_course_completion(int $courseid, array $users, int $timecompleted) {
+    foreach ($users as $user) {
+        $params = ['userid' => $user, 'course' => $courseid];
+        $ccompletion = new \completion_completion($params);
+        if ($ccompletion->is_complete()) {
+            // If we already have a completion date, clear it first so that mark_complete works.
+            $ccompletion->timecompleted = null;
+        }
+        $ccompletion->mark_complete($timecompleted);
+    }
+}

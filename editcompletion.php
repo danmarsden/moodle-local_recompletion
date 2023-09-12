@@ -92,35 +92,25 @@ if ($resetcompletion && confirm_sesskey()) {
         get_string('completionreset', 'local_recompletion'));
 }
 
-
-
-$form = new local_recompletion_coursecompletion_form('editcompletion.php',
-    array('course' => $courseid, 'users' => $users, 'date' => $date));
+$form = new local_recompletion_coursecompletion_form('editcompletion.php', [
+    'course' => $courseid,
+    'users' => $users,
+    'date' => $date,
+]);
 
 if ($form->is_cancelled()) {
-    redirect($CFG->wwwroot.'/local/recompletion/participants.php?id='.$course->id);
-
+    redirect($CFG->wwwroot . '/local/recompletion/participants.php?id=' . $course->id);
 } else if ($data = $form->get_data()) {
     if (!empty($data->newcompletion)) {
         // Update course completion.
-        foreach ($users as $user) {
-            $params = array(
-                'userid'    => $user,
-                'course'    => $courseid
-            );
-            $ccompletion = new \completion_completion($params);
-            if ($ccompletion->is_complete()) {
-                // If we already have a completion date, clear it first so that mark_complete works.
-                $ccompletion->timecompleted = null;
-            }
-            $ccompletion->mark_complete($data->newcompletion);
-        }
-        redirect($CFG->wwwroot.'/local/recompletion/participants.php?id='.$course->id,
+        local_recompletion_update_course_completion($courseid, $users, $data->newcompletion);
+        redirect($CFG->wwwroot . '/local/recompletion/participants.php?id=' . $course->id,
             get_string('completionupdated', 'local_recompletion'));
     }
 }
 
 $userlist = user_get_users_by_id($users);
+
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('editcompletion', 'local_recompletion'));
 echo $OUTPUT->box(get_string('editcompletion_desc', 'local_recompletion'));
@@ -130,7 +120,9 @@ foreach ($userlist as $user) {
     echo html_writer::div(fullname($user));
 }
 echo html_writer::end_div();
+
 echo html_writer::start_div('userform');
 $form->display();
 echo html_writer::end_div();
+
 echo $OUTPUT->footer();
