@@ -111,13 +111,16 @@ function local_recompletion_update_course_completion(int $courseid, array $users
 function local_recompletion_get_config($course) {
     global $DB, $COURSE;
     // Ideally this would be picked up directly from settings or the override form.
+    // Values if not set in the form are set to 0.
     $local_recompletion_default_config_options = [
-        'archivecompletiondata' => false,
-        'recompletionemailenable' => false,
+        'enable' => 0,
+        'assignevent' => null,
+        'archivecompletiondata' => 0,
+        'recompletionemailenable' => 0,
         'recompletionemailbody' => '',
         'recompletionemailsubject' => '',
-        'deletegradedata' => false,
-        'course' => null
+        'deletegradedata' => 0,
+        'course' => null    // This isn't in the form.
     ];
 
     $config = $DB->get_records_menu('local_recompletion_config', array('course' => $course->id), '', 'name, value');
