@@ -120,6 +120,20 @@ class check_recompletion extends \core\task\scheduled_task {
             $DB->insert_records('local_recompletion_cmc', $cmc);
         }
         $DB->delete_records_select('course_modules_completion', $selectsql, $params);
+        // #78 Removal of course_modules_viewed data.
+
+        $selectsql = 'userid = ? AND coursemoduleid IN (SELECT id FROM {course_modules} WHERE course = ?)';
+        if (!empty(get_config('local_recompletion', 'forcearchivecompletiondata')) || $config->archivecompletiondata) {
+            $cmc = $DB->get_records_select('course_modules_viewed', $selectsql, $params);
+            foreach ($cmc as $cid => $unused) {
+                // Add courseid to records to help with restore process.
+                $cmc[$cid]->course = $course->id;
+            }
+            $DB->insert_records('local_recompletion_cmv', $cmc);
+        }
+        $DB->delete_records_select('course_modules_viewed', $selectsql, $params);
+
+
     }
 
     /**

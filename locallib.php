@@ -106,3 +106,26 @@ function local_recompletion_update_course_completion(int $courseid, array $users
         $ccompletion->mark_complete($timecompleted);
     }
 }
+
+
+function local_recompletion_get_config($course) {
+    global $DB, $COURSE;
+    // Ideally this would be picked up directly from settings or the override form.
+    $local_recompletion_default_config_options = [
+        'archivecompletiondata' => false,
+        'recompletionemailenable' => false,
+        'recompletionemailbody' => '',
+        'recompletionemailsubject' => '',
+        'deletegradedata' => false,
+        'course' => null
+    ];
+
+    $config = $DB->get_records_menu('local_recompletion_config', array('course' => $course->id), '', 'name, value');
+    if (empty($config)) {
+        $config = $local_recompletion_default_config_options;
+        $config['course'] = $course->id;
+    }
+
+    $config = (object)$config;
+    return $config;
+}
