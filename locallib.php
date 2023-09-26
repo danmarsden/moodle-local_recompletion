@@ -23,6 +23,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use local_recompletion\admin_setting_configcron;
+
 // Used by settings to decide if attempts should be deleted or an extra attempt allowed.
 define('LOCAL_RECOMPLETION_NOTHING', 0);
 define('LOCAL_RECOMPLETION_DELETE', 1);
@@ -92,6 +94,10 @@ function local_recompletion_set_form_data($mformdata) {
         $data['recompletionemailbody_format'] = $recompletionemailbody['format'];
         $data['recompletionemailbody'] = $recompletionemailbody['text'];
     }
+    // Prepare schedule format.
+    if (key_exists('recompletionschedule', $data)) {
+        $data['recompletionschedule'] = admin_setting_configcron::setting_to_string($data['recompletionschedule']);
+    }
     return (object)$data;
 }
 
@@ -111,6 +117,10 @@ function local_recompletion_get_data(array $data) {
     // Prepare email body for editor.
     $emailbody = array('text' => $result['recompletionemailbody'], 'format' => $result['recompletionemailbody_format']);
     $result['recompletionemailbody'] = $emailbody;
+    // Prepare cron array for schedule.
+    foreach (admin_setting_configcron::string_to_setting($result['recompletionschedule']) as $key => $value) {
+        $result['recompletionschedule['.$key.']'] = $value;
+    }
 
     return $result;
 }

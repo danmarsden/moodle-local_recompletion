@@ -26,6 +26,7 @@ $string['pluginname'] = 'Course recompletion';
 $string['recompletion'] = 'recompletion';
 $string['editrecompletion'] = 'Edit course recompletion settings';
 $string['recompletiontype:period'] = 'Period';
+$string['recompletiontype:schedule'] = 'Schedule';
 $string['recompletiontype:ondemand'] = 'On demand';
 $string['recompletiontype:disabled'] = 'Disabled';
 $string['recompletiontype'] = 'Recompletion type';
@@ -34,6 +35,8 @@ $string['recompletiontype_help'] = 'Determines how user completion results will 
 * Disabled - disables this feature.
 * Period - allows the teacher to define an automated recompletion based on the users course completion date.
 * On demand - allows the teacher to manually reset individual users as required.';
+$string['recompletionschedule'] = 'Recompletion schedule';
+$string['recompletionschedule_help'] = 'Sets a schedule when completion results are reset';
 $string['recompletionrange'] = 'Recompletion period';
 $string['recompletionrange_help'] = 'Set the period of time before a users completion results are reset.';
 $string['recompletionsettingssaved'] = 'Recompletion settings saved';
@@ -216,3 +219,4 @@ $string['entity:local_recompletion_qa'] = 'Archive of quiz attempts';
 $string['datasource:local_recompletion_qa'] = 'Archive of quiz attempts';
 $string['entity:local_recompletion_h5p'] = 'Archive of H5P attempts (mod_h5pactivity)';
 $string['datasource:local_recompletion_h5p'] = 'Archive of H5P attempts (mod_h5pactivity)';
+$string['yearly'] = 'Yearly';
