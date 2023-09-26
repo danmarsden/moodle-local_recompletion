@@ -24,6 +24,7 @@
 
 require_once(__DIR__.'/../../config.php');
 require_once($CFG->dirroot.'/local/recompletion/locallib.php');
+require_once($CFG->dirroot.'/lib/adminlib.php');
 require_once($CFG->dirroot.'/course/lib.php');
 require_once($CFG->libdir.'/completionlib.php');
 require_once($CFG->libdir.'/formslib.php');
@@ -71,7 +72,7 @@ if (!empty(get_config('local_recompletion', 'forcearchivecompletiondata'))) {
 
 $setnames = array('enable', 'recompletionduration', 'deletegradedata', 'archivecompletiondata',
     'recompletionemailenable', 'recompletionemailsubject', 'recompletionemailbody',
-    'recompletionemailbody_format', 'assignevent');
+    'recompletionemailbody_format', 'assignevent', 'recompletionschedule', 'recompletiontype');
 
 $plugins = local_recompletion_get_supported_plugins();
 foreach ($plugins as $plugin) {
@@ -84,7 +85,11 @@ foreach ($plugins as $plugin) {
 }
 
 // Create the settings form instance.
-$form = new local_recompletion_recompletion_form('recompletion.php?id='.$id, array('course' => $course));
+$customdata = ['course' => $course];
+if (!empty($config)) {
+    $customdata['instance'] = local_recompletion_get_data($config);
+}
+$form = new local_recompletion_recompletion_form('recompletion.php?id='.$id, $customdata);
 
 if ($form->is_cancelled()) {
     redirect($CFG->wwwroot.'/course/view.php?id='.$course->id);
@@ -101,6 +106,8 @@ if ($form->is_cancelled()) {
                 $value = 0;
             }
         }
+
+        // Set if new or changed.
         if (!isset($config[$name]) || $config[$name]->value <> $value) {
             $rc = new stdclass();
             if (isset($config[$name])) {
@@ -124,7 +131,7 @@ if ($form->is_cancelled()) {
     $url = new moodle_url('/course/view.php', array('id' => $course->id));
     redirect($url, get_string('recompletionsettingssaved', 'local_recompletion'));
 } else if (!empty($config)) {
-    $form->set_data(local_recompletion_get_data($config));
+    $form->set_data($customdata['instance']);
 }
 
 // Print the form.
