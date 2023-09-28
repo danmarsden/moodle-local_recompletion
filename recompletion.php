@@ -24,7 +24,6 @@
 
 require_once(__DIR__.'/../../config.php');
 require_once($CFG->dirroot.'/local/recompletion/locallib.php');
-require_once($CFG->dirroot.'/lib/adminlib.php');
 require_once($CFG->dirroot.'/course/lib.php');
 require_once($CFG->libdir.'/completionlib.php');
 require_once($CFG->libdir.'/formslib.php');
