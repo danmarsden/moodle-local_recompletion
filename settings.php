@@ -36,8 +36,14 @@ if ($hassiteconfig) {
     $settings->add(new admin_setting_configselect('local_recompletion/recompletiontype',
         new lang_string('recompletiontype', 'local_recompletion'),
         new lang_string('recompletiontype_help', 'local_recompletion'), 'range', [
-            'period' => get_string('recompletiontype:period', 'local_recompletion'),
-            'schedule' => get_string('recompletiontype:schedule', 'local_recompletion'),
+            local_recompletion_recompletion_form::RECOMPLETION_TYPE_PERIOD => get_string(
+                'recompletiontype:period',
+                'local_recompletion',
+            ),
+            local_recompletion_recompletion_form::RECOMPLETION_TYPE_SCHEDULE => get_string(
+                'recompletiontype:schedule',
+                'local_recompletion',
+            ),
         ]));
 
     $settings->add(new admin_setting_configcron(

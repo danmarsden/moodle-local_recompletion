@@ -1,7 +1,4 @@
 <?php
-
-use local_recompletion\admin_setting_configcron;
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -17,21 +14,22 @@ use local_recompletion\admin_setting_configcron;
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+use local_recompletion\admin_setting_configcron;
+
 /**
- * Edit course completion settings - the form definition.
+ * Course recompletion settings form.
  *
  * @package     local_recompletion
  * @copyright   2017 Dan Marsden
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-/**
- * Defines the course completion settings form.
- *
- * @copyright   2017 Dan Marsden
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
 class local_recompletion_recompletion_form extends moodleform {
+
+    /** @var string */
+    const RECOMPLETION_TYPE_PERIOD = 'period';
+
+    /** @var string */
+    const RECOMPLETION_TYPE_SCHEDULE = 'schedule';
 
     /**
      * Defines the form fields.
@@ -67,25 +65,31 @@ class local_recompletion_recompletion_form extends moodleform {
 
         // Type of recompletion - range(duration) or schedule(absolute times, based on cron schedule).
         $mform->addElement('select', 'recompletiontype', get_string('recompletiontype', 'local_recompletion'), [
-            'period' => get_string('recompletiontype:period', 'local_recompletion'),
-            'schedule' => get_string('recompletiontype:schedule', 'local_recompletion'),
+            self::RECOMPLETION_TYPE_PERIOD => get_string('recompletiontype:period', 'local_recompletion'),
+            self::RECOMPLETION_TYPE_SCHEDULE => get_string('recompletiontype:schedule', 'local_recompletion'),
         ]);
         $mform->setDefault('recompletiontype', $config->recompletiontype);
         $mform->disabledIf('recompletiontype', 'enable', 'notchecked');
 
         $mform->addElement('header', 'periodheader', get_string('recompletiontype:period', 'local_recompletion'));
-        $mform->setExpanded('periodheader', ($instance->recompletiontype ?? $config->recompletiontype) === 'period');
-        $mform->hideif('periodheader', 'recompletiontype', 'neq', 'period');
+        $mform->setExpanded(
+            'periodheader',
+            ($instance->recompletiontype ?? $config->recompletiontype) === self::RECOMPLETION_TYPE_PERIOD,
+        );
+        $mform->hideif('periodheader', 'recompletiontype', 'neq', self::RECOMPLETION_TYPE_PERIOD);
         $options = array('optional' => false, 'defaultunit' => 86400);
         $mform->addElement('duration', 'recompletionduration', get_string('recompletionrange', 'local_recompletion'), $options);
         $mform->addHelpButton('recompletionduration', 'recompletionrange', 'local_recompletion');
         $mform->disabledIf('recompletionduration', 'enable', 'notchecked');
-        $mform->disabledIf('recompletionduration', 'recompletiontype', 'neq', 'period');
+        $mform->disabledIf('recompletionduration', 'recompletiontype', 'neq', self::RECOMPLETION_TYPE_PERIOD);
         $mform->setDefault('recompletionduration', $config->duration);
 
         // Schedule / cron settings.
         $mform->addElement('header', 'scheduleheader', get_string('recompletiontype:schedule', 'local_recompletion'));
-        $mform->setExpanded('scheduleheader', ($instance->recompletiontype ?? $config->recompletiontype) === 'schedule');
+        $mform->setExpanded(
+            'scheduleheader',
+            ($instance->recompletiontype ?? $config->recompletiontype) === self::RECOMPLETION_TYPE_SCHEDULE,
+        );
         $mform->addElement('static', 'description', get_string('recompletionschedule', 'local_recompletion'),
             get_string('recompletionschedule_help', 'local_recompletion'));
         admin_setting_configcron::add_cron_fields($mform, null, 'recompletionschedule');

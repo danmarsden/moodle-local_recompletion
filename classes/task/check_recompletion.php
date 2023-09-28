@@ -25,6 +25,8 @@
 
 namespace local_recompletion\task;
 
+use local_recompletion\admin_setting_configcron;
+
 /**
  * Check for users that need to recomplete.
  *
@@ -43,6 +45,54 @@ class check_recompletion extends \core\task\scheduled_task {
     }
 
     /**
+     * Get courses that are ready to reset.
+     */
+    public function get_user_courses_to_reset() {
+        global $DB;
+
+        $now = time();
+        $sql = "SELECT cc.userid, cc.course, null as nextresettime
+                  FROM {course_completions} cc
+                  JOIN {local_recompletion_config} r ON r.course = cc.course AND r.name = 'enable' AND r.value = '1'
+                  JOIN {local_recompletion_config} r2 ON r2.course = cc.course AND r2.name = 'recompletionduration'
+                  JOIN {local_recompletion_config} r3 ON r3.course = cc.course
+                                                     AND r3.name = 'recompletiontype' AND r3.value = 'period'
+                  JOIN {course} c ON c.id = cc.course
+                 WHERE c.enablecompletion = ".COMPLETION_ENABLED."
+                   AND cc.timecompleted > 0
+                   AND (cc.timecompleted + ".$DB->sql_cast_char2int('r2.value').") < ?";
+        $users = $DB->get_records_sql($sql, [$now]);
+
+        $sql = "SELECT cc.userid,
+                       cc.course,
+                       r4.value as cron,
+                       cc.timecompleted,
+                       coalesce(r3.value, '0') as nextresettime
+                  FROM {course_completions} cc
+                  JOIN {local_recompletion_config} r ON r.course = cc.course AND r.name = 'enable' AND r.value = '1'
+                  JOIN {local_recompletion_config} r2 ON r2.course = cc.course
+                                                     AND r2.name = 'recompletiontype' AND r2.value = 'schedule'
+             LEFT JOIN {local_recompletion_config} r3 ON r3.course = cc.course AND r3.name = 'nextresettime'
+                  JOIN {local_recompletion_config} r4 ON r4.course = cc.course AND r4.name = 'recompletionschedule'
+                  JOIN {course} c ON c.id = cc.course
+                 WHERE c.enablecompletion = ".COMPLETION_ENABLED."
+                   AND cc.timecompleted > 0
+                   AND 1 = 1 LIMIT 3";
+        $recompletions = $DB->get_records_sql($sql, [$now]);
+        foreach ($recompletions as $record) {
+            $task = admin_setting_configcron::get_task_for_schedule(admin_setting_configcron::string_to_setting($record->cron));
+            $nextruntime = $task->get_next_scheduled_time();
+            // If the reset should happen, make it happen, otherwise wait until the next scheduled time.
+            if ($now > $record->nextresettime && $record->nextresettime < $record->timecompleted) {
+                $record->nextresettime = $nextruntime; // Bump the time, for next time.
+                $users[] = $record;
+            }
+        }
+
+        return $users ?? [];
+    }
+
+    /**
      * Execute task.
      */
     public function execute() {
@@ -58,36 +108,47 @@ class check_recompletion extends \core\task\scheduled_task {
             return;
         }
 
-        $sql = "SELECT cc.userid, cc.course
-            FROM {course_completions} cc
-            JOIN {local_recompletion_config} r ON r.course = cc.course AND r.name = 'enable' AND r.value = '1'
-            JOIN {local_recompletion_config} r2 ON r2.course = cc.course AND r2.name = 'recompletionduration'
-            JOIN {course} c ON c.id = cc.course
-            WHERE c.enablecompletion = ".COMPLETION_ENABLED." AND cc.timecompleted > 0 AND
-            (cc.timecompleted + ".$DB->sql_cast_char2int('r2.value').") < ?";
-        $users = $DB->get_recordset_sql($sql, array(time()));
+        $users = $this->get_user_courses_to_reset();
         $courses = array();
         $configs = array();
         $clearcache = false;
         foreach ($users as $user) {
+            // Only get the course record for this course (at most once).
             if (!isset($courses[$user->course])) {
-                // Only get the course record for this course once.
-                $course = get_course($user->course);
-                $courses[$user->course] = $course;
-            } else {
-                $course = $courses[$user->course];
+                $courses[$user->course] = get_course($user->course);
             }
+            $course = $courses[$user->course];
 
-            // Get recompletion config.
+            // Get recompletion config for this course (at most once).
             if (!isset($configs[$user->course])) {
-                // Only get the recompletion config record for this course once.
-                $config = $DB->get_records_menu('local_recompletion_config', array('course' => $course->id), '', 'name, value');
-                $config = (object) $config;
-                $configs[$user->course] = $config;
-            } else {
-                $config = $configs[$user->course];
+                $rc = $DB->get_records_list('local_recompletion_config', 'course', [$course->id], '', 'name, id, value');
+                $configs[$user->course] = (object) local_recompletion_get_data($rc);
             }
+            $config = $configs[$user->course];
+
             $this->reset_user($user->userid, $course, $config);
+
+            // Update next reset time.
+            if (isset($user->nextresettime)
+                && (!isset($config->nextresettime) || $user->nextresettime !== $config->nextresettime)
+            ) {
+                $newconfig = new \stdClass();
+                if (isset($rc['nextresettime'])) {
+                    $newconfig->id = $rc['nextresettime']->id;
+                }
+                $newconfig->course = $course->id;
+                $newconfig->name = 'nextresettime';
+                $newconfig->value = $user->nextresettime;
+
+                // Ensure it doesn't attempt to update the next time, as it has already updated the once.
+                $config->nextresettime = $newconfig->value;
+
+                if (empty($newconfig->id)) {
+                    $DB->insert_record('local_recompletion_config', $newconfig);
+                } else {
+                    $DB->update_record('local_recompletion_config', $newconfig);
+                }
+            }
         }
     }
 

@@ -16,6 +16,12 @@
 
 namespace local_recompletion;
 
+defined('MOODLE_INTERNAL') || die;
+
+use tool_task\scheduled_checker_task;
+
+require_once($CFG->dirroot.'/lib/adminlib.php');
+
 /**
  * A cron based admin setting config
  *
@@ -27,8 +33,9 @@ namespace local_recompletion;
 class admin_setting_configcron extends \admin_setting {
 
     /**
-     * Always returns true
-     * @return bool Always returns true
+     * Return the structure configuration for this setting if it has been set.
+     *
+     * @return array|null
      */
     public function get_setting() {
         $currentvalue = $this->config_read($this->name);
@@ -39,12 +46,15 @@ class admin_setting_configcron extends \admin_setting {
         return self::string_to_setting($currentvalue);
     }
 
-    // Steal the same validation used for scheduled tasks.
-    public static function validate($data) {
-        $error = [];
-
+    /**
+     * Return the structure configuration for this setting if it has been set.
+     *
+     * @param array $data
+     * @return scheduled_checker_task
+     */
+    public static function get_task_for_schedule($data): scheduled_checker_task {
         // Use a checker class.
-        $checker = new \tool_task\scheduled_checker_task();
+        $checker = new scheduled_checker_task();
         $checker->set_minute($data['minute']);
         $checker->set_hour($data['hour']);
         $checker->set_month($data['month']);
@@ -52,6 +62,21 @@ class admin_setting_configcron extends \admin_setting {
         $checker->set_day($data['day']);
         $checker->set_disabled(false);
         $checker->set_customised(false);
+
+        return $checker;
+    }
+
+    /**
+     * Steal the same validation used for scheduled tasks.
+     *
+     * Returns true if no errors were detected, otherwise the error message for the bad field.
+     *
+     * @param array $data
+     * @return array|true
+     */
+    public static function validate($data) {
+        $error = [];
+        $checker = self::get_task_for_schedule($data);
 
         if (!$checker->is_valid($checker::FIELD_MINUTE)) {
             $error['minutegroup'] = get_string('invaliddata', 'core_error');
@@ -76,8 +101,13 @@ class admin_setting_configcron extends \admin_setting {
         return true;
     }
 
+    /**
+     * Store new setting
+     *
+     * @param mixed $data string or array, must not be NULL
+     * @return string empty string if ok, string error message otherwise
+     */
     public function write_setting($data) {
-        // Validate.
         $validated = self::validate($data);
         if ($validated !== true) {
             $fields = implode(', ', array_keys($validated));
@@ -104,14 +134,22 @@ class admin_setting_configcron extends \admin_setting {
     }
 
     /**
-     * Convert the setting from a given string
+     * Convert the structured setting from a given string
      *
-     * @param $string
+     * @param string $string
+     * @return array
      */
     public static function string_to_setting($string) {
         return array_combine(['minute', 'hour', 'day', 'month', 'dayofweek'], explode(' ', $string));
     }
 
+    /**
+     * Return HTML for the form control
+     *
+     * @param mixed $data
+     * @param string $query
+     * @return string
+     */
     public function output_html($data, $query = '') {
         $currentsettings = $this->get_setting();
         $data = $data === true ? [] : $data;
@@ -136,14 +174,21 @@ class admin_setting_configcron extends \admin_setting {
         );
     }
 
-    public static function add_cron_fields($mform, $data, $prefix) {
+    /**
+     * Add cron fields to the provided Moodle form object.
+     *
+     * @param \MoodleQuickForm $mform
+     * @param mixed $data
+     * @param string $prefix
+     */
+    public static function add_cron_fields(\MoodleQuickForm $mform, $data, string $prefix) {
         // Defaults to every year.
         $defaulttask = (object) self::string_to_setting('0 0 1 1 *');
         foreach ($data ?: $defaulttask as $field => $value) {
             $mform->setDefault($prefix . "[$field]", $value);
         }
 
-        // Errors.
+        // Handle display of errors.
         $errors = self::validate((array) ($data ?: $defaulttask));
         if ($errors !== true) {
             foreach ($errors as $field => $value) {
