@@ -18,7 +18,7 @@ namespace local_recompletion;
 
 defined('MOODLE_INTERNAL') || die;
 
-use tool_task\scheduled_checker_task;
+use local_recompletion\task\scheduled_checker_task;
 
 require_once($CFG->dirroot.'/lib/adminlib.php');
 
