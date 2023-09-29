@@ -68,7 +68,7 @@ class check_recompletion extends \core\task\scheduled_task {
         $users = $DB->get_recordset_sql($sql, array(time()));
         $courses = array();
         $configs = array();
-        $clearcache = false;
+
         foreach ($users as $user) {
             if (!isset($courses[$user->course])) {
                 // Only get the course record for this course once.
@@ -119,7 +119,7 @@ class check_recompletion extends \core\task\scheduled_task {
             $DB->insert_records('local_recompletion_cmc', $cmc);
         }
         $DB->delete_records_select('course_modules_completion', $selectsql, $params);
-        // #78 Removal of course_modules_viewed data.
+        // Removal of course_modules_viewed data (#78).
 
         $selectsql = 'userid = ? AND coursemoduleid IN (SELECT id FROM {course_modules} WHERE course = ?)';
         if (!empty(get_config('local_recompletion', 'forcearchivecompletiondata')) || $config->archivecompletiondata) {
@@ -131,7 +131,6 @@ class check_recompletion extends \core\task\scheduled_task {
             $DB->insert_records('local_recompletion_cmv', $cmc);
         }
         $DB->delete_records_select('course_modules_viewed', $selectsql, $params);
-
 
     }
 
@@ -161,7 +160,13 @@ class check_recompletion extends \core\task\scheduled_task {
             $value = [$a->coursename, $a->profileurl, $a->link, fullname($userrecord), $userrecord->email];
             $message = str_replace($key, $value, $message);
             // Message body now stored as html - some might be non-html though, so we have to handle both - not clean but it works for now.
-            $keyhtml = ['{$a-&gt;coursename}', '{$a-&gt;profileurl}', '{$a-&gt;link}', '{$a-&gt;fullname}', '{$a-&gt;email}'];
+            $keyhtml = [
+                '{$a-&gt;coursename}',
+                '{$a-&gt;profileurl}',
+                '{$a-&gt;link}',
+                '{$a-&gt;fullname}',
+                '{$a-&gt;email}'
+            ];
             $message = str_replace($keyhtml, $value, $message);
             $messagehtml = format_text($message, FORMAT_HTML, array('context' => $context,
                 'para' => false, 'newlines' => true, 'filter' => true));

@@ -109,10 +109,10 @@ function local_recompletion_update_course_completion(int $courseid, array $users
 
 
 function local_recompletion_get_config($course) {
-    global $DB, $COURSE;
+    global $DB;
     // Ideally this would be picked up directly from settings or the override form.
     // Values if not set in the form are set to 0.
-    $local_recompletion_default_config_options = [
+    $defaultconfig = [
         'enable' => 0,
         'assignevent' => null,
         'archivecompletiondata' => 0,
@@ -123,11 +123,18 @@ function local_recompletion_get_config($course) {
         'course' => null    // This isn't in the form.
     ];
 
-    $config = $DB->get_records_menu('local_recompletion_config', array('course' => $course->id), '', 'name, value');
-    if (empty($config)) {
-        $config = $local_recompletion_default_config_options;
-        $config['course'] = $course->id;
+    $config = $defaultconfig;
+    $dbconfig = $DB->get_records_menu('local_recompletion_config', array('course' => $course->id), '', 'name, value');
+    // If we get no values back, then we use the default above, otherwise update the config with the DB values a precedent.
+    // We could also combine the settings values so that the code calling it doesn't need to do this.
+    if (!empty($dbconfig)) {
+        foreach($dbconfig as $key => $value) {
+            if ($config[$key] !== $value) {
+                $config[$key] = $value;
+            }
+        }
     }
+    $config['course'] = $course->id;
 
     $config = (object)$config;
     return $config;
