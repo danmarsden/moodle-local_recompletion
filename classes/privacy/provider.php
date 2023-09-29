@@ -67,6 +67,12 @@ class provider implements
             'timemodified' => 'privacy:metadata:timemodified'
         ], 'privacy:metadata:local_recompletion_cmc');
 
+        $collection->add_database_table('local_recompletion_cmv', [
+            'userid' => 'privacy:metadata:userid',
+            'coursemoduleid' => 'privacy:metadata:coursemoduleid',
+            'timemodified' => 'privacy:metadata:timemodified'
+        ], 'privacy:metadata:local_recompletion_cmv');
+
         $collection->add_database_table('local_recompletion_cc_cc', [
             'userid' => 'privacy:metadata:userid',
             'course' => 'privacy:metadata:course',
@@ -174,6 +180,14 @@ class provider implements
                     (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]);
             }
 
+            $records = $DB->get_records('local_recompletion_cmv', $params);
+            foreach ($records as $record) {
+                $context = \context_course::instance($record->course);
+                writer::with_context($context)->export_data(
+                    [get_string('recompletion', 'local_recompletion'), 'course_module_completion'],
+                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]);
+            }
+
             $records = $DB->get_records('local_recompletion_qa', $params);
             foreach ($records as $record) {
                 $context = \context_course::instance($record->course);
@@ -262,6 +276,7 @@ class provider implements
         $DB->delete_records('local_recompletion_cc', $params);
         $DB->delete_records('local_recompletion_cc_cc', $params);
         $DB->delete_records('local_recompletion_cmc', $params);
+        $DB->delete_records('local_recompletion_cmv', $params);
         $DB->delete_records('local_recompletion_qa', $params);
         $DB->delete_records('local_recompletion_qg', $params);
         $DB->delete_records('local_recompletion_sst', $params);
@@ -286,6 +301,7 @@ class provider implements
             $DB->delete_records('local_recompletion_cc', $params);
             $DB->delete_records('local_recompletion_cc_cc', $params);
             $DB->delete_records('local_recompletion_cmc', $params);
+            $DB->delete_records('local_recompletion_cmv', $params);
             $DB->delete_records('local_recompletion_qa', $params);
             $DB->delete_records('local_recompletion_qg', $params);
             $DB->delete_records('local_recompletion_sst', $params);
@@ -455,6 +471,14 @@ class provider implements
                   WHERE ctx.id = :contextid AND rc.userid $insql";
         $params = array_merge($inparams, ['contextid' => $context->id]);
         $DB->delete_records_select('local_recompletion_cmc', "id $sql", $params);
+
+        $sql = "SELECT rv.id
+                  FROM {local_recompletion_cmv} rv
+                  JOIN {course} c ON rc.course = c.id
+                  JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                  WHERE ctx.id = :contextid AND rv.userid $insql";
+        $params = array_merge($inparams, ['contextid' => $context->id]);
+        $DB->delete_records_select('local_recompletion_cmv', "id $sql", $params);
 
         $sql = "SELECT rc.id
                   FROM {local_recompletion_qa} rc

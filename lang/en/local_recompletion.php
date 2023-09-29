@@ -88,6 +88,7 @@ $string['privacy:metadata:local_recompletion_cha'] = 'Archive of choice answers'
 $string['privacy:metadata:local_recompletion_cha:choiceid'] = 'The Choice ID of the Archive of choice answers';
 $string['privacy:metadata:local_recompletion_cha:optionid'] = 'The Option ID of the Archive of choice answers';
 $string['privacy:metadata:local_recompletion_cmc'] = 'Archive of previous course module completions.';
+$string['privacy:metadata:local_recompletion_cmv'] = 'Archive of previous course module views.';
 $string['privacy:metadata:local_recompletion_ltia:lastaccess'] = 'The time when the user last accessed the course.';
 $string['privacy:metadata:local_recompletion_ltia:lastgrade'] = 'The last grade the user was recorded of having.';
 $string['privacy:metadata:local_recompletion_ltia:timecreated'] = 'The time when the user was enrolled.';
