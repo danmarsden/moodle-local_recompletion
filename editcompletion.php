@@ -79,9 +79,6 @@ if (empty($date)) {
 // Function to reset completion for $users.
 $resetcompletion = optional_param('reset_completion', 0, PARAM_BOOL);
 if ($resetcompletion && confirm_sesskey()) {
-//    $config = $DB->get_records_menu('local_recompletion_config', array('course' => $course->id), '', 'name, value');
-//    $config = (object) $config;
-
     $config = local_recompletion_get_config($course);
 
     foreach ($users as $user) {

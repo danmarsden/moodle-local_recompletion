@@ -679,6 +679,5 @@ function xmldb_local_recompletion_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2023092022, 'local', 'recompletion');
     }
 
-
     return true;
 }

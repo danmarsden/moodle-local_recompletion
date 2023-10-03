@@ -108,6 +108,10 @@ function local_recompletion_update_course_completion(int $courseid, array $users
 }
 
 
+/**
+ * Get local config
+ * @param stdClass $course - course record.
+ */
 function local_recompletion_get_config($course) {
     global $DB;
     // Ideally this would be picked up directly from settings or the override form.
@@ -128,7 +132,7 @@ function local_recompletion_get_config($course) {
     // If we get no values back, then we use the default above, otherwise update the config with the DB values a precedent.
     // We could also combine the settings values so that the code calling it doesn't need to do this.
     if (!empty($dbconfig)) {
-        foreach($dbconfig as $key => $value) {
+        foreach ($dbconfig as $key => $value) {
             if ($config[$key] !== $value) {
                 $config[$key] = $value;
             }
