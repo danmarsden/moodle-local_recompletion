@@ -98,7 +98,8 @@ class mod_scorm {
             $selectsql = 'userid = ? AND scormid IN (SELECT id FROM {scorm} WHERE course = ?)';
             if ($config->archivescorm) {
                 $scormscoestrack = $DB->get_records_select('scorm_scoes_track', $selectsql, $params);
-                foreach ($scormscoestrack as $sid => $unused) {
+                // Strictly not part of #78 but eliminates unused local variable violation.
+                foreach (array_keys($scormscoestrack) as $sid) {
                     // Add courseid to records to help with restore process.
                     $scormscoestrack[$sid]->course = $course->id;
                 }

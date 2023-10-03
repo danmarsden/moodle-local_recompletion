@@ -111,7 +111,7 @@ class mod_customcert {
      * @param \stdClass $config - recompletion config.
      */
     public static function reset($userid, $course, $config) {
-        global $CFG, $DB;
+        global $DB;
         if (!self::installed()) {
             return;
         }
@@ -127,7 +127,7 @@ class mod_customcert {
             if ($config->archivecustomcert) {
                 // Archive the issued certificates.
                 $issuedcerts = $DB->get_records_select('customcert_issues', $selectsql, $params);
-                foreach ($issuedcerts as $ic => $unused) {
+                foreach (array_keys($issuedcerts) as $ic) {
                     // Add courseid to records to help with restore process.
                     $issuedcerts[$ic]->course = $course->id;
                 }
