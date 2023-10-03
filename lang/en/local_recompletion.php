@@ -25,8 +25,15 @@
 $string['pluginname'] = 'Course recompletion';
 $string['recompletion'] = 'recompletion';
 $string['editrecompletion'] = 'Edit course recompletion settings';
-$string['enablerecompletion'] = 'Enable recompletion';
-$string['enablerecompletion_help'] = 'The recompletion plugin allows a course completion details to be reset after a defined period.';
+$string['recompletiontype:period'] = 'Period';
+$string['recompletiontype:ondemand'] = 'On demand';
+$string['recompletiontype:disabled'] = 'Disabled';
+$string['recompletiontype'] = 'Recompletion type';
+$string['recompletiontype_help'] = 'Determines how user completion results will be reset for new courses.
+
+* Disabled - disables this feature.
+* Period - allows the teacher to define an automated recompletion based on the users course completion date.
+* On demand - allows the teacher to manually reset individual users as required.';
 $string['recompletionrange'] = 'Recompletion period';
 $string['recompletionrange_help'] = 'Set the period of time before a users completion results are reset.';
 $string['recompletionsettingssaved'] = 'Recompletion settings saved';

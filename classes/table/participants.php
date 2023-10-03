@@ -149,7 +149,7 @@ class participants extends \core_user\table\participants {
         $this->profileroles = get_profile_roles($this->context);
         $this->viewableroles = get_viewable_roles($this->context);
         $this->recompletionenabled = $DB->get_field('local_recompletion_config',
-            'value', array('course' => $this->course->id, 'name' => 'enable'));
+            'value', array('course' => $this->course->id, 'name' => 'recompletiontype'));
 
         if (!$this->columns) {
             $onerow = $DB->get_record_sql("SELECT {$this->sql->fields} FROM {$this->sql->from} WHERE {$this->sql->where}",

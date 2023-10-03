@@ -57,7 +57,7 @@ if ($USER->id <> $userid) {
 $config = $DB->get_records_menu('local_recompletion_config', array('course' => $course->id), '', 'name, value');
 $config = (object) $config;
 
-if (empty($config->enable)) {
+if (empty($config->recompletiontype)) {
     throw new moodle_exception('recompletionnotenabled', 'local_recompletion');
 }
 

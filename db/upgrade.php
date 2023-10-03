@@ -679,5 +679,20 @@ function xmldb_local_recompletion_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2023092022, 'local', 'recompletion');
     }
 
+    if ($oldversion < 2023092801) {
+        // Enable setting moved to a select option.
+        // Multiple sql calls for best cross db compatible option.
+        $sql = "UPDATE {local_recompletion_config} SET name = 'recompletiontype' WHERE name = 'enable' and value = '1'";
+        $DB->execute($sql);
+        $sql = "UPDATE {local_recompletion_config} SET value = 'period' WHERE name = 'recompletiontype' and value = '1'";
+        $DB->execute($sql);
+        // Clean up old empty enabled/disabled config settings.
+        $DB->delete_records('local_recompletion_config', ['name' => 'enable']);
+
+        // Recompletion savepoint reached.
+        upgrade_plugin_savepoint(true, 2023092801, 'local', 'recompletion');
+
+    }
+
     return true;
 }
