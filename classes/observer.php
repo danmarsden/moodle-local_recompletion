@@ -41,7 +41,7 @@ class local_recompletion_observer {
         $course = $assign->get_course();
         // Check if recompletion enabled.
         $config = local_recompletion_get_config($course);
-        if (!empty($config->enable) && !empty($config->assignevent)) {
+        if (!empty($config->recompletiontype) && !empty($config->assignevent)) {
             $params = array(
                 'userid'    => $event->relateduserid,
                 'course'    => $course->id

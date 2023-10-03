@@ -37,7 +37,7 @@ function local_recompletion_extend_navigation_course($navigation, $course, $cont
     }
 
     if (has_capability('local/recompletion:resetmycompletion', $context)) {
-        $enabled = $DB->get_field('local_recompletion_config', 'value', ['name' => 'enable', 'course' => $course->id]);
+        $enabled = $DB->get_field('local_recompletion_config', 'value', ['name' => 'recompletiontype', 'course' => $course->id]);
         if (!empty($enabled)) {
             $url = new moodle_url('/local/recompletion/resetcompletion.php', array('id' => $course->id));
             $name = get_string('resetmycompletion', 'local_recompletion');

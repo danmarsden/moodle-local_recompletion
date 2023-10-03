@@ -29,7 +29,14 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class local_recompletion_recompletion_form extends moodleform {
+    /** @var string */
+    const RECOMPLETION_TYPE_DISABLED = '';
 
+    /** @var string */
+    const RECOMPLETION_TYPE_PERIOD = 'period';
+
+    /** @var string */
+    const RECOMPLETION_TYPE_ONDEMAND = 'ondemand';
     /**
      * Defines the form fields.
      */
@@ -53,19 +60,24 @@ class local_recompletion_recompletion_form extends moodleform {
             'rows' => '8'
         );
 
-        $mform->addElement('checkbox', 'enable', get_string('enablerecompletion', 'local_recompletion'));
-        $mform->addHelpButton('enable', 'enablerecompletion', 'local_recompletion');
+        $mform->addElement('select', 'recompletiontype', get_string('recompletiontype', 'local_recompletion'), [
+            self::RECOMPLETION_TYPE_DISABLED => get_string('recompletiontype:disabled', 'local_recompletion'),
+            self::RECOMPLETION_TYPE_PERIOD => get_string('recompletiontype:period', 'local_recompletion'),
+            self::RECOMPLETION_TYPE_ONDEMAND => get_string('recompletiontype:ondemand', 'local_recompletion'),
+        ]);
+        $mform->setDefault('recompletiontype', $config->recompletiontype ?? '');
+        $mform->addHelpButton('recompletiontype', 'recompletiontype', 'local_recompletion');
 
         $options = array('optional' => false, 'defaultunit' => 86400);
         $mform->addElement('duration', 'recompletionduration', get_string('recompletionrange', 'local_recompletion'), $options);
         $mform->addHelpButton('recompletionduration', 'recompletionrange', 'local_recompletion');
-        $mform->disabledIf('recompletionduration', 'enable', 'notchecked');
+        $mform->hideIf('recompletionduration', 'recompletiontype', 'not', 'period');
         $mform->setDefault('recompletionduration', $config->duration);
 
         $mform->addElement('checkbox', 'recompletionemailenable', get_string('recompletionemailenable', 'local_recompletion'));
         $mform->setDefault('recompletionemailenable', $config->emailenable);
         $mform->addHelpButton('recompletionemailenable', 'recompletionemailenable', 'local_recompletion');
-        $mform->disabledIf('recompletionemailenable', 'enable', 'notchecked');
+        $mform->hideIf('recompletionemailenable', 'recompletiontype', 'eq', '');
 
         // Email Notification settings.
         $mform->addElement('header', 'emailheader', get_string('emailrecompletiontitle', 'local_recompletion'));
@@ -74,7 +86,7 @@ class local_recompletion_recompletion_form extends moodleform {
                 'size = "80"');
         $mform->setType('recompletionemailsubject', PARAM_TEXT);
         $mform->addHelpButton('recompletionemailsubject', 'recompletionemailsubject', 'local_recompletion');
-        $mform->disabledIf('recompletionemailsubject', 'enable', 'notchecked');
+        $mform->disabledIf('recompletionemailsubject', 'recompletiontype', 'eq', '');
         $mform->disabledIf('recompletionemailsubject', 'recompletionemailenable', 'notchecked');
         $mform->setDefault('recompletionemailsubject', $config->emailsubject);
 
@@ -83,7 +95,7 @@ class local_recompletion_recompletion_form extends moodleform {
         $mform->setDefault('recompletionemailbody', array('text' => $config->emailbody,
             'format' => FORMAT_HTML));
         $mform->addHelpButton('recompletionemailbody', 'recompletionemailbody', 'local_recompletion');
-        $mform->disabledIf('recompletionemailbody', 'enable', 'notchecked');
+        $mform->disabledIf('recompletionemailbody', 'recompletiontype', 'eq', '');
         $mform->disabledIf('recompletionemailbody', 'recompletionemailenable', 'notchecked');
 
         // Advanced recompletion settings.
@@ -108,8 +120,8 @@ class local_recompletion_recompletion_form extends moodleform {
             $fqn::editingform($mform);
         }
 
-        $mform->disabledIf('deletegradedata', 'enable', 'notchecked');
-        $mform->disabledIf('archivecompletiondata', 'enable', 'notchecked');
+        $mform->disabledIf('deletegradedata', 'recompletiontype', 'eq', '');
+        $mform->disabledIf('archivecompletiondata', 'recompletiontype', 'eq', '');
         $mform->disabledIf('archivecompletiondata', 'forcearchive', 'eq');
 
         // Add common action buttons.

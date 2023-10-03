@@ -69,7 +69,7 @@ if (!empty(get_config('local_recompletion', 'forcearchivecompletiondata'))) {
     }
 }
 
-$setnames = array('enable', 'recompletionduration', 'deletegradedata', 'archivecompletiondata',
+$setnames = array('recompletiontype', 'recompletionduration', 'deletegradedata', 'archivecompletiondata',
     'recompletionemailenable', 'recompletionemailsubject', 'recompletionemailbody',
     'recompletionemailbody_format', 'assignevent');
 
@@ -114,7 +114,7 @@ if ($form->is_cancelled()) {
             } else {
                 $DB->update_record('local_recompletion_config', $rc);
             }
-            if ($name == 'enable' && empty($value)) {
+            if ($name == 'recompletiontype' && empty($value)) {
                 // Don't overwrite any other settings when recompletion disabled.
                 break;
             }
