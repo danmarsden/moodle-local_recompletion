@@ -54,16 +54,9 @@ if ($USER->id <> $userid) {
     $user = $USER;
 }
 
-$config = $DB->get_records_menu('local_recompletion_config', array('course' => $course->id), '', 'name, value');
-$config = (object) $config;
-
-if (empty($config->recompletiontype)) {
-    throw new moodle_exception('recompletionnotenabled', 'local_recompletion');
-}
-
 if (!empty($confirm) && confirm_sesskey()) {
     $reset = new local_recompletion\task\check_recompletion();
-    $errors = $reset->reset_user($userid, $course, $config);
+    $errors = $reset->reset_user($userid, $course);
     if ($USER->id <> $userid) {
         $returnurl = new moodle_url('/local/recompletion/participants.php', array('id' => $course->id));
     } else {

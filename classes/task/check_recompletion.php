@@ -199,6 +199,9 @@ class check_recompletion extends \core\task\scheduled_task {
             $config = (object) $DB->get_records_menu('local_recompletion_config',
                                                      ['course' => $course->id], '', 'name, value');
         }
+        if (empty($config->recompletiontype)) {
+            throw new \moodle_exception('recompletionnotenabled', 'local_recompletion');
+        }
         // Archive and delete course completion.
         $this->reset_completions($userid, $course, $config);
 
