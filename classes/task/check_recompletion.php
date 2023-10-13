@@ -193,8 +193,12 @@ class check_recompletion extends \core\task\scheduled_task {
      * @param \stdClass $course - course record.
      * @param \stdClass $config - recompletion config.
      */
-    public function reset_user($userid, $course, $config) {
-        global $CFG;
+    public function reset_user($userid, $course, $config = null) {
+        global $CFG, $DB;
+        if (empty($config)) {
+            $config = (object) $DB->get_records_menu('local_recompletion_config',
+                                                     ['course' => $course->id], '', 'name, value');
+        }
         // Archive and delete course completion.
         $this->reset_completions($userid, $course, $config);
 
