@@ -14,6 +14,7 @@ The git branches here support the following versions.
 | Mooodle 3.8  | MOODLE_38_STABLE |
 | Mooodle 3.9 - 3.10  | MOODLE_39_STABLE |
 | Moodle 3.11 and higher | MOODLE_311_STABLE |
+| Moodle 4.1 and higher | MOODLE_401_STABLE |
 
 This plugin adds course level settings for recompletion - clearing all course, activity completion and all other related moodle plugins data for a user based on the duration set notifying the student they need to return to the course and recomplete it.
 
