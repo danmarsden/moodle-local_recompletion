@@ -70,7 +70,7 @@ if (!empty(get_config('local_recompletion', 'forcearchivecompletiondata'))) {
 }
 
 $setnames = array('recompletiontype', 'recompletionduration', 'deletegradedata', 'archivecompletiondata',
-    'recompletionemailenable', 'recompletionemailsubject', 'recompletionemailbody',
+    'recompletionemailenable', 'recompletionunenrolenable', 'recompletionemailsubject', 'recompletionemailbody',
     'recompletionemailbody_format', 'assignevent');
 
 $plugins = local_recompletion_get_supported_plugins();

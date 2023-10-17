@@ -79,6 +79,11 @@ class local_recompletion_recompletion_form extends moodleform {
         $mform->addHelpButton('recompletionemailenable', 'recompletionemailenable', 'local_recompletion');
         $mform->hideIf('recompletionemailenable', 'recompletiontype', 'eq', '');
 
+        $mform->addElement('checkbox', 'recompletionunenrolenable', get_string('recompletionunenrolenable', 'local_recompletion'));
+        $mform->setDefault('recompletionunenrolenable', $config->unenrolenable);
+        $mform->addHelpButton('recompletionunenrolenable', 'recompletionunenrolenable', 'local_recompletion');
+        $mform->hideIf('recompletionunenrolenable', 'recompletiontype', 'eq', '');
+
         // Email Notification settings.
         $mform->addElement('header', 'emailheader', get_string('emailrecompletiontitle', 'local_recompletion'));
         $mform->setExpanded('emailheader', false);

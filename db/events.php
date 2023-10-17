@@ -28,6 +28,10 @@ defined('MOODLE_INTERNAL') || die();
 $observers = array (
     array(
         'eventname' => '\mod_assign\event\submission_graded',
-        'callback' => 'local_recompletion_observer::submission_graded'
+        'callback' => '\local_recompletion\observer::submission_graded'
+    ),
+    array(
+        'eventname' => '\core\event\user_enrolment_deleted',
+        'callback' => '\local_recompletion\observer::user_enrolment_deleted'
     ),
 );

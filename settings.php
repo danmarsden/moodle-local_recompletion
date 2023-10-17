@@ -46,6 +46,10 @@ if ($hassiteconfig) {
         new lang_string('recompletionemailbody', 'local_recompletion'),
         new lang_string('recompletionemailbody_help', 'local_recompletion'), ''));
 
+    $settings->add(new admin_setting_configcheckbox('local_recompletion/unenrolenable',
+        new lang_string('recompletionunenrolenable', 'local_recompletion'),
+        new lang_string('recompletionunenrolenable_help', 'local_recompletion'), 0));
+
     $settings->add(new admin_setting_configcheckbox('local_recompletion/deletegradedata',
         new lang_string('deletegradedata', 'local_recompletion'),
         new lang_string('deletegradedata_help', 'local_recompletion'), 1));
