@@ -144,6 +144,46 @@ class backup_local_recompletion_plugin extends backup_local_plugin {
         }
         $choiceanswer->annotate_ids('user', 'userid');
 
+        // Now deal with hvp archive tables.
+        $hvpattempts = new backup_nested_element('hvpattempts');
+        $hvpattempt = new backup_nested_element('hvpattempt', array('id'), array(
+            'user_id', 'hvp_id', 'sub_content_id', 'data_id', 'data', 'preloaded', 'delete_on_content_change', 'course'));
+
+        $recompletion->add_child($hvpattempts);
+        $hvpattempts->add_child($hvpattempt);
+
+        if ($usercompletion) {
+            $hvpattempt->set_source_table('local_recompletion_hvp', array('course' => backup::VAR_COURSEID));
+        }
+        $hvpattempt->annotate_ids('user', 'user_id');
+
+        // Now deal with h5p table.
+        $h5ps = new backup_nested_element('h5ps');
+        $h5p = new backup_nested_element('h5p', array('id'), array(
+            'originalattemptid', 'h5pactivityid', 'userid', 'timecreated', 'timemodified',
+            'rawscore', 'maxscore', 'scaled', 'duration', 'completion', 'success', 'course'));
+
+        // Now deal with h5p results table.
+        $h5presults = new backup_nested_element('h5presults');
+        $h5presult = new backup_nested_element('h5presult', array('id'), array(
+            'attemptid', 'subcontent', 'timecreated', 'interactiontype', 'description',
+            'correctpattern', 'response', 'additionals', 'rawscore', 'maxscore', 'duration', 'completion', 'success', 'course'));
+
+        $recompletion->add_child($h5ps);
+        $h5ps->add_child($h5p);
+        $h5p->add_child($h5presults);
+        $h5presults->add_child($h5presult);
+
+        if ($usercompletion) {
+            $h5p->set_source_table('local_recompletion_h5p', array('course' => backup::VAR_COURSEID));
+            $h5presult->set_source_table(
+                'local_recompletion_h5pr',
+                array('course' => backup::VAR_COURSEID, 'attemptid' => backup::VAR_PARENTID)
+            );
+        }
+
+        $h5p->annotate_ids('user', 'userid');
+
         return $plugin;
     }
 
