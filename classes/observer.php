@@ -74,6 +74,8 @@ class observer {
 
             if (!empty($errors)) {
                 // TODO: implement a new completion_reset_failed event.
+                debugging('Completion reset failed for user ' . $userid .
+                    ' in course ' . $course->id . ' Errors: ' . implode(',', $errors), DEBUG_DEVELOPER);
             }
         }
     }
