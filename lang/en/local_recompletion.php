@@ -178,3 +178,5 @@ $string['customcertresetcertificates'] = 'Delete issued certificates';
 $string['customcertresetcertificatesverifywarn'] = 'Attention: Deleting the issued certificates, even if you archive them before the deletion, will result in the fact that issues certificates cannot be verified anymore in Moodle. Please only delete the certificates if this is acceptable for you.';
 $string['archivecustomcertcertificates'] = 'Archive issued certificates';
 $string['archivecustomcertcertificates_help'] = 'Should issued custom certificates be archived?';
+$string['recompletionunenrolenable'] = 'Reset completion on un-enrolment';
+$string['recompletionunenrolenable_help'] = 'Enable to trigger completion reset on user un-enrolment';
