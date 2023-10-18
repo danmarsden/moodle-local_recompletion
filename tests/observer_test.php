@@ -17,7 +17,7 @@
 namespace local_recompletion;
 
 /**
- * Class dialogue_test.
+ * Observer_test.
  *
  * @package    local_recompletion
  * @copyright  2023 Dmitrii Metelkin
