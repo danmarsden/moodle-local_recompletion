@@ -14,14 +14,11 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Event observers used in Urkund Plagiarism plugin.
- *
- * @package    local_recompletion
- * @author     Dan Marsden <dan@danmarsden.com>
- * @copyright  2020 Catalyst IT
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+namespace local_recompletion;
+
+defined('MOODLE_INTERNAL') || die;
+
+require_once($CFG->dirroot.'/local/recompletion/locallib.php');
 
 /**
  * Class local_recompletion_observer
@@ -30,7 +27,7 @@
  * @copyright 2020 Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class local_recompletion_observer {
+class observer {
     /**
      * Observer function to handle the assessable_uploaded event in mod_assign.
      * @param \mod_assign\event\submission_graded $event
@@ -52,6 +49,33 @@ class local_recompletion_observer {
                 // If we already have a completion date, clear it first so that mark_complete works.
                 $ccompletion->timecompleted = null;
                 $ccompletion->mark_complete($event->timecreated);
+            }
+        }
+    }
+
+    /**
+     * Observer function to handle user un-enrolment.
+     * @param \core\event\user_enrolment_deleted $event
+     */
+    public static function user_enrolment_deleted(\core\event\user_enrolment_deleted $event) {
+        global $DB;
+
+        $userid = $event->relateduserid;
+        $course = $DB->get_record('course', ['id' => $event->courseid]);
+
+        $config = local_recompletion_get_config($course);
+        if (!empty($config->recompletiontype) && !empty($config->recompletionunenrolenable)) {
+            try {
+                $reset = new \local_recompletion\task\check_recompletion();
+                $errors = $reset->reset_user($userid, $course);
+            } catch (\Exception $exception) {
+                $errors = [$exception->getMessage()];
+            }
+
+            if (!empty($errors)) {
+                // TODO: implement a new completion_reset_failed event.
+                debugging('Completion reset failed for user ' . $userid .
+                    ' in course ' . $course->id . ' Errors: ' . implode(',', $errors), DEBUG_DEVELOPER);
             }
         }
     }
