@@ -195,6 +195,9 @@ class check_recompletion extends \core\task\scheduled_task {
      */
     public function reset_user($userid, $course, $config = null) {
         global $CFG, $DB;
+
+        $errors = [];
+
         if (empty($config)) {
             $config = (object) $DB->get_records_menu('local_recompletion_config',
                                                      ['course' => $course->id], '', 'name, value');
@@ -202,6 +205,16 @@ class check_recompletion extends \core\task\scheduled_task {
         if (empty($config->recompletiontype)) {
             throw new \moodle_exception('recompletionnotenabled', 'local_recompletion');
         }
+
+        $restrictions = local_recompletion_get_supported_restrictions();
+        foreach ($restrictions as $plugin) {
+            $fqn = 'local_recompletion\\local\\restrictions\\' . $plugin;
+            if (!$fqn::should_reset($userid, $course, $config)) {
+                $errors[] = $fqn::get_restriction_reason();
+                return $errors;
+            }
+        }
+
         // Archive and delete course completion.
         $this->reset_completions($userid, $course, $config);
 
@@ -219,7 +232,6 @@ class check_recompletion extends \core\task\scheduled_task {
         }
 
         $plugins = local_recompletion_get_supported_plugins();
-        $errors = [];
         foreach ($plugins as $plugin) {
             $fqn = 'local_recompletion\\plugins\\' . $plugin;
             $error = $fqn::reset($userid, $course, $config);
