@@ -83,6 +83,11 @@ foreach ($plugins as $plugin) {
     $setnames[] = 'archive'.$plugin;
 }
 
+$restrictions = local_recompletion_get_supported_restrictions();
+foreach ($restrictions as $plugin) {
+    $setnames[] = 'restrict' . $plugin;
+}
+
 // Create the settings form instance.
 $form = new local_recompletion_recompletion_form('recompletion.php?id='.$id, array('course' => $course));
 
@@ -121,7 +126,7 @@ if ($form->is_cancelled()) {
         }
     }
     // Redirect to the course main page.
-    $url = new moodle_url('/course/view.php', array('id' => $course->id));
+    $url = new moodle_url('/local/recompletion/recompletion.php', array('id' => $course->id));
     redirect($url, get_string('recompletionsettingssaved', 'local_recompletion'));
 } else if (!empty($config)) {
     $form->set_data(local_recompletion_get_data($config));

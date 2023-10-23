@@ -62,9 +62,26 @@ if ($hassiteconfig) {
         new lang_string('forcearchivecompletiondata', 'local_recompletion'),
         new lang_string('forcearchivecompletiondata_help', 'local_recompletion'), 0));
 
+    $settings->add(new admin_setting_heading('local_recompletion/pluginsettings',
+        get_string('pluginssettings', 'local_recompletion'),
+        ''
+    ));
+
     $plugins = local_recompletion_get_supported_plugins();
     foreach ($plugins as $plugin) {
         $fqn = 'local_recompletion\\plugins\\' . $plugin;
         $fqn::settings($settings);
     }
+
+    $settings->add(new admin_setting_heading('local_recompletion/restrictionsettings',
+        get_string('restrictionsettings', 'local_recompletion'),
+        ''
+    ));
+
+    $restrictions = local_recompletion_get_supported_restrictions();
+    foreach ($restrictions as $plugin) {
+        $fqn = 'local_recompletion\\local\\restrictions\\' . $plugin;
+        $fqn::settings($settings);
+    }
+
 }

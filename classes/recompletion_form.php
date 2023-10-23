@@ -125,6 +125,12 @@ class local_recompletion_recompletion_form extends moodleform {
             $fqn::editingform($mform);
         }
 
+        $mform->addElement('header', 'restrictionsheader', get_string('restrictionsheader', 'local_recompletion'));
+        $restrictions = local_recompletion_get_supported_restrictions();
+        foreach ($restrictions as $plugin) {
+            $fqn = 'local_recompletion\\local\\restrictions\\' . $plugin;
+            $fqn::editingform($mform);
+        }
         $mform->disabledIf('deletegradedata', 'recompletiontype', 'eq', '');
         $mform->disabledIf('archivecompletiondata', 'recompletiontype', 'eq', '');
         $mform->disabledIf('archivecompletiondata', 'forcearchive', 'eq');
