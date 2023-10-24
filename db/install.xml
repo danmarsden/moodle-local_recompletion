@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="local/recompletion/db" VERSION="20230320" COMMENT="XMLDB file for Moodle local/recompletion"
+<XMLDB PATH="local/recompletion/db" VERSION="20231019" COMMENT="XMLDB file for Moodle local/recompletion"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -324,6 +324,65 @@
       <INDEXES>
         <INDEX NAME="course" UNIQUE="false" FIELDS="course"/>
       </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_recompletion_hvp" COMMENT="Archive for hvp_content_user_data table">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="user_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id for the user answering this H5P"/>
+        <FIELD NAME="hvp_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Id of hvp content in the 'hvp' table"/>
+        <FIELD NAME="sub_content_id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Subcontent id of hvp content, 0 if this is not subcontent"/>
+        <FIELD NAME="data_id" TYPE="char" LENGTH="127" NOTNULL="false" SEQUENCE="false" COMMENT="The data type identifier"/>
+        <FIELD NAME="data" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The actual user data that was stored."/>
+        <FIELD NAME="preloaded" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="delete_on_content_change" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Extra course to help restoring if needed."/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="local_recompletion_h5p" COMMENT="Users attempts inside H5P activities (h5pactivity_attempts)">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="originalattemptid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Temp storage of original attempt ID from h5pactivity_attempts."/>
+        <FIELD NAME="h5pactivityid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="H5P activity ID"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false" COMMENT="Attempt user ID"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="attempt" TYPE="int" LENGTH="6" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Attempt number"/>
+        <FIELD NAME="rawscore" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="maxscore" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="scaled" TYPE="number" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" DECIMALS="5" COMMENT="Number 0..1 that reflects the performance of the learner"/>
+        <FIELD NAME="duration" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Number of second inverted in that attempt (provided by the statement)"/>
+        <FIELD NAME="completion" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="Store the xAPI tracking completion result."/>
+        <FIELD NAME="success" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="Store the xAPI tracking success result."/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Extra course to help restoring if needed."/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="local_recompletion_h5pr" COMMENT="H5Pactivities_attempts tracking info">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="attemptid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="h5pactivity_attempts ID from local_recompletion_h5p."/>
+        <FIELD NAME="subcontent" TYPE="char" LENGTH="128" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="interactiontype" TYPE="char" LENGTH="128" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="description" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="correctpattern" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Correct Pattern in xAPI format"/>
+        <FIELD NAME="response" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="User response data in xAPI forma"/>
+        <FIELD NAME="additionals" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Extra subcontent information in JSON format"/>
+        <FIELD NAME="rawscore" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="maxscore" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="duration" TYPE="int" LENGTH="10" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="Seconds inverted in this result (exctracted directly from statement)"/>
+        <FIELD NAME="completion" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="Store the xAPI tracking completion result."/>
+        <FIELD NAME="success" TYPE="int" LENGTH="1" NOTNULL="false" SEQUENCE="false" COMMENT="Store the xAPI tracking success result."/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="Extra course to help restoring if needed."/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
     </TABLE>
   </TABLES>
 </XMLDB>
