@@ -38,7 +38,7 @@ function local_recompletion_get_supported_plugins() {
     $plugins = [];
     $files = scandir($CFG->dirroot. '/local/recompletion/classes/plugins');
     foreach ($files as $file) {
-        $component = clean_param(str_replace('.php', '', $file), PARAM_ALPHAEXT);
+        $component = clean_param(str_replace('.php', '', $file), PARAM_ALPHANUMEXT);
         list($plugin, $type) = core_component::normalize_component($component);
 
         if (!core_component::is_valid_plugin_name($type, $plugin)) {
