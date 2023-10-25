@@ -54,12 +54,38 @@ function local_recompletion_get_supported_plugins() {
 }
 
 /**
+ * Get list of supported restriction classes.
+ * @return array
+ */
+function local_recompletion_get_supported_restrictions(): array {
+    global $CFG;
+
+    $restrictions = [];
+    $files = scandir($CFG->dirroot. '/local/recompletion/classes/local/restrictions');
+    foreach ($files as $file) {
+        $class = clean_param(str_replace('.php', '', $file), PARAM_ALPHANUMEXT);
+        if (!empty($class) && $class !== 'base') {
+            $restrictions[] = $class;
+        }
+    }
+
+    return $restrictions;
+}
+
+/**
  * Loads form data.
  *
  * @param string[] $mformdata
  * @return object
  */
 function local_recompletion_set_form_data($mformdata) {
+
+    $restrictions = local_recompletion_get_supported_restrictions();
+    foreach ($restrictions as $plugin) {
+        $fqn = 'local_recompletion\\local\\restrictions\\' . $plugin;
+        $fqn::set_form_data($mformdata);
+    }
+
     $data = (array)$mformdata;
     if (key_exists('recompletionemailbody', $data)) {
         $recompletionemailbody = $data['recompletionemailbody'];
