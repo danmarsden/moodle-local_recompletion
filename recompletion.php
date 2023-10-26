@@ -36,7 +36,7 @@ if ($id) {
         // Don't allow editing of 'site course' using this form.
         throw new moodle_exception('cannoteditsiteform');
     }
-    $course = $DB->get_record('course', array('id' => $id), '*', MUST_EXIST);
+    $course = $DB->get_record('course', ['id' => $id], '*', MUST_EXIST);
 
     require_login($course);
     $context = context_course::instance($course->id);
@@ -56,12 +56,12 @@ if ($id) {
 
 // Set up the page.
 $PAGE->set_course($course);
-$PAGE->set_url('/local/recompletion/recompletion.php', array('id' => $course->id));
+$PAGE->set_url('/local/recompletion/recompletion.php', ['id' => $course->id]);
 $PAGE->set_title($course->shortname);
 $PAGE->set_heading($course->fullname);
 $PAGE->set_pagelayout('admin');
 
-$config = $DB->get_records_list('local_recompletion_config', 'course', array($course->id), '', 'name, id, value');
+$config = $DB->get_records_list('local_recompletion_config', 'course', [$course->id], '', 'name, id, value');
 // If forcearchive completed is set, make sure the UI shows it as ticked too.
 if (!empty(get_config('local_recompletion', 'forcearchivecompletiondata'))) {
     if (!empty($config['archivecompletiondata']) && $config['archivecompletiondata']->value == 0) {
@@ -81,6 +81,7 @@ $setnames = [
     'recompletionemailbody',
     'recompletionemailbody_format',
     'assignevent',
+    'nextresettime',
 ];
 
 $plugins = local_recompletion_get_supported_plugins();
@@ -107,7 +108,6 @@ $form = new local_recompletion_recompletion_form('recompletion.php?id='.$id, $cu
 
 if ($form->is_cancelled()) {
     redirect($CFG->wwwroot.'/course/view.php?id='.$course->id);
-
 } else if ($data = $form->get_data()) {
     $data = local_recompletion_set_form_data($data);
     foreach ($setnames as $name) {
@@ -116,6 +116,8 @@ if ($form->is_cancelled()) {
         } else {
             if ($name == 'recompletionemailsubject' || $name == 'recompletionemailbody') {
                 $value = '';
+            } else if ($name === 'nextresettime') {
+                $value = local_recompletion_calculate_schedule_time($data->recompletionschedule);
             } else {
                 $value = 0;
             }
@@ -142,7 +144,7 @@ if ($form->is_cancelled()) {
         }
     }
     // Redirect to the course main page.
-    $url = new moodle_url('/local/recompletion/recompletion.php', array('id' => $course->id));
+    $url = new moodle_url('/local/recompletion/recompletion.php', ['id' => $course->id]);
     redirect($url, get_string('recompletionsettingssaved', 'local_recompletion'));
 } else if (!empty($config)) {
     $form->set_data($customdata['instance']);

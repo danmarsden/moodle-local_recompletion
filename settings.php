@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_recompletion\admin_setting_configcron;
+use local_recompletion\admin_setting_configstrtotime;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -36,6 +36,10 @@ if ($hassiteconfig) {
     $settings->add(new admin_setting_configselect('local_recompletion/recompletiontype',
         new lang_string('recompletiontype', 'local_recompletion'),
         new lang_string('recompletiontype_help', 'local_recompletion'), 'range', [
+            local_recompletion_recompletion_form::RECOMPLETION_TYPE_DISABLED => get_string(
+                'recompletiontype:disabled',
+                'local_recompletion'
+            ),
             local_recompletion_recompletion_form::RECOMPLETION_TYPE_PERIOD => get_string(
                 'recompletiontype:period',
                 'local_recompletion',
@@ -46,13 +50,9 @@ if ($hassiteconfig) {
             ),
         ]));
 
-    $settings->add(new admin_setting_configcron(
-        'local_recompletion/schedule',
+    $settings->add(new admin_setting_configstrtotime('local_recompletion/schedule',
         new lang_string('recompletionschedule', 'local_recompletion'),
-        new lang_string('recompletionschedule_help', 'local_recompletion'),
-        admin_setting_configcron::string_to_setting('0 0 1 1 *'),
-        PARAM_TEXT,
-    ));
+        new lang_string('recompletionschedule_help', 'local_recompletion'), '', PARAM_TEXT));
 
     $settings->add(new admin_setting_configduration('local_recompletion/duration',
         new lang_string('recompletionrange', 'local_recompletion'),

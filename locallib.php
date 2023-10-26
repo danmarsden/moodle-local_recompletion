@@ -23,8 +23,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use local_recompletion\admin_setting_configcron;
-
 // Used by settings to decide if attempts should be deleted or an extra attempt allowed.
 define('LOCAL_RECOMPLETION_NOTHING', 0);
 define('LOCAL_RECOMPLETION_DELETE', 1);
@@ -81,24 +79,20 @@ function local_recompletion_get_supported_restrictions(): array {
  * @return object
  */
 function local_recompletion_set_form_data($mformdata) {
-
     $restrictions = local_recompletion_get_supported_restrictions();
     foreach ($restrictions as $plugin) {
         $fqn = 'local_recompletion\\local\\restrictions\\' . $plugin;
         $fqn::set_form_data($mformdata);
     }
 
-    $data = (array)$mformdata;
+    $data = (array) $mformdata;
     if (key_exists('recompletionemailbody', $data)) {
         $recompletionemailbody = $data['recompletionemailbody'];
         $data['recompletionemailbody_format'] = $recompletionemailbody['format'];
         $data['recompletionemailbody'] = $recompletionemailbody['text'];
     }
-    // Prepare schedule format.
-    if (key_exists('recompletionschedule', $data)) {
-        $data['recompletionschedule'] = admin_setting_configcron::setting_to_string($data['recompletionschedule']);
-    }
-    return (object)$data;
+
+    return (object) $data;
 }
 
 /**
@@ -117,10 +111,6 @@ function local_recompletion_get_data(array $data) {
     // Prepare email body for editor.
     $emailbody = array('text' => $result['recompletionemailbody'], 'format' => $result['recompletionemailbody_format']);
     $result['recompletionemailbody'] = $emailbody;
-    // Prepare cron array for schedule.
-    foreach (admin_setting_configcron::string_to_setting($result['recompletionschedule']) as $key => $value) {
-        $result['recompletionschedule['.$key.']'] = $value;
-    }
 
     return $result;
 }
@@ -179,4 +169,36 @@ function local_recompletion_get_config($course) {
 
     $config = (object)$config;
     return $config;
+}
+
+/**
+ * Get a future timestamp for recompletion calculation based on strtotime.
+ * Will not return a value in the past, 0 is returned instead.
+ *
+ * @param string The natural language string to evaluate.
+ * @return int a future timestamp, or 0.
+ */
+function local_recompletion_calculate_schedule_time(string $input): int {
+    // Special handling for next reset time.
+    // Assumptions. If this is in the past, try and append a year stamp for
+    // next year. If that doesnt evaluate, we cannot deal with this.
+    $time = strtotime($input);
+    if ($time === false) {
+        // We cannot handle this value.
+        return 0;
+    }
+    if ($time < time()) {
+        // Try with a year appended to force a future calculation.
+        $schedulestring = $input . ' ' . date('Y', strtotime('+1 year'));
+        $time = strtotime($schedulestring);
+
+        // If this isn't valid or still in the past (somehow), we can't trust it.
+        if ($time === false || $time < time()) {
+            return 0;
+        }
+
+        return $time;
+    }
+
+    return $time;
 }

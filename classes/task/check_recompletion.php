@@ -25,8 +25,6 @@
 
 namespace local_recompletion\task;
 
-use local_recompletion\admin_setting_configcron;
-
 /**
  * Check for users that need to recomplete.
  *
@@ -50,19 +48,10 @@ class check_recompletion extends \core\task\scheduled_task {
     public function get_user_courses_to_reset() {
         global $DB;
 
-        $sql = "SELECT cc.userid, cc.course
-            FROM {course_completions} cc
-            JOIN {local_recompletion_config} r ON r.course = cc.course AND r.name = 'recompletiontype' AND r.value = 'period'
-            JOIN {local_recompletion_config} r2 ON r2.course = cc.course AND r2.name = 'recompletionduration'
-            JOIN {course} c ON c.id = cc.course
-            WHERE c.enablecompletion = ".COMPLETION_ENABLED." AND cc.timecompleted > 0 AND
-            (cc.timecompleted + ".$DB->sql_cast_char2int('r2.value').") < ?";
-        $users = $DB->get_recordset_sql($sql, array(time()));
-
         $now = time();
+        // Period based recompletion users.
         $sql = "SELECT cc.userid, cc.course, null as nextresettime
                   FROM {course_completions} cc
-                  JOIN {local_recompletion_config} r ON r.course = cc.course AND r.name = 'enable' AND r.value = '1'
                   JOIN {local_recompletion_config} r2 ON r2.course = cc.course AND r2.name = 'recompletionduration'
                   JOIN {local_recompletion_config} r3 ON r3.course = cc.course
                                                      AND r3.name = 'recompletiontype' AND r3.value = 'period'
@@ -72,13 +61,13 @@ class check_recompletion extends \core\task\scheduled_task {
                    AND (cc.timecompleted + ".$DB->sql_cast_char2int('r2.value').") < ?";
         $users = $DB->get_records_sql($sql, [$now]);
 
+        // Schedule based recompletion.
         $sql = "SELECT cc.userid,
                        cc.course,
-                       r4.value as cron,
+                       r4.value as schedule,
                        cc.timecompleted,
                        coalesce(r3.value, '0') as nextresettime
                   FROM {course_completions} cc
-                  JOIN {local_recompletion_config} r ON r.course = cc.course AND r.name = 'enable' AND r.value = '1'
                   JOIN {local_recompletion_config} r2 ON r2.course = cc.course
                                                      AND r2.name = 'recompletiontype' AND r2.value = 'schedule'
              LEFT JOIN {local_recompletion_config} r3 ON r3.course = cc.course AND r3.name = 'nextresettime'
@@ -89,11 +78,8 @@ class check_recompletion extends \core\task\scheduled_task {
                    AND 1 = 1 LIMIT 3";
         $recompletions = $DB->get_records_sql($sql, [$now]);
         foreach ($recompletions as $record) {
-            $task = admin_setting_configcron::get_task_for_schedule(admin_setting_configcron::string_to_setting($record->cron));
-            $nextruntime = $task->get_next_scheduled_time();
             // If the reset should happen, make it happen, otherwise wait until the next scheduled time.
-            if ($now > $record->nextresettime && $record->nextresettime < $record->timecompleted) {
-                $record->nextresettime = $nextruntime; // Bump the time, for next time.
+            if ($now > $record->nextresettime) {
                 $users[] = $record;
             }
         }
@@ -118,8 +104,9 @@ class check_recompletion extends \core\task\scheduled_task {
         }
 
         $users = $this->get_user_courses_to_reset();
-        $courses = array();
-        $configs = array();
+        $courses = [];
+        $configs = [];
+        $updateresettimes = [];
 
         foreach ($users as $user) {
             // Only get the course record for this course (at most once).
@@ -137,26 +124,26 @@ class check_recompletion extends \core\task\scheduled_task {
 
             $this->reset_user($user->userid, $course, $config);
 
-            // Update next reset time.
-            if (isset($user->nextresettime)
-                && (!isset($config->nextresettime) || $user->nextresettime !== $config->nextresettime)
-            ) {
+            // If this course hasn't had its nextresettime set, add it to the array for after.
+            if (!isset($updateresettimes[$course->id]) && isset($user->schedule)) {
+                // Update next reset time.
                 $newconfig = new \stdClass();
                 if (isset($rc['nextresettime'])) {
                     $newconfig->id = $rc['nextresettime']->id;
                 }
                 $newconfig->course = $course->id;
                 $newconfig->name = 'nextresettime';
-                $newconfig->value = $user->nextresettime;
+                $newconfig->value = local_recompletion_calculate_schedule_time($user->schedule);
 
-                // Ensure it doesn't attempt to update the next time, as it has already updated the once.
-                $config->nextresettime = $newconfig->value;
+                $updateresettimes[$course->id] = $newconfig;
+            }
 
+            foreach ($updateresettimes as $newconfig)
+                // Now that all the users are processed, any courses that have been processed, we can update the nextresettime.
                 if (empty($newconfig->id)) {
                     $DB->insert_record('local_recompletion_config', $newconfig);
                 } else {
                     $DB->update_record('local_recompletion_config', $newconfig);
-                }
             }
         }
     }
