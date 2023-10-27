@@ -27,7 +27,6 @@ use local_recompletion\reportbuilder\entities\course_completions;
  *
  * @package    local_recompletion
  * @author     Dmitrii Metelkin <dmitriim@catalyst-au.net>
- * @copyright  Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class archived_course_completions extends datasource {
