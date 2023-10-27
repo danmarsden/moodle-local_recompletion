@@ -33,14 +33,16 @@ use local_recompletion\reportbuilder\entities\quiz_grades;
 class archived_quiz_grades extends datasource {
 
     /**
-     * @inheritdoc
+     * Return user friendly name of the datasource
+     *
+     * @return string
      */
     public static function get_name(): string {
         return get_string('datasource:local_recompletion_qg', 'local_recompletion');
     }
 
     /**
-     * @inheritdoc
+     * Initialise.
      */
     protected function initialise(): void {
         $quizgrades = new quiz_grades();
@@ -71,7 +73,9 @@ class archived_quiz_grades extends datasource {
     }
 
     /**
-     * @inheritdoc
+     * Return the columns that will be added to the report once is created
+     *
+     * @return string[]
      */
     public function get_default_columns(): array {
         return [
@@ -84,7 +88,9 @@ class archived_quiz_grades extends datasource {
     }
 
     /**
-     * @inheritdoc
+     * Return the filters that will be added to the report once is created
+     *
+     * @return string[]
      */
     public function get_default_filters(): array {
         return [
@@ -93,7 +99,9 @@ class archived_quiz_grades extends datasource {
     }
 
     /**
-     * @inheritdoc
+     * Return the conditions that will be added to the report once is created
+     *
+     * @return string[]
      */
     public function get_default_conditions(): array {
         return [];

@@ -36,7 +36,9 @@ use lang_string;
 class course_modules_completion extends base {
 
     /**
-     * @inheritDoc
+     * Database tables that this entity uses and their default aliases
+     *
+     * @return string[] Array of $tablename => $alias
      */
     protected function get_default_table_aliases(): array {
         return [
@@ -45,14 +47,18 @@ class course_modules_completion extends base {
     }
 
     /**
-     * @inheritDoc
+     * The default title for this entity
+     *
+     * @return lang_string
      */
     protected function get_default_entity_title(): lang_string {
         return new lang_string('entity:local_recompletion_cmc', 'local_recompletion');
     }
 
     /**
-     * @inheritDoc
+     * Initialise.
+     *
+     * @return \core_reportbuilder\local\entities\base
      */
     public function initialise(): base {
         $columns = $this->get_all_columns();

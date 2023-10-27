@@ -33,14 +33,16 @@ use local_recompletion\reportbuilder\entities\course_completions;
 class archived_course_completions extends datasource {
 
     /**
-     * @inheritdoc
+     * Return user friendly name of the datasource
+     *
+     * @return string
      */
     public static function get_name(): string {
         return get_string('datasource:local_recompletion_cc', 'local_recompletion');
     }
 
     /**
-     * @inheritdoc
+     * Initialise.
      */
     protected function initialise(): void {
         $coursecompletionsentity = new course_completions();
@@ -71,7 +73,9 @@ class archived_course_completions extends datasource {
     }
 
     /**
-     * @inheritdoc
+     * Return the columns that will be added to the report once is created
+     *
+     * @return string[]
      */
     public function get_default_columns(): array {
         return [
@@ -82,7 +86,9 @@ class archived_course_completions extends datasource {
     }
 
     /**
-     * @inheritdoc
+     * Return the filters that will be added to the report once is created
+     *
+     * @return string[]
      */
     public function get_default_filters(): array {
         return [
@@ -91,7 +97,9 @@ class archived_course_completions extends datasource {
     }
 
     /**
-     * @inheritdoc
+     * Return the conditions that will be added to the report once is created
+     *
+     * @return string[]
      */
     public function get_default_conditions(): array {
         return [];
