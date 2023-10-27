@@ -128,10 +128,17 @@ class mod_h5pactivity {
 
                         // Update attemptid for just inserted attempt results with IDs of previously inserted attempts.
                         // We use temp originalattemptid here as it should be unique.
-                        $sql = 'UPDATE {local_recompletion_h5pr}
-                           SET attemptid = (SELECT id
-                                              FROM {local_recompletion_h5p}
-                                             WHERE originalattemptid = attemptid)';
+                        if ($DB->get_dbfamily() == 'mysql') {
+                            $sql = 'UPDATE {local_recompletion_h5pr} h5pr
+                                      JOIN {local_recompletion_h5p} h5p ON h5pr.attemptid = h5p.originalattemptid
+                                       SET h5pr.attemptid = h5p.id';
+                        } else {
+                            $sql = ' UPDATE {local_recompletion_h5pr} h5pr
+                                        SET attemptid = h5p.id
+                                       FROM {local_recompletion_h5p} h5p
+                                      WHERE h5pr.attemptid = h5p.originalattemptid';
+                        }
+
                         $DB->execute($sql);
                     }
 
