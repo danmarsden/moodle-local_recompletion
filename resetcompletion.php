@@ -47,9 +47,11 @@ if (empty($userid)) {
 
 $context = context_course::instance($course->id);
 if ($USER->id <> $userid) {
+    $cancelurl = new moodle_url('/local/recompletion/participants.php', array('id' => $course->id));
     require_capability('local/recompletion:manage', $context);
     $user = $DB->get_record('user', array('id' => $userid));
 } else {
+    $cancelurl = course_get_url($course);
     require_capability('local/recompletion:resetmycompletion', $context);
     $user = $USER;
 }
@@ -63,7 +65,7 @@ if (!empty($confirm) && confirm_sesskey()) {
         $returnurl = course_get_url($course);
     }
     if (!empty($errors)) {
-        redirect($returnurl, explode(',', $errors), '',  \core\output\notification::NOTIFY_WARNING);
+        redirect($returnurl, implode(', ', $errors), '',  \core\output\notification::NOTIFY_WARNING);
     } else {
         redirect($returnurl, get_string('completionresetuser', 'local_recompletion', fullname($user)));
     }
@@ -80,7 +82,6 @@ $PAGE->set_heading($course->fullname);
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string("resetcompletionfor", "local_recompletion", fullname($user)));
 
-$cancelurl = course_get_url($course);
 $confirmurl = $PAGE->url;
 $confirmurl->param('confirm', 1);
 $confirmurl->param('user', $userid);
