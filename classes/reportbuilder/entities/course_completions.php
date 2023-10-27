@@ -17,12 +17,12 @@
 namespace local_recompletion\reportbuilder\entities;
 
 use core_reportbuilder\local\entities\base;
-use core_reportbuilder\local\filters\course_selector;
 use core_reportbuilder\local\filters\date;
 use core_reportbuilder\local\helpers\format;
 use core_reportbuilder\local\report\column;
 use core_reportbuilder\local\report\filter;
 use lang_string;
+use stdClass;
 
 /**
  * Report builder entity for course completion archived records.
@@ -79,6 +79,24 @@ class course_completions extends base {
      */
     protected function get_all_columns(): array {
         $coursecompletion = $this->get_table_alias('local_recompletion_cc');
+
+        // Completed column.
+        $columns[] = (new column(
+            'completed',
+            new lang_string('completed', 'completion'),
+            $this->get_entity_name()
+        ))
+            ->add_joins($this->get_joins())
+            ->set_type(column::TYPE_BOOLEAN)
+            ->add_field("CASE WHEN {$coursecompletion}.timecompleted > 0 THEN 1 ELSE 0 END", 'completed')
+            ->add_field("{$coursecompletion}.userid")
+            ->set_is_sortable(true)
+            ->add_callback(static function(bool $value, stdClass $row): string {
+                if (!$row->userid) {
+                    return '';
+                }
+                return format::boolean_as_text($value);
+            });
 
         // Time enrolled.
         $columns[] = (new column(
@@ -156,16 +174,6 @@ class course_completions extends base {
                 date::DATE_LAST,
                 date::DATE_CURRENT,
             ]);
-
-        // Custom course selector filter.
-        $filters[] = (new filter(
-            course_selector::class,
-            'courseselector',
-            new lang_string('courseselect', 'core_reportbuilder'),
-            $this->get_entity_name(),
-            "{$coursecompletion}.course"
-        ))
-            ->add_joins($this->get_joins());
 
         return $filters;
     }

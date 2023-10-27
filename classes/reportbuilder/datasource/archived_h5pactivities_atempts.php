@@ -98,7 +98,7 @@ class archived_h5pactivities_atempts extends datasource {
      */
     public function get_default_filters(): array {
         return [
-            'course:fullname',
+            'course:courseselector',
             'h5pactivity_attempts:success'
         ];
     }

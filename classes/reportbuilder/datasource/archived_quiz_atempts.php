@@ -96,7 +96,7 @@ class archived_quiz_atempts extends datasource {
      */
     public function get_default_filters(): array {
         return [
-            'course:fullname',
+            'course:courseselector',
         ];
     }
 

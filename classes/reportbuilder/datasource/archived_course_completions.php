@@ -78,8 +78,9 @@ class archived_course_completions extends datasource {
      */
     public function get_default_columns(): array {
         return [
-            'user:fullnamewithlink',
             'course:coursefullnamewithlink',
+            'user:fullnamewithlink',
+            'course_completions:completed',
             'course_completions:timecompleted',
         ];
     }
@@ -91,6 +92,7 @@ class archived_course_completions extends datasource {
      */
     public function get_default_filters(): array {
         return [
+            'course:courseselector',
             'course_completions:timecompleted',
         ];
     }

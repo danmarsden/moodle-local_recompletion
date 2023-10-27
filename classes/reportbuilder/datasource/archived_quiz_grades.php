@@ -93,7 +93,7 @@ class archived_quiz_grades extends datasource {
      */
     public function get_default_filters(): array {
         return [
-            'course:fullname',
+            'course:courseselector',
         ];
     }
 

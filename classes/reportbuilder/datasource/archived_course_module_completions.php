@@ -92,8 +92,8 @@ class archived_course_module_completions extends datasource {
      */
     public function get_default_filters(): array {
         return [
+            'course:courseselector',
             'course_modules_completion:completionstate',
-            'course_modules_completion:courseselector',
         ];
     }
     /**
