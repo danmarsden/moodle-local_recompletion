@@ -17,11 +17,8 @@
 namespace local_recompletion\reportbuilder\entities;
 
 use core_reportbuilder\local\entities\base;
-use core_reportbuilder\local\filters\course_selector;
-use core_reportbuilder\local\filters\select;
 use core_reportbuilder\local\helpers\format;
 use core_reportbuilder\local\report\column;
-use core_reportbuilder\local\report\filter;
 use core_renderer;
 use html_writer;
 use lang_string;
