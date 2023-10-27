@@ -211,3 +211,5 @@ $string['timemodified'] = 'Time modified';
 $string['status'] = 'Completion status';
 $string['entity:local_recompletion_qg'] = 'Archive of quiz grades';
 $string['datasource:local_recompletion_qg'] = 'Archive of quiz grades';
+$string['entity:local_recompletion_qa'] = 'Archive of quiz attempts';
+$string['datasource:local_recompletion_qa'] = 'Archive of quiz attempts';
