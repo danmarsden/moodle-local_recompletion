@@ -135,4 +135,55 @@ class mod_h5pactivity_test extends \advanced_testcase {
         $this->assertEquals($originalattempt, $attempt);
         $this->assertEquals($originalresult, $result);
     }
+
+    /**
+     * Test that can re complete mod_h5pactivity several times.
+     */
+    public function test_can_recomplete_few_times_in_a_row() {
+        global $DB;
+
+        $this->resetAfterTest();
+        $this->setAdminUser();
+        $course = $this->getDataGenerator()->create_course();
+        $h5p = $this->getDataGenerator()->create_module('h5pactivity', ['course' => $course->id]);
+        $user1 = $this->getDataGenerator()->create_user();
+        $user2 = $this->getDataGenerator()->create_user();
+
+        // Check that tables are empty initially.
+        $this->assertFalse($DB->record_exists('h5pactivity_attempts', ['h5pactivityid' => $h5p->id]));
+        $this->assertFalse($DB->record_exists('h5pactivity_attempts_results', []));
+        $this->assertFalse($DB->record_exists('local_recompletion_h5p', ['h5pactivityid' => $h5p->id]));
+        $this->assertFalse($DB->record_exists('local_recompletion_h5pr', []));
+
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_h5pactivity');
+        $generator->create_attempt(['h5pactivityid' => $h5p->id, 'userid' => $user1->id]);
+        $generator->create_attempt(['h5pactivityid' => $h5p->id, 'userid' => $user2->id]);
+
+        mod_h5pactivity::reset($user1->id, $course, (object)['h5pactivity' => 1, 'archiveh5pactivity' => 1]);
+        $this->assertFalse($DB->record_exists('h5pactivity_attempts', ['userid' => $user1->id, 'h5pactivityid' => $h5p->id]));
+        $this->assertTrue($DB->record_exists('h5pactivity_attempts', ['userid' => $user2->id, 'h5pactivityid' => $h5p->id]));
+
+        $generator->create_attempt(['h5pactivityid' => $h5p->id, 'userid' => $user1->id]);
+        $generator->create_attempt(['h5pactivityid' => $h5p->id, 'userid' => $user2->id]);
+
+        mod_h5pactivity::reset($user1->id, $course, (object)['h5pactivity' => 1, 'archiveh5pactivity' => 1]);
+        $this->assertFalse($DB->record_exists('h5pactivity_attempts', ['userid' => $user1->id, 'h5pactivityid' => $h5p->id]));
+        $this->assertTrue($DB->record_exists('h5pactivity_attempts', ['userid' => $user2->id, 'h5pactivityid' => $h5p->id]));
+
+        // Validate data.
+        $attempts = $DB->get_records('local_recompletion_h5p', ['userid' => $user1->id, 'h5pactivityid' => $h5p->id]);
+        foreach ($attempts as $attempt) {
+            $this->assertTrue($DB->record_exists('local_recompletion_h5pr', ['attemptid' => $attempt->id]));
+        }
+
+        mod_h5pactivity::reset($user2->id, $course, (object)['h5pactivity' => 1, 'archiveh5pactivity' => 1]);
+        $this->assertFalse($DB->record_exists('h5pactivity_attempts', ['userid' => $user1->id, 'h5pactivityid' => $h5p->id]));
+        $this->assertFalse($DB->record_exists('h5pactivity_attempts', ['userid' => $user2->id, 'h5pactivityid' => $h5p->id]));
+
+        // Validate data.
+        $attempts = $DB->get_records('local_recompletion_h5p', ['userid' => $user1->id, 'h5pactivityid' => $h5p->id]);
+        foreach ($attempts as $attempt) {
+            $this->assertTrue($DB->record_exists('local_recompletion_h5pr', ['attemptid' => $attempt->id]));
+        }
+    }
 }
