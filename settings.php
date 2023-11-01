@@ -52,7 +52,7 @@ if ($hassiteconfig) {
 
     $settings->add(new admin_setting_configstrtotime('local_recompletion/schedule',
         new lang_string('recompletionschedule', 'local_recompletion'),
-        new lang_string('recompletionschedule_help', 'local_recompletion'), '', PARAM_TEXT));
+        new lang_string('recompletionschedule_help', 'local_recompletion'), 'Jan 1', PARAM_TEXT));
 
     $settings->add(new admin_setting_configduration('local_recompletion/duration',
         new lang_string('recompletionrange', 'local_recompletion'),

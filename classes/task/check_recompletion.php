@@ -74,8 +74,7 @@ class check_recompletion extends \core\task\scheduled_task {
                   JOIN {local_recompletion_config} r4 ON r4.course = cc.course AND r4.name = 'recompletionschedule'
                   JOIN {course} c ON c.id = cc.course
                  WHERE c.enablecompletion = ".COMPLETION_ENABLED."
-                   AND cc.timecompleted > 0
-                   AND 1 = 1 LIMIT 3";
+                   AND cc.timecompleted > 0";
         $recompletions = $DB->get_records_sql($sql, [$now]);
         foreach ($recompletions as $record) {
             // If the reset should happen, make it happen, otherwise wait until the next scheduled time.
