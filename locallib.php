@@ -175,7 +175,7 @@ function local_recompletion_get_config($course) {
  * Get a future timestamp for recompletion calculation based on strtotime.
  * Will not return a value in the past, 0 is returned instead.
  *
- * @param string The natural language string to evaluate.
+ * @param string $input The natural language string to evaluate.
  * @return int a future timestamp, or 0.
  */
 function local_recompletion_calculate_schedule_time(string $input): int {

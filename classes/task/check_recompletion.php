@@ -137,12 +137,13 @@ class check_recompletion extends \core\task\scheduled_task {
                 $updateresettimes[$course->id] = $newconfig;
             }
 
-            foreach ($updateresettimes as $newconfig)
+            foreach ($updateresettimes as $newconfig) {
                 // Now that all the users are processed, any courses that have been processed, we can update the nextresettime.
                 if (empty($newconfig->id)) {
                     $DB->insert_record('local_recompletion_config', $newconfig);
                 } else {
                     $DB->update_record('local_recompletion_config', $newconfig);
+                }
             }
         }
     }
@@ -155,7 +156,7 @@ class check_recompletion extends \core\task\scheduled_task {
      */
     protected function reset_completions($userid, $course, $config) {
         global $DB;
-        $params = array('userid' => $userid, 'course' => $course->id);
+        $params = ['userid' => $userid, 'course' => $course->id];
         if (!empty(get_config('local_recompletion', 'forcearchivecompletiondata')) || $config->archivecompletiondata) {
             $coursecompletions = $DB->get_records('course_completions', $params);
             $DB->insert_records('local_recompletion_cc', $coursecompletions);
@@ -204,11 +205,11 @@ class check_recompletion extends \core\task\scheduled_task {
             return;
         }
 
-        $userrecord = $DB->get_record('user', array('id' => $userid));
+        $userrecord = $DB->get_record('user', ['id' => $userid]);
         $context = \context_course::instance($course->id);
         $from = get_admin();
         $a = new \stdClass();
-        $a->coursename = format_string($course->fullname, true, array('context' => $context));
+        $a->coursename = format_string($course->fullname, true, ['context' => $context]);
         $a->profileurl = "$CFG->wwwroot/user/view.php?id=$userrecord->id&course=$course->id";
         $a->link = course_get_url($course)->out();
         if (trim($config->recompletionemailbody) !== '') {
@@ -222,11 +223,11 @@ class check_recompletion extends \core\task\scheduled_task {
                 '{$a-&gt;profileurl}',
                 '{$a-&gt;link}',
                 '{$a-&gt;fullname}',
-                '{$a-&gt;email}'
+                '{$a-&gt;email}',
             ];
             $message = str_replace($keyhtml, $value, $message);
-            $messagehtml = format_text($message, FORMAT_HTML, array('context' => $context,
-                'para' => false, 'newlines' => true, 'filter' => true));
+            $messagehtml = format_text($message, FORMAT_HTML, ['context' => $context,
+                'para' => false, 'newlines' => true, 'filter' => true]);
             $messagetext = html_to_text($messagehtml);
         } else {
             $messagetext = get_string('recompletionemaildefaultbody', 'local_recompletion', $a);
@@ -234,8 +235,8 @@ class check_recompletion extends \core\task\scheduled_task {
         }
         if (trim($config->recompletionemailsubject) !== '') {
             $subject = $config->recompletionemailsubject;
-            $keysub = array('{$a->coursename}', '{$a->fullname}');
-            $valuesub = array($a->coursename, fullname($userrecord));
+            $keysub = ['{$a->coursename}', '{$a->fullname}'];
+            $valuesub = [$a->coursename, fullname($userrecord)];
             $subject = str_replace($keysub, $valuesub, $subject);
         } else {
             $subject = get_string('recompletionemaildefaultsubject', 'local_recompletion', $a);
@@ -277,9 +278,9 @@ class check_recompletion extends \core\task\scheduled_task {
 
         // Delete current grade information.
         if ($config->deletegradedata) {
-            if ($items = \grade_item::fetch_all(array('courseid' => $course->id))) {
+            if ($items = \grade_item::fetch_all(['courseid' => $course->id])) {
                 foreach ($items as $item) {
-                    if ($grades = \grade_grade::fetch_all(array('userid' => $userid, 'itemid' => $item->id))) {
+                    if ($grades = \grade_grade::fetch_all(['userid' => $userid, 'itemid' => $item->id])) {
                         foreach ($grades as $grade) {
                             $grade->delete('local_recompletion');
                         }
@@ -303,12 +304,12 @@ class check_recompletion extends \core\task\scheduled_task {
         // Trigger completion reset event for this user.
         $context = \context_course::instance($course->id);
         $event = \local_recompletion\event\completion_reset::create(
-            array(
+            [
                 'objectid'      => $course->id,
                 'relateduserid' => $userid,
                 'courseid' => $course->id,
                 'context' => $context,
-            )
+            ]
         );
         $event->trigger();
 

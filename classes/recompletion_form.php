@@ -122,8 +122,7 @@ class local_recompletion_recompletion_form extends moodleform {
 
         $mform->addElement('editor', 'recompletionemailbody', get_string('recompletionemailbody', 'local_recompletion'),
             $editoroptions);
-        $mform->setDefault('recompletionemailbody', ['text' => $config->emailbody,
-            'format' => FORMAT_HTML, ]);
+        $mform->setDefault('recompletionemailbody', ['text' => $config->emailbody, 'format' => FORMAT_HTML]);
         $mform->addHelpButton('recompletionemailbody', 'recompletionemailbody', 'local_recompletion');
         $mform->disabledIf('recompletionemailbody', 'recompletiontype', 'eq', '');
         $mform->disabledIf('recompletionemailbody', 'recompletionemailenable', 'notchecked');

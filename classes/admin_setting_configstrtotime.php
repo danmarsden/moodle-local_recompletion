@@ -53,7 +53,7 @@ class admin_setting_configstrtotime extends \admin_setting {
     public function validate($data) {
         $value = local_recompletion_calculate_schedule_time($data);
         if ($value === 0) {
-           return  get_string('invalidscheduledate', 'local_recompletion');
+            return  get_string('invalidscheduledate', 'local_recompletion');
         }
 
         return true;
@@ -74,6 +74,13 @@ class admin_setting_configstrtotime extends \admin_setting {
         return ($this->config_write($this->name, $data) ? '' : get_string('errorsetting', 'admin'));
     }
 
+    /**
+     * Return HTML for the form control
+     *
+     * @param mixed $data
+     * @param string $query
+     * @return string
+     */
     public function output_html($data, $query='') {
         $prefix = $this->get_full_name();
         // Use MoodleQuickForm to build the form.
