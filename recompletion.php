@@ -111,16 +111,18 @@ if ($form->is_cancelled()) {
 } else if ($data = $form->get_data()) {
     $data = local_recompletion_set_form_data($data);
     foreach ($setnames as $name) {
+        $value = 0;
+
+        if ($name === 'recompletionemailsubject' || $name === 'recompletionemailbody') {
+            $value = '';
+        }
+
+        if ($name === 'nextresettime') {
+            $value = local_recompletion_calculate_schedule_time($data->recompletionschedule);
+        }
+
         if (isset($data->$name)) {
             $value = $data->$name;
-        } else {
-            if ($name == 'recompletionemailsubject' || $name == 'recompletionemailbody') {
-                $value = '';
-            } else if ($name === 'nextresettime') {
-                $value = local_recompletion_calculate_schedule_time($data->recompletionschedule);
-            } else {
-                $value = 0;
-            }
         }
 
         // Set if new or changed.
