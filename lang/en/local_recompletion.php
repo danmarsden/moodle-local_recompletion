@@ -233,3 +233,5 @@ $string['datasource:local_recompletion_h5p'] = 'Archive of H5P attempts (mod_h5p
 $string['lessonattempts'] = 'Lesson attempts';
 $string['lessonattempts_help'] = 'How to handle Lesson attempts within the course. If archive is selected, the attempts will be archived.';
 $string['archivelesson'] = 'Archive old Lesson attempts';
+$string['entity:local_recompletion_lg'] = 'Archive of lesson grades';
+$string['datasource:local_recompletion_lg'] = 'Archive of lesson grades';
