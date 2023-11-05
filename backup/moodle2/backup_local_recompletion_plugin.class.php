@@ -246,6 +246,20 @@ class backup_local_recompletion_plugin extends backup_local_plugin {
         }
         $lessonoverride->annotate_ids('user', 'userid');
 
+        // Now deal with hvp archive tables.
+        $hotpotattempts = new backup_nested_element('hotpotattempts');
+        $hotpotattempt = new backup_nested_element('hotpotattempt', array('id'), array(
+            'hotpotid', 'userid', 'starttime', 'endtime', 'score', 'penalties', 'attempt', 'timestart',
+            'timefinish', 'status', 'clickreportid', 'timemodified', 'course'));
+
+        $recompletion->add_child($hotpotattempts);
+        $hotpotattempts->add_child($hotpotattempt);
+
+        if ($usercompletion) {
+            $hotpotattempt->set_source_table('local_recompletion_hpa', array('course' => backup::VAR_COURSEID));
+        }
+        $hotpotattempt->annotate_ids('user', 'userid');
+
         return $plugin;
     }
 

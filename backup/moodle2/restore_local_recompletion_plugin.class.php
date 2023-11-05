@@ -56,6 +56,7 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
         $paths[] = new restore_path_element('recompletion_lessontimer', $elepath.'/lessontimers/lessontimer');
         $paths[] = new restore_path_element('recompletion_lessonbrach', $elepath.'/lessonbraches/lessonbrach');
         $paths[] = new restore_path_element('recompletion_lessonoverride', $elepath.'/lessonoverrides/lessonoverride');
+        $paths[] = new restore_path_element('recompletion_hpa', $elepath.'/hotpotattempts/hotpotattempt');
 
         return $paths;
     }
@@ -296,6 +297,20 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
     }
 
     /**
+     * Process local_recompletion_hpa table.
+     * @param stdClass $data
+     */
+    public function process_recompletion_hpa($data) {
+        global $DB;
+
+        $data = (object) $data;
+        $data->course = $this->task->get_courseid();
+        $data->userid = $this->get_mappingid('user', $data->userid);
+
+        $DB->insert_record('local_recompletion_hpa', $data);
+    }
+
+    /**
      * We call the after restore_course to update the coursemodule ids we didn't know when creating.
      */
     protected function after_restore_course() {
@@ -371,5 +386,13 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
             }
             $rcm->close();
         }
+
+        // Fix hotpot attempts.
+        $rcm = $DB->get_recordset('local_recompletion_hpa', array('course' => $this->task->get_courseid()));
+        foreach ($rcm as $rc) {
+            $rc->hotpotid = $this->get_mappingid('hotpot', $rc->hotpotid);
+            $DB->update_record('local_recompletion_hpa', $rc);
+        }
+        $rcm->close();
     }
 }
