@@ -26,6 +26,7 @@ $string['pluginname'] = 'Course recompletion';
 $string['recompletion'] = 'recompletion';
 $string['editrecompletion'] = 'Edit course recompletion settings';
 $string['recompletiontype:period'] = 'Period';
+$string['recompletiontype:schedule'] = 'Schedule';
 $string['recompletiontype:ondemand'] = 'On demand';
 $string['recompletiontype:disabled'] = 'Disabled';
 $string['recompletiontype'] = 'Recompletion type';
@@ -34,6 +35,9 @@ $string['recompletiontype_help'] = 'Determines how user completion results will 
 * Disabled - disables this feature.
 * Period - allows the teacher to define an automated recompletion based on the users course completion date.
 * On demand - allows the teacher to manually reset individual users as required.';
+$string['recompletionschedule'] = 'Recompletion schedule';
+$string['recompletionschedule_help'] = 'Set a date (e.g. Jan 1st) when completion results are reset. This date is calculated forwards from when a recompletion is last run. This reset would then occur at an interval. \'Jan 1\' will result in a yearly recompletion, \'friday\' will result in recompletion being run every Friday.';
+$string['recompletioncalculateddate'] = 'Calculated date: {$a}';
 $string['recompletionrange'] = 'Recompletion period';
 $string['recompletionrange_help'] = 'Set the period of time before a users completion results are reset.';
 $string['recompletionsettingssaved'] = 'Recompletion settings saved';
@@ -230,6 +234,8 @@ $string['entity:local_recompletion_qa'] = 'Archive of quiz attempts';
 $string['datasource:local_recompletion_qa'] = 'Archive of quiz attempts';
 $string['entity:local_recompletion_h5p'] = 'Archive of H5P attempts (mod_h5pactivity)';
 $string['datasource:local_recompletion_h5p'] = 'Archive of H5P attempts (mod_h5pactivity)';
+$string['yearly'] = 'Yearly';
+$string['invalidscheduledate'] = 'Invalid schedule date entered.';
 $string['lessonattempts'] = 'Lesson attempts';
 $string['lessonattempts_help'] = 'How to handle Lesson attempts within the course. If archive is selected, the attempts will be archived.';
 $string['archivelesson'] = 'Archive old Lesson attempts';
