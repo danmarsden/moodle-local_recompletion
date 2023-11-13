@@ -33,8 +33,9 @@ $string['recompletiontype'] = 'Recompletion type';
 $string['recompletiontype_help'] = 'Determines how user completion results will be reset for new courses.
 
 * Disabled - disables this feature.
-* Period - allows the teacher to define an automated recompletion based on the users course completion date.
-* On demand - allows the teacher to manually reset individual users as required.';
+* Period - Allows a recompletion period (eg every 60 days) based on the users last course completion date.
+* On demand - Allow teacher to manually reset individual users as required.
+* Schedule - allows recompletion on a specified date eg 1st Jan every year.';
 $string['recompletionschedule'] = 'Recompletion schedule';
 $string['recompletionschedule_help'] = 'Set a date (e.g. Jan 1st) when completion results are reset. This date is calculated forwards from when a recompletion is last run. This reset would then occur at an interval. \'Jan 1\' will result in a yearly recompletion, \'friday\' will result in recompletion being run every Friday.';
 $string['recompletioncalculateddate'] = 'Calculated date: {$a}';

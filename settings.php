@@ -44,6 +44,10 @@ if ($hassiteconfig) {
                 'recompletiontype:period',
                 'local_recompletion',
             ),
+            local_recompletion_recompletion_form::RECOMPLETION_TYPE_ONDEMAND => get_string(
+                'recompletiontype:ondemand',
+                'local_recompletion',
+            ),
             local_recompletion_recompletion_form::RECOMPLETION_TYPE_SCHEDULE => get_string(
                 'recompletiontype:schedule',
                 'local_recompletion',
