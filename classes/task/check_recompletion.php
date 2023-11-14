@@ -256,7 +256,7 @@ class check_recompletion extends \core\task\scheduled_task {
                                                      ['course' => $course->id], '', 'name, value');
         }
         if (empty($config->recompletiontype)) {
-            throw new \moodle_exception('recompletionnotenabled', 'local_recompletion');
+            $errors[] = get_string('recompletionnotenabledincourse', 'local_recompletion', $course->id);
         }
 
         $restrictions = local_recompletion_get_supported_restrictions();
