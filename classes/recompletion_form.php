@@ -77,32 +77,19 @@ class local_recompletion_recompletion_form extends moodleform {
         $mform->addHelpButton('recompletionunenrolenable', 'recompletionunenrolenable', 'local_recompletion');
         $mform->hideIf('recompletionunenrolenable', 'recompletiontype', 'eq', '');
 
-        $mform->addElement('header', 'periodheader', get_string('recompletiontype:period', 'local_recompletion'));
-        $mform->setExpanded(
-            'periodheader',
-            ($instance->recompletiontype ?? $config->recompletiontype) === self::RECOMPLETION_TYPE_PERIOD,
-        );
-        $mform->hideif('periodheader', 'recompletiontype', 'neq', self::RECOMPLETION_TYPE_PERIOD);
         $options = ['optional' => false, 'defaultunit' => 86400];
         $mform->addElement('duration', 'recompletionduration', get_string('recompletionrange', 'local_recompletion'), $options);
         $mform->addHelpButton('recompletionduration', 'recompletionrange', 'local_recompletion');
-        $mform->disabledIf('recompletionduration', 'enable', 'notchecked');
-        $mform->disabledIf('recompletionduration', 'recompletiontype', 'neq', self::RECOMPLETION_TYPE_PERIOD);
         $mform->setDefault('recompletionduration', $config->duration);
+        $mform->hideif('recompletionduration', 'recompletiontype', 'neq', self::RECOMPLETION_TYPE_PERIOD);
 
         // Schedule / cron settings.
-        $mform->addElement('header', 'scheduleheader', get_string('recompletiontype:schedule', 'local_recompletion'));
-        $mform->setExpanded(
-            'scheduleheader',
-            ($instance->recompletiontype ?? $config->recompletiontype) === self::RECOMPLETION_TYPE_SCHEDULE,
-        );
-
         $mform->addElement('text', 'recompletionschedule', get_string('recompletionschedule', 'local_recompletion'), 'size = "80"');
         $mform->setType('recompletionschedule', PARAM_TEXT);
         $mform->addHelpButton('recompletionschedule', 'recompletionschedule', 'local_recompletion');
         $mform->setDefault('recompletionschedule', $config->recompletionschedule ?? '');
-        $mform->disabledIf('recompletionschedule', 'recompletiontype', 'neq', 'schedule');
-        $schedule = $this->_customdata['instance']['recompletionschedule'];
+        $mform->hideIf('recompletionschedule', 'recompletiontype', 'neq', 'schedule');
+        $schedule = $this->_customdata['instance']['recompletionschedule'] ?? '';
         if (!empty($schedule)) {
             $calculated = local_recompletion_calculate_schedule_time($schedule);
             $formatted = userdate($calculated, get_string('strftimedatetime', 'langconfig'));
