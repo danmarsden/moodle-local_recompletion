@@ -83,7 +83,7 @@ if ($isfrontpage) {
 // Trigger events.
 user_list_view($course, $context);
 
-$bulkoperations = has_capability('moodle/course:bulkmessaging', $context);
+$bulkoperations = has_capability('local/recompletion:bulkoperations', $context);
 
 $PAGE->set_title("$course->shortname: ".get_string('participants'));
 $PAGE->set_heading($course->fullname);

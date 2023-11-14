@@ -61,7 +61,7 @@ class participants extends \core_user\table\participants {
         $headers = [];
         $columns = [];
 
-        $bulkoperations = has_capability('moodle/course:bulkmessaging', $this->context);
+        $bulkoperations = has_capability('local/recompletion:bulkoperations', $this->context);
         if ($bulkoperations) {
             $mastercheckbox = new \core\output\checkbox_toggleall('participants-table', true, [
                 'id' => 'select-all-participants',

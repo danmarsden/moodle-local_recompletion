@@ -43,6 +43,7 @@ $string['recompletionrange'] = 'Recompletion period';
 $string['recompletionrange_help'] = 'Set the period of time before a users completion results are reset.';
 $string['recompletionsettingssaved'] = 'Recompletion settings saved';
 $string['recompletion:manage'] = 'Allow course recompletion settings to be changed';
+$string['recompletion:bulkoperations'] = 'Bulk operations';
 $string['recompletion:resetmycompletion'] = 'Reset my own completion';
 $string['resetmycompletion'] = 'Reset my activity completion';
 $string['recompletiontask'] = 'Check for users that need to recomplete';
