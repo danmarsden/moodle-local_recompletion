@@ -57,6 +57,7 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
         $paths[] = new restore_path_element('recompletion_lessonbrach', $elepath.'/lessonbraches/lessonbrach');
         $paths[] = new restore_path_element('recompletion_lessonoverride', $elepath.'/lessonoverrides/lessonoverride');
         $paths[] = new restore_path_element('recompletion_hpa', $elepath.'/hotpotattempts/hotpotattempt');
+        $paths[] = new restore_path_element('recompletion_cert', $elepath.'/certificates/certificate');
 
         return $paths;
     }
@@ -311,6 +312,20 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
     }
 
     /**
+     * Process local_recompletion_cert table.
+     * @param stdClass $data
+     */
+    public function process_recompletion_cert($data) {
+        global $DB;
+
+        $data = (object) $data;
+        $data->course = $this->task->get_courseid();
+        $data->userid = $this->get_mappingid('user', $data->userid);
+
+        $DB->insert_record('local_recompletion_cert', $data);
+    }
+
+    /**
      * We call the after restore_course to update the coursemodule ids we didn't know when creating.
      */
     protected function after_restore_course() {
@@ -392,6 +407,14 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
         foreach ($rcm as $rc) {
             $rc->hotpotid = $this->get_mappingid('hotpot', $rc->hotpotid);
             $DB->update_record('local_recompletion_hpa', $rc);
+        }
+        $rcm->close();
+
+        // Fix certificates.
+        $rcm = $DB->get_recordset('local_recompletion_cert', array('course' => $this->task->get_courseid()));
+        foreach ($rcm as $rc) {
+            $rc->certificateid = $this->get_mappingid('certificate', $rc->certificateid);
+            $DB->update_record('local_recompletion_cert', $rc);
         }
         $rcm->close();
     }
