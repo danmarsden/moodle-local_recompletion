@@ -268,6 +268,15 @@ class check_recompletion extends \core\task\scheduled_task {
             }
         }
 
+        $plugins = local_recompletion_get_supported_plugins();
+        foreach ($plugins as $plugin) {
+            $fqn = 'local_recompletion\\plugins\\' . $plugin;
+            $error = $fqn::reset($userid, $course, $config);
+            if (!empty($errors)) {
+                $errors[] = $error;
+            }
+        }
+
         // Archive and delete course completion.
         $this->reset_completions($userid, $course, $config);
 
@@ -281,15 +290,6 @@ class check_recompletion extends \core\task\scheduled_task {
                         }
                     }
                 }
-            }
-        }
-
-        $plugins = local_recompletion_get_supported_plugins();
-        foreach ($plugins as $plugin) {
-            $fqn = 'local_recompletion\\plugins\\' . $plugin;
-            $error = $fqn::reset($userid, $course, $config);
-            if (!empty($errors)) {
-                $errors[] = $error;
             }
         }
 
