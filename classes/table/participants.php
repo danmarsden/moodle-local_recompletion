@@ -44,6 +44,12 @@ require_once($CFG->dirroot . '/user/lib.php');
 class participants extends \core_user\table\participants {
 
     /**
+     * A list of roles that current user can view in a context.
+     * @var array
+     */
+    protected $viewableroles;
+
+    /**
      * @var bool|mixed Is recompletion enabled in this course.
      */
     protected $recompletionenabled;
