@@ -275,3 +275,5 @@ $string['archivecertificate'] = 'Archive issued certificates (mod_certificate)';
 $string['archivecertificate_help'] = 'Should issued certificates be archived?';
 $string['entity:local_recompletion_cert'] = 'Archive of issued certificates (mod_certificate)';
 $string['datasource:local_recompletion_cert'] = 'Archive of issued certificates (mod_certificate)';
+$string['entity:local_recompletion_ccert_is'] = 'Archive of issued certificates (mod_customcert)';
+$string['datasource:local_recompletion_ccert_is'] = 'Archive of issued certificates (mod_customcert)';
