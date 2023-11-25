@@ -29,4 +29,4 @@ $plugin->release   = 2023112100;
 $plugin->maturity  = MATURITY_STABLE;
 $plugin->requires  = 2022112805; // Requires 4.1.
 $plugin->component = 'local_recompletion';
-$plugin->supported = [401, 403];
+$plugin->supported = [401, 402];
