@@ -76,7 +76,7 @@ class mod_certificate {
         $mform->disabledIf('certificate', 'enable');
         $mform->disabledIf('archivecertificate', 'enable');
         $mform->hideIf('archivecertificate', 'certificate', 'noteq', LOCAL_RECOMPLETION_DELETE);
-        $mform->hideIf('certificateverifywarn', 'certificate', 'noteq', LOCAL_RECOMPLETION_DELETE);
+        $mform->hideIf('certificateverifywarngroup', 'certificate', 'noteq', LOCAL_RECOMPLETION_DELETE);
     }
 
     /**
