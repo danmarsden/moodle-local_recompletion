@@ -75,7 +75,6 @@
       </KEYS>
       <INDEXES>
         <INDEX NAME="coursemoduleid" UNIQUE="false" FIELDS="coursemoduleid" COMMENT="For quick access via course-module (e.g. when displaying course module settings page and we need to determine whether anyone has completed it)."/>
-        <INDEX NAME="userid-coursemoduleid" UNIQUE="true" FIELDS="userid, coursemoduleid"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="local_recompletion_qa" COMMENT="archive of quiz attempts table">
