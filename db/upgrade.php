@@ -973,5 +973,19 @@ function xmldb_local_recompletion_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2023112100, 'local', 'recompletion');
     }
 
+    if ($oldversion < 2023112600) {
+        // Define table local_recompletion_cmv to be created.
+        $table = new xmldb_table('local_recompletion_cmv');
+        $index = new xmldb_index('userid-coursemoduleid', XMLDB_INDEX_UNIQUE, ['userid', 'coursemoduleid']);
+
+        // Conditionally launch drop index.
+        if ($dbman->index_exists($table, $index)) {
+            $dbman->drop_index($table, $index);
+        }
+
+        // Recompletion savepoint reached.
+        upgrade_plugin_savepoint(true, 2023112600, 'local', 'recompletion');
+    }
+
     return true;
 }
