@@ -65,6 +65,10 @@ class h5pactivity_attempts extends base {
             $this->add_column($column);
         }
 
+        foreach ($this->get_all_filters() as $filter) {
+            $this->add_filter($filter)->add_condition($filter);
+        }
+
         return $this;
     }
 
@@ -209,7 +213,7 @@ class h5pactivity_attempts extends base {
         $filters[] = (new filter(
             select::class,
             'success',
-            new lang_string('outcome', 'local_recompletion'),
+            new lang_string('outcome', 'h5pactivity'),
             $this->get_entity_name(),
             "{$alias}.success"
         ))
