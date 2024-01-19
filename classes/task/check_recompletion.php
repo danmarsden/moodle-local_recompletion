@@ -207,8 +207,8 @@ class check_recompletion extends \core\task\scheduled_task {
         $a->coursename = format_string($course->fullname, true, ['context' => $context]);
         $a->profileurl = "$CFG->wwwroot/user/view.php?id=$userrecord->id&course=$course->id";
         $a->link = course_get_url($course)->out();
-        if (trim($config->recompletionemailbody) !== '') {
-            $message = $config->recompletionemailbody;
+        if (trim($config->recompletionemailbody['text']) !== '') {
+            $message = $config->recompletionemailbody['text'];
             $key = ['{$a->coursename}', '{$a->profileurl}', '{$a->link}', '{$a->fullname}', '{$a->email}'];
             $value = [$a->coursename, $a->profileurl, $a->link, fullname($userrecord), $userrecord->email];
             $message = str_replace($key, $value, $message);
