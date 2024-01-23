@@ -122,8 +122,9 @@ class check_recompletion extends \core\task\scheduled_task {
             if (!isset($updateresettimes[$course->id]) && isset($user->schedule)) {
                 // Update next reset time.
                 $newconfig = new \stdClass();
-                if (isset($rc['nextresettime'])) {
-                    $newconfig->id = $rc['nextresettime']->id;
+                if (isset($config->nextresettime)) {
+                    $newconfig->id = $DB->get_field('local_recompletion_config', 'id',
+                        ['course' => $course->id, 'name' => 'nextresettime']);
                 }
                 $newconfig->course = $course->id;
                 $newconfig->name = 'nextresettime';
