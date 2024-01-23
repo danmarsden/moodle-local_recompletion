@@ -153,14 +153,18 @@ function local_recompletion_get_config($course) {
     // Ideally this would be picked up directly from settings or the override form.
     // Values if not set in the form are set to 0.
     $defaultconfig = [
-        'enable' => 0,
+        'recompletiontype' => '',
+        'recompletionduration' => 0,
+        'recompletionschedule' => '',
         'assignevent' => null,
         'archivecompletiondata' => 0,
         'recompletionemailenable' => 0,
         'recompletionunenrolenable' => 0,
         'recompletionemailbody' => '',
+        'recompletionemailbody_format' => FORMAT_HTML,
         'recompletionemailsubject' => '',
         'deletegradedata' => 0,
+        'nextresettime' => 0,
         'course' => null    // This isn't in the form.
     ];
 
