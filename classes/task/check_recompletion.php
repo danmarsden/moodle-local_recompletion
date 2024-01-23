@@ -111,8 +111,8 @@ class check_recompletion extends \core\task\scheduled_task {
 
             // Get recompletion config for this course (at most once).
             if (!isset($configs[$user->course])) {
-                $rc = $DB->get_records_list('local_recompletion_config', 'course', [$course->id], '', 'name, id, value');
-                $configs[$user->course] = (object) local_recompletion_get_data($rc);
+                $config = local_recompletion_get_config($course);
+                $configs[$user->course] = $config;
             }
             $config = $configs[$user->course];
 
@@ -122,8 +122,9 @@ class check_recompletion extends \core\task\scheduled_task {
             if (!isset($updateresettimes[$course->id]) && isset($user->schedule)) {
                 // Update next reset time.
                 $newconfig = new \stdClass();
-                if (isset($rc['nextresettime'])) {
-                    $newconfig->id = $rc['nextresettime']->id;
+                if (isset($config->nextresettime)) {
+                    $newconfig->id = $DB->get_field('local_recompletion_config', 'id',
+                        ['course' => $course->id, 'name' => 'nextresettime']);
                 }
                 $newconfig->course = $course->id;
                 $newconfig->name = 'nextresettime';
