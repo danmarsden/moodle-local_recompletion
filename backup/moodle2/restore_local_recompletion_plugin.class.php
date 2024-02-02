@@ -46,7 +46,8 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
         $paths[] = new restore_path_element('recompletion_completion', $elepath.'/course_completion/completions/completion');
         $paths[] = new restore_path_element('recompletion_qa', $elepath.'/quizattempts/attempt');
         $paths[] = new restore_path_element('recompletion_qg', $elepath.'/quizgrades/grade');
-        $paths[] = new restore_path_element('recompletion_sst', $elepath.'/scormtracks/sco_track');
+        $paths[] = new restore_path_element('recompletion_sa', $elepath.'/scormattempts/scormattempt');
+        $paths[] = new restore_path_element('recompletion_ssv', $elepath.'/scormtracks/sco_track');
         $paths[] = new restore_path_element('recompletion_cha', $elepath.'/choiceanswers/choiceanswer');
         $paths[] = new restore_path_element('recompletion_hvp', $elepath.'/hvpattempts/hvpattempt');
         $paths[] = new restore_path_element('recompletion_h5p', $elepath.'/h5ps/h5p');
@@ -147,17 +148,30 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
     }
 
     /**
-     * Process local_recompletion_sst table.
+     * Process local_recompletion_sa table.
      * @param stdClass $data
      */
-    public function process_recompletion_sst($data) {
+    public function process_recompletion_sa($data) {
         global $DB;
 
         $data = (object) $data;
-        $data->course = $this->task->get_courseid();
+        $data->courseid = $this->task->get_courseid();
         $data->userid = $this->get_mappingid('user', $data->userid);
 
-        $DB->insert_record('local_recompletion_sst', $data);
+        $DB->insert_record('local_recompletion_sa', $data);
+    }
+
+    /**
+     * Process local_recompletion_sst table.
+     * @param stdClass $data
+     */
+    public function process_recompletion_ssv($data) {
+        global $DB;
+
+        $data = (object) $data;
+        $data->courseid = $this->task->get_courseid();
+
+        $DB->insert_record('local_recompletion_ssv', $data);
     }
 
     /**
@@ -339,11 +353,10 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
         $rcm->close();
 
         // Fix SCORM tracks.
-        $rcm = $DB->get_recordset('local_recompletion_sst', array('course' => $this->task->get_courseid()));
+        $rcm = $DB->get_recordset('local_recompletion_sa', array('courseid' => $this->task->get_courseid()));
         foreach ($rcm as $rc) {
             $rc->scormid = $this->get_mappingid('scorm', $rc->scormid);
-            $rc->scoid = $this->get_mappingid('scorm_sco', $rc->scoid);
-            $DB->update_record('local_recompletion_sst', $rc);
+            $DB->update_record('local_recompletion_sa', $rc);
         }
         $rcm->close();
 
