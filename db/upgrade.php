@@ -987,5 +987,81 @@ function xmldb_local_recompletion_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2023112600, 'local', 'recompletion');
     }
 
+    if ($oldversion < 2024011601) {
+
+        // Define table local_recompletion_sa to be created.
+        $table = new xmldb_table('local_recompletion_sa');
+
+        // Adding fields to table local_recompletion_ssv.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('scormid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('attempt', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+
+        // Adding keys to table local_recompletion_ssv.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('userid', XMLDB_KEY_FOREIGN, array('userid'), 'user', array('id'));
+        $table->add_key('scormid', XMLDB_KEY_FOREIGN, array('scormid'), 'scorm', array('id'));
+        $table->add_key('courseid', XMLDB_KEY_FOREIGN, array('courseid'), 'course', array('id'));
+
+        // Conditionally launch create table for local_recompletion_ssv.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Define table local_recompletion_ssv to be created.
+        $table = new xmldb_table('local_recompletion_ssv');
+
+        // Adding fields to table local_recompletion_ssv.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('scoid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('attemptid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('elementid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('value', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+
+        // Adding keys to table local_recompletion_ssv.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('scoid', XMLDB_KEY_FOREIGN, array('scoid'), 'scorm_scoes', array('id'));
+        $table->add_key('attemptid', XMLDB_KEY_FOREIGN, array('attemptid'), 'scorm_attempt', array('id'));
+        $table->add_key('elementid', XMLDB_KEY_FOREIGN, array('elementid'), 'scorm_element', array('id'));
+        $table->add_key('courseid', XMLDB_KEY_FOREIGN, array('courseid'), 'course', array('id'));
+        // Conditionally launch create table for local_recompletion_ssv.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+        // Migrate Data to new format.
+        $total = $DB->count_records('local_recompletion_sst');
+        if ($total > 500000) {
+            // This site has a large number of user track records, lets warn that this next part may take some time.
+            $notification = new \core\output\notification(
+                get_string('largetrackupgrade', 'scorm', format_float($total, 0)),
+                \core\output\notification::NOTIFY_WARNING
+            );
+            $notification->set_show_closebutton(false);
+            echo $OUTPUT->render($notification);
+        }
+        // Fill backup attempt table.
+        $sql = "INSERT INTO {local_recompletion_sa} (userid, scormid, attempt, courseid)
+        SELECT userid, scormid, attempt, course FROM {local_recompletion_sst} sst GROUP BY userid,scormid,attempt";
+        $DB->execute($sql);
+        // Fill backup value table.
+        $sql = "INSERT INTO {local_recompletion_ssv} (attemptid, scoid, elementid, value, courseid, timemodified)
+        SELECT a.id as attemptid, t.scoid as scoid, e.id as elementid, t.value as value, s.course as courseid, t.timemodified
+            FROM {local_recompletion_sst} t
+            JOIN {scorm_element} e ON e.element = t.element
+            LEFT JOIN {scorm} s ON s.id = t.scormid
+            JOIN {local_recompletion_sa} a ON (t.userid = a.userid AND t.scormid = a.scormid AND a.attempt = t.attempt)";
+        $DB->execute($sql);
+        // Remove old table.
+        $table = new xmldb_table('local_recompletion_sst');
+        if ($dbman->table_exists($table)) {
+            $dbman->drop_table($table);
+        }
+        // Recompletion savepoint reached.
+        upgrade_plugin_savepoint(true, 2024011601, 'local', 'recompletion');
+    }
     return true;
 }

@@ -96,16 +96,26 @@ class mod_scorm {
         } else if ($config->scorm == LOCAL_RECOMPLETION_DELETE) {
             $params = array('userid' => $userid, 'course' => $course->id);
             $selectsql = 'userid = ? AND scormid IN (SELECT id FROM {scorm} WHERE course = ?)';
-            if ($config->archivescorm) {
-                $scormscoestrack = $DB->get_records_select('scorm_scoes_track', $selectsql, $params);
-                // Strictly not part of #78 but eliminates unused local variable violation.
-                foreach (array_keys($scormscoestrack) as $sid) {
-                    // Add courseid to records to help with restore process.
-                    $scormscoestrack[$sid]->course = $course->id;
+
+            $scormattempt = $DB->get_records_select('scorm_attempt', $selectsql, $params);
+            // Strictly not part of #78 but eliminates unused local variable violation.
+            foreach (array_keys($scormattempt) as $sid) {
+                // Add courseid to records to help with restore process.
+                $scormattempt[$sid]->courseid = $course->id;
+                $scormscoesvalue = $DB->get_records('scorm_scoes_value', ['attemptid' => $sid]);
+                if ($config->archivescorm) {
+                    foreach (array_keys($scormscoesvalue) as $ssvid) {
+                        $scormscoesvalue[$ssvid]->courseid = $course->id;
+
+                    }
+                    $DB->insert_records('local_recompletion_ssv', $scormscoesvalue);
                 }
-                $DB->insert_records('local_recompletion_sst', $scormscoestrack);
+                $DB->delete_records('scorm_scoes_value', ['attemptid' => $sid]);
             }
-            $DB->delete_records_select('scorm_scoes_track', $selectsql, $params);
+            if ($config->archivescorm) {
+                $DB->insert_records('local_recompletion_sa', $scormattempt);
+            }
+            $DB->delete_records_select('scorm_attempt', $selectsql, $params);
             $DB->delete_records_select('scorm_aicc_session', $selectsql, $params);
         }
     }

@@ -116,20 +116,30 @@ class backup_local_recompletion_plugin extends backup_local_plugin {
         $grade->annotate_ids('user', 'userid');
 
         // Now deal with SCORM archive tables.
+        $scormattempts = new backup_nested_element('scormattempts');
+
+        $scormattempt = new backup_nested_element('scormattempt', array('id'), array(
+            'scormid', 'userid', 'attempt', 'courseid'));
+
+        $recompletion->add_child($scormattempts);
+        $scormattempts->add_child($scormattempt);
+
+        if ($usercompletion) {
+            $scormattempt->set_source_table('local_recompletion_sa', array('courseid' => backup::VAR_COURSEID));
+        }
+        $scormattempt->annotate_ids('user', 'userid');
+
         $scotracks = new backup_nested_element('scormtracks');
 
         $scotrack = new backup_nested_element('sco_track', array('id'), array(
-            'userid', 'attempt', 'element', 'value',
-            'timemodified', 'course', 'scormid', 'scoid'));
+            'scoid', 'attemptid', 'elementid', 'value', 'courseid', 'timemodified'));
 
         $recompletion->add_child($scotracks);
         $scotracks->add_child($scotrack);
 
         if ($usercompletion) {
-            $scotrack->set_source_table('local_recompletion_sst', array('course' => backup::VAR_COURSEID));
+            $scotrack->set_source_table('local_recompletion_ssv', array('courseid' => backup::VAR_COURSEID));
         }
-        $scotrack->annotate_ids('user', 'userid');
-
         // Now deal with choice archive tables.
         $choiceanswers = new backup_nested_element('choiceanswers');
 

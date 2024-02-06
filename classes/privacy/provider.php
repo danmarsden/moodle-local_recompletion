@@ -101,13 +101,20 @@ class provider implements
             'timemodified'          => 'privacy:metadata:quiz_grades:timemodified',
         ], 'privacy:metadata:quiz_grades');
 
-        $collection->add_database_table('local_recompletion_sst', [
+        $collection->add_database_table('local_recompletion_sa', [
             'userid' => 'privacy:metadata:userid',
-            'attempt' => 'privacy:metadata:attempt',
-            'element' => 'privacy:metadata:scoes_track:element',
-            'value' => 'privacy:metadata:scoes_track:value',
-            'timemodified' => 'privacy:metadata:timemodified'
-        ], 'privacy:metadata:scorm_scoes_track');
+            'scormid' => 'privacy:metadata:scormid',
+            'courseid' => 'privacy:metadata:course',
+        ], 'privacy:metadata:scorm_attempt');
+
+        $collection->add_database_table('local_recompletion_ssv', [
+            'userid' => 'privacy:metadata:userid',
+            'attemptid' => 'privacy:metadata:attempt',
+            'elementid' => 'privacy:metadata:scoes_value:element',
+            'value' => 'privacy:metadata:scoes_value:value',
+            'timemodified' => 'privacy:metadata:timemodified',
+            'courseid' => 'privacy:metadata:course'
+        ], 'privacy:metadata:scorm_scoes_value');
 
         $collection->add_database_table('local_recompletion_ltia', [
             'toolid' => 'privacy:metadata:local_recompletion_ltia:toolid',
