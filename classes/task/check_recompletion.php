@@ -50,7 +50,7 @@ class check_recompletion extends \core\task\scheduled_task {
 
         $now = time();
         // Period based recompletion users.
-        $sql = "SELECT cc.userid, cc.course, null as nextresettime
+        $sql = "SELECT cc.id, cc.userid, cc.course, null as nextresettime
                   FROM {course_completions} cc
                   JOIN {local_recompletion_config} r2 ON r2.course = cc.course AND r2.name = 'recompletionduration'
                   JOIN {local_recompletion_config} r3 ON r3.course = cc.course
@@ -62,7 +62,8 @@ class check_recompletion extends \core\task\scheduled_task {
         $users = $DB->get_records_sql($sql, [$now]);
 
         // Schedule based recompletion.
-        $sql = "SELECT cc.userid,
+        $sql = "SELECT cc.id,
+                       cc.userid,
                        cc.course,
                        r4.value as schedule,
                        cc.timecompleted,
