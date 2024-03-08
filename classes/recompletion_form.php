@@ -34,6 +34,15 @@ class local_recompletion_recompletion_form extends moodleform {
     /** @var string */
     const RECOMPLETION_TYPE_SCHEDULE = 'schedule';
 
+    /** @var string */
+    const RECOMPLETION_NOTIFY_COMPLETED_USERS = 'completed';
+
+    /** @var string */
+    const RECOMPLETION_NOTIFY_ENROLLED_USERS = 'enrolled';
+
+    /** @var string */
+    const RECOMPLETION_NOTIFY_ACTIVE_ENROLLED_USERS = 'activeenrolled';
+
     /**
      * Defines the form fields.
      */
@@ -71,6 +80,15 @@ class local_recompletion_recompletion_form extends moodleform {
         $mform->setDefault('recompletionemailenable', $config->emailenable);
         $mform->addHelpButton('recompletionemailenable', 'recompletionemailenable', 'local_recompletion');
         $mform->hideIf('recompletionemailenable', 'recompletiontype', 'eq', '');
+
+        $mform->addElement('select', 'recompletionnotify', get_string('recompletionnotify', 'local_recompletion'), [
+            self::RECOMPLETION_NOTIFY_COMPLETED_USERS => get_string('recompletionnotify:completed', 'local_recompletion'),
+            self::RECOMPLETION_NOTIFY_ENROLLED_USERS => get_string('recompletionnotify:enrolled', 'local_recompletion'),
+            self::RECOMPLETION_NOTIFY_ACTIVE_ENROLLED_USERS => get_string('recompletionnotify:activeenrolled', 'local_recompletion'),
+        ]);
+        $mform->setDefault('recompletionnotify', $config->recompletionnotify ?? '');
+        $mform->addHelpButton('recompletionnotify', 'recompletionnotify', 'local_recompletion');
+        $mform->disabledIf('recompletionnotify', 'recompletionemailenable', 'notchecked');
 
         $mform->addElement('checkbox', 'recompletionunenrolenable', get_string('recompletionunenrolenable', 'local_recompletion'));
         $mform->setDefault('recompletionunenrolenable', $config->unenrolenable);

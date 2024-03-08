@@ -198,10 +198,6 @@ class check_recompletion extends \core\task\scheduled_task {
     protected function notify_user($userid, $course, $config) {
         global $DB, $CFG;
 
-        if (!$config->recompletionemailenable) {
-            return;
-        }
-
         $userrecord = $DB->get_record('user', ['id' => $userid]);
         $context = \context_course::instance($course->id);
         $from = get_admin();
@@ -295,11 +291,29 @@ class check_recompletion extends \core\task\scheduled_task {
             }
         }
 
-        // Now notify user.
-        $this->notify_user($userid, $course, $config);
+        $context = \context_course::instance($course->id);
+
+        //Determine if user should be notified.
+        if ($config->recompletionemailenable) {
+            // If notifications enabled and user has a completion record, notify user.
+            if ($config->recompletionnotify == 'completed') {
+                $this->notify_user($userid, $course, $config);
+            }
+            // If user has an enrollment (active or suspended), notify user.
+            elseif ($config->recompletionnotify == 'enrolled') {
+                if (is_enrolled($context, $userid)) {
+                    $this->notify_user($userid, $course, $config);
+                }
+            }
+            // If user has an active enrollment), notify user.
+            elseif ($config->recompletionnotify == 'activeenrolled') {
+                if (is_enrolled($context, $userid, '', true)) {
+                    $this->notify_user($userid, $course, $config);
+                }
+            }
+        }
 
         // Trigger completion reset event for this user.
-        $context = \context_course::instance($course->id);
         $event = \local_recompletion\event\completion_reset::create(
             [
                 'objectid'      => $course->id,

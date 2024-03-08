@@ -51,6 +51,16 @@ $string['completionnotenabled'] = 'Completion is not enabled in this course';
 $string['recompletionnotenabledincourse'] = 'Recompletion is not enabled in courseid: {$a}';
 $string['recompletionemailenable'] = 'Send recompletion message';
 $string['recompletionemailenable_help'] = 'Enable email messaging to notifiy users that recompletion is required';
+
+$string['recompletionnotify:completed'] = 'Send to all users (with a completion record)';
+$string['recompletionnotify:enrolled'] = 'Send to all users (with an enrollment)';
+$string['recompletionnotify:activeenrolled'] = 'Send to all users (with an active enrollment)';
+$string['recompletionnotify'] = 'Recompletion user notification';
+$string['recompletionnotify_help'] = 'Determines which users are notified of recompletion.
+* Send to all users (with a completion record) - If a course completion record exists for a user, they will be notified.
+* Send to all users (with an enrollment) - If a user is enrolled (active, suspended, etc) in the course, they will be notified.
+* Send to all users (with an active enrollment) - If a user is actively enrolled, they will be notified.';
+
 $string['recompletionemailsubject'] = 'Recompletion message subject';
 $string['recompletionemailsubject_help'] = 'A custom recompletion email subject may be added as plain text
 
