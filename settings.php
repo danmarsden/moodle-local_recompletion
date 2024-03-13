@@ -66,6 +66,23 @@ if ($hassiteconfig) {
         new lang_string('recompletionemailenable', 'local_recompletion'),
         new lang_string('recompletionemailenable_help', 'local_recompletion'), 1));
 
+        $settings->add(new admin_setting_configselect('local_recompletion/recompletionnotify',
+        new lang_string('recompletionnotify', 'local_recompletion'),
+        new lang_string('recompletionnotify_help', 'local_recompletion'), 'range', [
+            local_recompletion_recompletion_form::RECOMPLETION_NOTIFY_COMPLETED_USERS => get_string(
+                'recompletionnotify:completed',
+                'local_recompletion',
+            ),
+            local_recompletion_recompletion_form::RECOMPLETION_NOTIFY_ENROLLED_USERS => get_string(
+                'recompletionnotify:enrolled',
+                'local_recompletion',
+            ),
+            local_recompletion_recompletion_form::RECOMPLETION_NOTIFY_ACTIVE_ENROLLED_USERS => get_string(
+                'recompletionnotify:activeenrolled',
+                'local_recompletion',
+            ),
+        ]));
+
     $settings->add(new admin_setting_configtext('local_recompletion/emailsubject',
         new lang_string('recompletionemailsubject', 'local_recompletion'),
         new lang_string('recompletionemailsubject_help', 'local_recompletion'), '', PARAM_TEXT));
