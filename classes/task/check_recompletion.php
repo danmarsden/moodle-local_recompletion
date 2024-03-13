@@ -295,18 +295,14 @@ class check_recompletion extends \core\task\scheduled_task {
 
         // Determine if user should be notified.
         if ($config->recompletionemailenable) {
-            // If notifications enabled and user has a completion record, notify user.
+            // If user has a completion record, notify user.
             if ($config->recompletionnotify == 'completed') {
                 $this->notify_user($userid, $course, $config);
-            }
-            // If user has an enrollment (active or suspended), notify user.
-            else if ($config->recompletionnotify == 'enrolled') {
+            } else if ($config->recompletionnotify == 'enrolled') { // Active or suspended enrollment, notify user.
                 if (is_enrolled($context, $userid)) {
                     $this->notify_user($userid, $course, $config);
                 }
-            }
-            // If user has an active enrollment), notify user.
-            else if ($config->recompletionnotify == 'activeenrolled') {
+            } else if ($config->recompletionnotify == 'activeenrolled') { // Active enrollment only, notify user.
                 if (is_enrolled($context, $userid, '', true)) {
                     $this->notify_user($userid, $course, $config);
                 }
