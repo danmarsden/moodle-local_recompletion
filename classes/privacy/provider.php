@@ -269,7 +269,11 @@ class provider implements
                     (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]);
             }
 
-            $records = $DB->get_records('local_recompletion_sst', $params);
+            $sql = "SELECT v.id, v.scoid, v.attemptid, e.element, v.courseid, t.timemodified
+                    FROM {local_recompletion_ssv} v
+                    JOIN {scorm_element} e ON e.id = v.elementid
+                    WHERE v.courseid = :course AND v.userid = :userid";
+            $records = $DB->get_records_sql($sql, $params);
             foreach ($records as $record) {
                 $context = \context_course::instance($record->course);
                 writer::with_context($context)->export_data(
@@ -432,7 +436,8 @@ class provider implements
         $DB->delete_records('local_recompletion_cmv', $params);
         $DB->delete_records('local_recompletion_qa', $params);
         $DB->delete_records('local_recompletion_qg', $params);
-        $DB->delete_records('local_recompletion_sst', $params);
+        $DB->delete_records('local_recompletion_ssv', $params);
+        $DB->delete_records('local_recompletion_sa', $params);
         $DB->delete_records('local_recompletion_qr', $params);
         $DB->delete_records('local_recompletion_cha', $params);
         $DB->delete_records('local_recompletion_hvp', $params);
@@ -467,7 +472,10 @@ class provider implements
             $DB->delete_records('local_recompletion_cmv', $params);
             $DB->delete_records('local_recompletion_qa', $params);
             $DB->delete_records('local_recompletion_qg', $params);
-            $DB->delete_records('local_recompletion_sst', $params);
+            $DB->delete_records_select('local_recompletion_ssv', 'attemptid in (SELECT id
+                                                                                  FROM {local_recompletion_sa}
+                                                                                  WHERE userid = :userid AND courseid = :course');
+            $DB->delete_records('local_recompletion_sa', $params);
             $DB->delete_records('local_recompletion_ltia', ['userid' => $userid]);
             $DB->delete_records('local_recompletion_qr', $params);
             $DB->delete_records('local_recompletion_cha', $params);
@@ -521,7 +529,7 @@ class provider implements
         $sql = "SELECT ctx.id
                   FROM {course} c
                   JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
-                  JOIN {local_recompletion_sst} rc ON rc.course = c.id and rc.userid = :userid";
+                  JOIN {local_recompletion_sa} rc ON rc.courseid = c.id and rc.userid = :userid";
         $contextlist->add_from_sql($sql, $params);
         $sql = "SELECT ctx.id
                   FROM {course} c
@@ -636,8 +644,8 @@ class provider implements
         $userlist->add_from_sql('userid', $sql, $params);
 
         $sql = "SELECT rc.userid
-                  FROM {local_recompletion_sst} rc
-                  JOIN {course} c ON rc.course = c.id
+                  FROM {local_recompletion_sa} rc
+                  JOIN {course} c ON rc.courseid = c.id
                   JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
                   WHERE ctx.id = :contextid";
         $userlist->add_from_sql('userid', $sql, $params);
@@ -780,11 +788,19 @@ class provider implements
         $DB->delete_records_select('local_recompletion_qg', "id $sql", $params);
 
         $sql = "SELECT rc.id
-                  FROM {local_recompletion_sst} rc
-                  JOIN {course} c ON rc.course = c.id
+                  FROM {local_recompletion_ssv} rc
+                  JOIN {local_recompletion_sa} sa on sa.attemptid = rc.id
+                  JOIN {course} c ON rc.courseid = c.id
+                  JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                  WHERE ctx.id = :contextid AND sa.userid $insql";
+        $DB->delete_records_select('local_recompletion_ssv', "id $sql", $params);
+
+        $sql = "SELECT rc.id
+                  FROM {local_recompletion_sa} rc
+                  JOIN {course} c ON rc.courseid = c.id
                   JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
                   WHERE ctx.id = :contextid AND rc.userid $insql";
-        $DB->delete_records_select('local_recompletion_sst', "id $sql", $params);
+        $DB->delete_records_select('local_recompletion_sa', "id $sql", $params);
 
         $sql = "SELECT rc.id
                   FROM {local_recompletion_ltia} rc
