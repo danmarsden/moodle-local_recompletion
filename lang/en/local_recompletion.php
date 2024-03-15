@@ -176,6 +176,7 @@ $string['privacy:metadata:deadline'] = 'Deadline';
 $string['privacy:metadata:maxattempts'] = 'Max number of attempts';
 $string['privacy:metadata:retake'] = 'Retake';
 $string['privacy:metadata:score'] = 'Score';
+$string['privacy:metadata:scormid'] = 'Scorm id';
 $string['privacy:metadata:local_recompletion_cert'] = 'Archive of previous certificate issues.';
 $string['privacy:metadata:local_recompletion_cert:timecreated'] = 'The time that the certificate issue created';
 $string['noassigngradepermission'] = 'Your completion was reset, but this course contains an assignment that could not be reset, please ask your teacher to do this for you if required.';
