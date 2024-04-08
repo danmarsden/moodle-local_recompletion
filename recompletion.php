@@ -82,6 +82,7 @@ $setnames = [
     'recompletionemailbody_format',
     'assignevent',
     'nextresettime',
+    'resetquizoverride',
 ];
 
 $plugins = local_recompletion_get_supported_plugins();

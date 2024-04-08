@@ -195,6 +195,7 @@ $string['modifycompletiondates'] = 'Modify course completion dates';
 $string['assignevent'] = 'Update course completion on grade change';
 $string['defaultsettings'] = 'Recompletion default settings';
 $string['archivequiz'] = 'Archive old quiz attempts';
+$string['resetquizoverride'] = 'Reset quiz user overrides';
 $string['archivequestionnaire'] = 'Archive old questionnaire attempts';
 $string['archivescorm'] = 'Archive old SCORM attempts';
 $string['resetlti'] = 'Reset LTI grades';
