@@ -66,7 +66,9 @@ if ($hassiteconfig) {
 
     $settings->add(new admin_setting_configselect('local_recompletion/recompletionnotify',
         new lang_string('recompletionnotify', 'local_recompletion'),
-        new lang_string('recompletionnotify_help', 'local_recompletion'), 'range', [
+        new lang_string('recompletionnotify_help', 'local_recompletion'),
+        local_recompletion_recompletion_form::RECOMPLETION_NOTIFY_DISABLED,
+        [
             local_recompletion_recompletion_form::RECOMPLETION_NOTIFY_DISABLED => get_string(
                 'recompletiontype:disabled',
                 'local_recompletion',
