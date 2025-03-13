@@ -119,7 +119,8 @@ if ($form->is_cancelled()) {
         }
 
         if ($name === 'nextresettime') {
-            $value = local_recompletion_calculate_schedule_time($data->recompletionschedule);
+            $value = $data->recompletionschedulestart > 0 ?
+                $data->recompletionschedulestart : local_recompletion_calculate_schedule_time($data->recompletionschedule);
         }
 
         if (isset($data->$name)) {

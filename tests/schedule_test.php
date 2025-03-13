@@ -62,4 +62,91 @@ class schedule_test extends \advanced_testcase {
         $formatteddate = date($format, $nextresettime);
         $this->assertEquals($formatteddate, $str);
     }
+
+    /**
+     * Basic test for local_recompletion_recompletion_form::validation.
+     *
+     * @dataProvider recompletion_form_validation_provider
+     * @covers \local_recompletion_recompletion_form::validation
+     *
+     * @param array $data the form data to mock submit
+     * @param bool $valid if this form data is valid
+     */
+    public function test_recompletion_form_validation(array $data, bool $valid) {
+        $this->resetAfterTest(true);
+
+        $course = $this->getDataGenerator()->create_course();
+
+        // Mock submit and get form data.
+        \local_recompletion_recompletion_form::mock_submit($data);
+        $customdata = ['course' => $course];
+        $form = new \local_recompletion_recompletion_form('recompletion.php?id=' . $course->id, $customdata);
+        $formdata = $form->get_data();
+
+        // Test for valid or invalid form data.
+        if ($valid) {
+            $this->assertTrue($form->is_validated());
+            $this->assertNotNull($formdata);
+        } else {
+            $this->assertFalse($form->is_validated());
+            $this->assertNull($form->get_data());
+        }
+    }
+
+    /**
+     * Data provider for test_recompletion_form_validation().
+     *
+     * @return array
+     */
+    public static function recompletion_form_validation_provider(): array {
+        return [
+            'Valid recompletionschedule, no recompletionschedulestart' => [
+                'data' => [
+                    'recompletionschedule' => '3 months',
+                ],
+                'valid' => true,
+            ],
+            'Invalid recompletionschedule, no recompletionschedulestart' => [
+                'data' => [
+                    'recompletionschedule' => 'Invalid date string',
+                ],
+                'valid' => false,
+            ],
+            'Valid recompletionschedule, valid recompletionschedulestart of today' => [
+                'data' => [
+                    'recompletionschedule' => '3 months',
+                    'recompletionschedulestart' => strtotime('today'),
+                ],
+                'valid' => true,
+            ],
+            'Valid recompletionschedule, valid recompletionschedulestart of tomorrow' => [
+                'data' => [
+                    'recompletionschedule' => '3 months',
+                    'recompletionschedulestart' => strtotime('tomorrow'),
+                ],
+                'valid' => true,
+            ],
+            'Invalid recompletionschedule, invalid recompletionschedulestart' => [
+                'data' => [
+                    'recompletionschedule' => 'Invalid date string',
+                    'recompletionschedulestart' => strtotime('yesterday'),
+                ],
+                'valid' => false,
+            ],
+            'Valid recompletionschedule, invalid recompletionschedulestart' => [
+                'data' => [
+                    'recompletionschedule' => '3 months',
+                    'recompletionschedulestart' => strtotime('yesterday'),
+                ],
+                'valid' => false,
+            ],
+            'Invalid recompletionschedule, valid recompletionschedulestart' => [
+                'data' => [
+                    'recompletionschedule' => 'Invalid date string',
+                    'recompletionschedulestart' => strtotime('today'),
+                ],
+                'valid' => false,
+            ],
+        ];
+    }
 }
