@@ -93,7 +93,8 @@ class local_recompletion_recompletion_form extends moodleform {
         if (!empty($schedule)) {
             $calculated = local_recompletion_calculate_schedule_time($schedule);
             $formatted = userdate($calculated, get_string('strftimedatetime', 'langconfig'));
-            $mform->addElement('static', 'calculatedtime', get_string('recompletioncalculateddate', 'local_recompletion', $formatted));
+            $mform->addElement('static', 'calculatedtime', '', get_string('recompletioncalculateddate', 'local_recompletion', $formatted));
+            $mform->hideIf('calculatedtime', 'recompletiontype', 'noteq',self::RECOMPLETION_TYPE_SCHEDULE);
         }
 
         // Email Notification settings.
