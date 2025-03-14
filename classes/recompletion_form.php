@@ -83,7 +83,8 @@ class local_recompletion_recompletion_form extends moodleform {
             self::RECOMPLETION_NOTIFY_DISABLED => get_string('recompletiontype:disabled', 'local_recompletion'),
             self::RECOMPLETION_NOTIFY_COMPLETED_USERS => get_string('recompletionnotify:completed', 'local_recompletion'),
             self::RECOMPLETION_NOTIFY_ENROLLED_USERS => get_string('recompletionnotify:enrolled', 'local_recompletion'),
-            self::RECOMPLETION_NOTIFY_ACTIVE_ENROLLED_USERS => get_string('recompletionnotify:activeenrolled', 'local_recompletion'),
+            self::RECOMPLETION_NOTIFY_ACTIVE_ENROLLED_USERS =>
+                get_string('recompletionnotify:activeenrolled', 'local_recompletion'),
         ]);
         $mform->setDefault('recompletionnotify', $config->recompletionnotify ?? '');
         $mform->addHelpButton('recompletionnotify', 'recompletionnotify', 'local_recompletion');
@@ -110,8 +111,9 @@ class local_recompletion_recompletion_form extends moodleform {
         if (!empty($schedule)) {
             $calculated = local_recompletion_calculate_schedule_time($schedule);
             $formatted = userdate($calculated, get_string('strftimedatetime', 'langconfig'));
-            $mform->addElement('static', 'calculatedtime', '', get_string('recompletioncalculateddate', 'local_recompletion', $formatted));
-            $mform->hideIf('calculatedtime', 'recompletiontype', 'noteq',self::RECOMPLETION_TYPE_SCHEDULE);
+            $mform->addElement('static', 'calculatedtime', '',
+                               get_string('recompletioncalculateddate', 'local_recompletion', $formatted));
+            $mform->hideIf('calculatedtime', 'recompletiontype', 'noteq', self::RECOMPLETION_TYPE_SCHEDULE);
         }
 
         // Email Notification settings.

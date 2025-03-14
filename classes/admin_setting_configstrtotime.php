@@ -103,7 +103,8 @@ class admin_setting_configstrtotime extends \admin_setting {
         if ($data) {
             $calculated = local_recompletion_calculate_schedule_time($data);
             $formatted = userdate($calculated, get_string('strftimedatetime', 'langconfig'));
-            $mform->addElement('static', 'calculatedtime', get_string('recompletioncalculateddate', 'local_recompletion', $formatted));
+            $mform->addElement('static', 'calculatedtime',
+                               get_string('recompletioncalculateddate', 'local_recompletion', $formatted));
         }
 
         $html = $mform->toHtml();

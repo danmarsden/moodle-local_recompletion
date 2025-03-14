@@ -1103,7 +1103,7 @@ function xmldb_local_recompletion_upgrade($oldversion) {
         $emailsettings = $DB->get_records('local_recompletion_config', ['name' => 'recompletionemailenable']);
         foreach ($emailsettings as $esetting) {
             if (empty($esetting->value)) {
-                // old value set to 0 now an empty string.
+                // Old value set to 0 now an empty string.
                 $esetting->value = '';
             } else {
                 $esetting->value = 'completed';

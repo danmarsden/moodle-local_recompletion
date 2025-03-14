@@ -210,7 +210,7 @@ class check_recompletion extends \core\task\scheduled_task {
             $key = ['{$a->coursename}', '{$a->profileurl}', '{$a->link}', '{$a->fullname}', '{$a->email}'];
             $value = [$a->coursename, $a->profileurl, $a->link, fullname($userrecord), $userrecord->email];
             $message = str_replace($key, $value, $message);
-            // Message body now stored as html - some might be non-html though, so we have to handle both - not clean but it works for now.
+            // Message body stored as html - some might be non-html so we have to handle both, not clean but it works for now.
             $keyhtml = [
                 '{$a-&gt;coursename}',
                 '{$a-&gt;profileurl}',
