@@ -89,12 +89,18 @@ class local_recompletion_recompletion_form extends moodleform {
         $mform->addHelpButton('recompletionschedule', 'recompletionschedule', 'local_recompletion');
         $mform->setDefault('recompletionschedule', $config->recompletionschedule ?? '');
         $mform->hideIf('recompletionschedule', 'recompletiontype', 'neq', 'schedule');
-        $schedule = $this->_customdata['instance']['recompletionschedule'] ?? '';
-        if (!empty($schedule)) {
-            $calculated = local_recompletion_calculate_schedule_time($schedule);
-            $formatted = userdate($calculated, get_string('strftimedatetime', 'langconfig'));
+
+        $options = ['startyear' => date('Y'), 'optional' => 1];
+        $mform->addElement('date_selector', 'recompletionschedulestart',
+                get_string('recompletionschedulestart', 'local_recompletion'), $options);
+        $mform->addHelpButton('recompletionschedulestart', 'recompletionschedulestart', 'local_recompletion');
+        $mform->hideIf('recompletionschedulestart', 'recompletiontype', 'neq', self::RECOMPLETION_TYPE_SCHEDULE);
+
+        $nextresettime = $this->_customdata['instance']['nextresettime'] ?? '';
+        if (!empty($nextresettime)) {
+            $formatted = userdate($nextresettime, get_string('strftimedatetime', 'langconfig'));
             $mform->addElement('static', 'calculatedtime', '', get_string('recompletioncalculateddate', 'local_recompletion', $formatted));
-            $mform->hideIf('calculatedtime', 'recompletiontype', 'noteq',self::RECOMPLETION_TYPE_SCHEDULE);
+            $mform->hideIf('calculatedtime', 'recompletiontype', 'noteq', self::RECOMPLETION_TYPE_SCHEDULE);
         }
 
         // Email Notification settings.
@@ -173,6 +179,14 @@ class local_recompletion_recompletion_form extends moodleform {
             $value = local_recompletion_calculate_schedule_time($data['recompletionschedule']);
             if ($value === 0) {
                 $errors['recompletionschedule'] = get_string('invalidscheduledate', 'local_recompletion');
+            }
+        }
+
+        // Validate 'recompletionschedulestart' field.
+        if (!empty($data['recompletionschedulestart'])) {
+            $today = strtotime(date('Y-m-d'));
+            if ($data['recompletionschedulestart'] < $today) {
+                $errors['recompletionschedulestart'] = get_string('invalidschedulestartdate', 'local_recompletion');
             }
         }
 
