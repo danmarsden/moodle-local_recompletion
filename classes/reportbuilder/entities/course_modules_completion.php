@@ -36,13 +36,13 @@ use lang_string;
 class course_modules_completion extends base {
 
     /**
-     * Database tables that this entity uses and their default aliases
+     * Database tables that this entity uses
      *
-     * @return string[] Array of $tablename => $alias
+     * @return string[]
      */
-    protected function get_default_table_aliases(): array {
+    protected function get_default_tables(): array {
         return [
-            'local_recompletion_cmc' => 'cmc'
+            'local_recompletion_cmc',
         ];
     }
 

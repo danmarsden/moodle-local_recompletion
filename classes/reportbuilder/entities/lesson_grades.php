@@ -31,15 +31,15 @@ use lang_string;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class lesson_grades extends base {
-
+    
     /**
-     * Database tables that this entity uses and their default aliases
+     * Database tables that this entity uses
      *
-     * @return string[] Array of $tablename => $alias
+     * @return string[]
      */
-    protected function get_default_table_aliases(): array {
+    protected function get_default_tables(): array {
         return [
-            'local_recompletion_lg' => 'lg'
+            'local_recompletion_lg',
         ];
     }
 
