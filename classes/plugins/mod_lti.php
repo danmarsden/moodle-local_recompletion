@@ -25,7 +25,11 @@
 
 namespace local_recompletion\plugins;
 
+use coding_exception;
+use context_course;
+use dml_exception;
 use lang_string;
+use stdClass;
 
 /**
  * lti handler event.
@@ -39,26 +43,27 @@ use lang_string;
 class mod_lti {
     /**
      * Add params to form.
+     *
      * @param moodleform $mform
-     * @throws \coding_exception
-     * @throws \dml_exception
+     * @throws coding_exception
+     * @throws dml_exception
      */
-    public static function editingform($mform) : void {
+    public static function editingform($mform): void {
         if (!enrol_is_enabled('lti')) {
             return;
         }
 
         $options = [];
         $options[] = $mform->createElement('radio', 'lti', '',
-            get_string('donothing', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING);
+                get_string('donothing', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING);
         $options[] = $mform->createElement('radio', 'lti', '',
-            get_string('resetlti', 'local_recompletion'), LOCAL_RECOMPLETION_DELETE);
+                get_string('resetlti', 'local_recompletion'), LOCAL_RECOMPLETION_DELETE);
 
         $mform->addGroup($options, 'lti', get_string('resetltis', 'local_recompletion'), [' '], false);
         $mform->addHelpButton('lti', 'resetltis', 'local_recompletion');
 
         $mform->addElement('checkbox', 'archivelti',
-            get_string('archive', 'local_recompletion'));
+                get_string('archive', 'local_recompletion'));
         $mform->setDefault('archivelti', get_config('local_recompletion', 'archivelti'));
 
         $mform->disabledIf('lti', 'enable', 'notchecked');
@@ -78,14 +83,14 @@ class mod_lti {
     /**
      * Reset lti grade
      *
-     * @param int       $userid
-     * @param \stdClass $course
-     * @param \stdClass $config
+     * @param int $userid
+     * @param stdClass $course
+     * @param stdClass $config
      *
-     * @throws \coding_exception
-     * @throws \dml_exception
+     * @throws coding_exception
+     * @throws dml_exception
      */
-    public static function reset(int $userid, \stdClass $course, \stdClass $config) : void {
+    public static function reset(int $userid, stdClass $course, stdClass $config): void {
         global $DB;
 
         if (empty($config->lti)) {
@@ -97,8 +102,8 @@ class mod_lti {
             return;
         }
 
-        $context = \context_course::instance($course->id);
-        $tools = $DB->get_records('enrol_lti_tools', ['contextid' => $context->id] , '' , 'id');
+        $context = context_course::instance($course->id);
+        $tools = $DB->get_records('enrol_lti_tools', ['contextid' => $context->id], '', 'id');
 
         if (empty($tools)) {
             return;
@@ -107,8 +112,8 @@ class mod_lti {
         foreach ($tools as $tool) {
 
             $params = [
-                'userid' => $userid,
-                'toolid' => $tool->id,
+                    'userid' => $userid,
+                    'toolid' => $tool->id,
             ];
 
             if ($config->archivelti) {

@@ -26,8 +26,8 @@
  * This function extends the navigation with the recompletion item
  *
  * @param navigation_node $navigation The navigation node to extend
- * @param stdClass        $course     The course to object for the tool
- * @param context         $context    The context of the course
+ * @param stdClass $course The course to object for the tool
+ * @param context $context The context of the course
  */
 function local_recompletion_extend_navigation_course($navigation, $course, $context) {
     global $DB;
@@ -39,18 +39,18 @@ function local_recompletion_extend_navigation_course($navigation, $course, $cont
     if (has_capability('local/recompletion:resetmycompletion', $context)) {
         $enabled = $DB->get_field('local_recompletion_config', 'value', ['name' => 'recompletiontype', 'course' => $course->id]);
         if (!empty($enabled)) {
-            $url = new moodle_url('/local/recompletion/resetcompletion.php', array('id' => $course->id));
+            $url = new moodle_url('/local/recompletion/resetcompletion.php', ['id' => $course->id]);
             $name = get_string('resetmycompletion', 'local_recompletion');
             $navigation->add($name, $url, navigation_node::TYPE_SETTING, null, null, new pix_icon('i/settings', ''));
         }
     }
 
     if (has_capability('local/recompletion:manage', $context)) {
-        $url = new moodle_url('/local/recompletion/recompletion.php', array('id' => $course->id));
+        $url = new moodle_url('/local/recompletion/recompletion.php', ['id' => $course->id]);
         $name = get_string('pluginname', 'local_recompletion');
         $navigation->add($name, $url, navigation_node::TYPE_SETTING, null, null, new pix_icon('i/settings', ''));
 
-        $url = new moodle_url('/local/recompletion/participants.php', array('id' => $course->id));
+        $url = new moodle_url('/local/recompletion/participants.php', ['id' => $course->id]);
         $name = get_string('modifycompletiondates', 'local_recompletion');
         $navigation->add($name, $url, navigation_node::TYPE_SETTING, null, null, new pix_icon('i/settings', ''));
 

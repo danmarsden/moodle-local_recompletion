@@ -23,8 +23,11 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use core\output\notification;
+
 /**
  * upgrade this recompletion
+ *
  * @param int $oldversion The old version of the assign module
  * @return bool
  */
@@ -48,12 +51,12 @@ function xmldb_local_recompletion_upgrade($oldversion) {
         $table->add_field('reaggregate', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
 
         // Adding keys to table local_recompletion_cc.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
 
         // Adding indexes to table local_recompletion_cc.
-        $table->add_index('userid', XMLDB_INDEX_NOTUNIQUE, array('userid'));
-        $table->add_index('course', XMLDB_INDEX_NOTUNIQUE, array('course'));
-        $table->add_index('timecompleted', XMLDB_INDEX_NOTUNIQUE, array('timecompleted'));
+        $table->add_index('userid', XMLDB_INDEX_NOTUNIQUE, ['userid']);
+        $table->add_index('course', XMLDB_INDEX_NOTUNIQUE, ['course']);
+        $table->add_index('timecompleted', XMLDB_INDEX_NOTUNIQUE, ['timecompleted']);
 
         // Conditionally launch create table for local_recompletion_cc.
         if (!$dbman->table_exists($table)) {
@@ -73,13 +76,13 @@ function xmldb_local_recompletion_upgrade($oldversion) {
         $table->add_field('timecompleted', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
 
         // Adding keys to table local_recompletion_cc_cc.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
 
         // Adding indexes to table local_recompletion_cc_cc.
-        $table->add_index('userid', XMLDB_INDEX_NOTUNIQUE, array('userid'));
-        $table->add_index('course', XMLDB_INDEX_NOTUNIQUE, array('course'));
-        $table->add_index('criteriaid', XMLDB_INDEX_NOTUNIQUE, array('criteriaid'));
-        $table->add_index('timecompleted', XMLDB_INDEX_NOTUNIQUE, array('timecompleted'));
+        $table->add_index('userid', XMLDB_INDEX_NOTUNIQUE, ['userid']);
+        $table->add_index('course', XMLDB_INDEX_NOTUNIQUE, ['course']);
+        $table->add_index('criteriaid', XMLDB_INDEX_NOTUNIQUE, ['criteriaid']);
+        $table->add_index('timecompleted', XMLDB_INDEX_NOTUNIQUE, ['timecompleted']);
 
         // Conditionally launch create table for local_recompletion_cc_cc.
         if (!$dbman->table_exists($table)) {
@@ -99,10 +102,10 @@ function xmldb_local_recompletion_upgrade($oldversion) {
         $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
 
         // Adding keys to table local_recompletion_cmc.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
 
         // Adding indexes to table local_recompletion_cmc.
-        $table->add_index('coursemoduleid', XMLDB_INDEX_NOTUNIQUE, array('coursemoduleid'));
+        $table->add_index('coursemoduleid', XMLDB_INDEX_NOTUNIQUE, ['coursemoduleid']);
 
         // Conditionally launch create table for local_recompletion_cmc.
         if (!$dbman->table_exists($table)) {
@@ -134,12 +137,12 @@ function xmldb_local_recompletion_upgrade($oldversion) {
         $table->add_field('sumgrades', XMLDB_TYPE_NUMBER, '10, 5', null, null, null, null);
 
         // Adding keys to table local_recompletion_qa.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
-        $table->add_key('quiz', XMLDB_KEY_FOREIGN, array('quiz'), 'quiz', array('id'));
-        $table->add_key('userid', XMLDB_KEY_FOREIGN, array('userid'), 'user', array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('quiz', XMLDB_KEY_FOREIGN, ['quiz'], 'quiz', ['id']);
+        $table->add_key('userid', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
 
         // Adding indexes to table local_recompletion_qa.
-        $table->add_index('state-timecheckstate', XMLDB_INDEX_NOTUNIQUE, array('state', 'timecheckstate'));
+        $table->add_index('state-timecheckstate', XMLDB_INDEX_NOTUNIQUE, ['state', 'timecheckstate']);
 
         // Conditionally launch create table for local_recompletion_qa.
         if (!$dbman->table_exists($table)) {
@@ -157,11 +160,11 @@ function xmldb_local_recompletion_upgrade($oldversion) {
         $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
 
         // Adding keys to table local_recompletion_qg.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
-        $table->add_key('quiz', XMLDB_KEY_FOREIGN, array('quiz'), 'quiz', array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('quiz', XMLDB_KEY_FOREIGN, ['quiz'], 'quiz', ['id']);
 
         // Adding indexes to table local_recompletion_qg.
-        $table->add_index('userid', XMLDB_INDEX_NOTUNIQUE, array('userid'));
+        $table->add_index('userid', XMLDB_INDEX_NOTUNIQUE, ['userid']);
 
         // Conditionally launch create table for local_recompletion_qg.
         if (!$dbman->table_exists($table)) {
@@ -181,13 +184,13 @@ function xmldb_local_recompletion_upgrade($oldversion) {
         $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
 
         // Adding keys to table local_recompletion_sst.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
-        $table->add_key('scormid', XMLDB_KEY_FOREIGN, array('scormid'), 'scorm', array('id'));
-        $table->add_key('scoid', XMLDB_KEY_FOREIGN, array('scoid'), 'scorm_scoes', array('id'));
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        $table->add_key('scormid', XMLDB_KEY_FOREIGN, ['scormid'], 'scorm', ['id']);
+        $table->add_key('scoid', XMLDB_KEY_FOREIGN, ['scoid'], 'scorm_scoes', ['id']);
 
         // Adding indexes to table local_recompletion_sst.
-        $table->add_index('userid', XMLDB_INDEX_NOTUNIQUE, array('userid'));
-        $table->add_index('element', XMLDB_INDEX_NOTUNIQUE, array('element'));
+        $table->add_index('userid', XMLDB_INDEX_NOTUNIQUE, ['userid']);
+        $table->add_index('element', XMLDB_INDEX_NOTUNIQUE, ['element']);
 
         // Conditionally launch create table for local_recompletion_sst.
         if (!$dbman->table_exists($table)) {
@@ -270,41 +273,41 @@ function xmldb_local_recompletion_upgrade($oldversion) {
     if ($oldversion < 2018071901) {
         // Convert old local_recompletion records to new structure.
         $recompletion = $DB->get_recordset('local_recompletion');
-        $newrecords = array();
+        $newrecords = [];
         foreach ($recompletion as $r) {
-            $newrecords[] = array('course' => $r->course,
-                'name' => 'enable',
-                'value' => $r->enable);
-            $newrecords[] = array('course' => $r->course,
-                'name' => 'recompletionduration',
-                'value' => $r->recompletionduration);
-            $newrecords[] = array('course' => $r->course,
-                'name' => 'deletegradedata',
-                'value' => $r->deletegradedata);
-            $newrecords[] = array('course' => $r->course,
-                'name' => 'quizdata',
-                'value' => $r->deletequizdata);
-            $newrecords[] = array('course' => $r->course,
-                'name' => 'deletescormdata',
-                'value' => $r->deletescormdata);
-            $newrecords[] = array('course' => $r->course,
-                'name' => 'archivecompletiondata',
-                'value' => $r->archivecompletiondata);
-            $newrecords[] = array('course' => $r->course,
-                'name' => 'archivequizdata',
-                'value' => $r->archivequizdata);
-            $newrecords[] = array('course' => $r->course,
-                'name' => 'archivescormdata',
-                'value' => $r->archivescormdata);
-            $newrecords[] = array('course' => $r->course,
-                'name' => 'recompletionemailenable',
-                'value' => $r->recompletionemailenable);
-            $newrecords[] = array('course' => $r->course,
-                'name' => 'recompletionemailsubject',
-                'value' => $r->recompletionemailsubject);
-            $newrecords[] = array('course' => $r->course,
-                'name' => 'recompletionemailbody',
-                'value' => $r->recompletionemailbody);
+            $newrecords[] = ['course' => $r->course,
+                    'name' => 'enable',
+                    'value' => $r->enable];
+            $newrecords[] = ['course' => $r->course,
+                    'name' => 'recompletionduration',
+                    'value' => $r->recompletionduration];
+            $newrecords[] = ['course' => $r->course,
+                    'name' => 'deletegradedata',
+                    'value' => $r->deletegradedata];
+            $newrecords[] = ['course' => $r->course,
+                    'name' => 'quizdata',
+                    'value' => $r->deletequizdata];
+            $newrecords[] = ['course' => $r->course,
+                    'name' => 'deletescormdata',
+                    'value' => $r->deletescormdata];
+            $newrecords[] = ['course' => $r->course,
+                    'name' => 'archivecompletiondata',
+                    'value' => $r->archivecompletiondata];
+            $newrecords[] = ['course' => $r->course,
+                    'name' => 'archivequizdata',
+                    'value' => $r->archivequizdata];
+            $newrecords[] = ['course' => $r->course,
+                    'name' => 'archivescormdata',
+                    'value' => $r->archivescormdata];
+            $newrecords[] = ['course' => $r->course,
+                    'name' => 'recompletionemailenable',
+                    'value' => $r->recompletionemailenable];
+            $newrecords[] = ['course' => $r->course,
+                    'name' => 'recompletionemailsubject',
+                    'value' => $r->recompletionemailsubject];
+            $newrecords[] = ['course' => $r->course,
+                    'name' => 'recompletionemailbody',
+                    'value' => $r->recompletionemailbody];
         }
         $recompletion->close();
         foreach ($newrecords as $id => $rec) {
@@ -597,7 +600,7 @@ function xmldb_local_recompletion_upgrade($oldversion) {
     if ($oldversion < 2023040300) {
 
         // Update the format of older recompletionemailbody field data to html.
-        $recompletionconfig = $DB->get_recordset('local_recompletion_config', array('name' => 'recompletionemailbody'));
+        $recompletionconfig = $DB->get_recordset('local_recompletion_config', ['name' => 'recompletionemailbody']);
         foreach ($recompletionconfig as $record) {
             $message = $record->value;
             if (strpos($message, '<') === false) {
@@ -605,8 +608,8 @@ function xmldb_local_recompletion_upgrade($oldversion) {
                 $messagehtml = text_to_html($message, null, false, true);
             } else {
                 // This is most probably the tag/newline soup known as FORMAT_MOODLE.
-                $messagehtml = format_text($message, FORMAT_MOODLE, array('para' => false,
-                    'newlines' => true, 'filter' => true));
+                $messagehtml = format_text($message, FORMAT_MOODLE, ['para' => false,
+                        'newlines' => true, 'filter' => true]);
             }
             // Update record with html formatted text.
             $record->value = $messagehtml;
@@ -1001,9 +1004,9 @@ function xmldb_local_recompletion_upgrade($oldversion) {
 
         // Adding keys to table local_recompletion_ssv.
         $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
-        $table->add_key('userid', XMLDB_KEY_FOREIGN, array('userid'), 'user', array('id'));
-        $table->add_key('scormid', XMLDB_KEY_FOREIGN, array('scormid'), 'scorm', array('id'));
-        $table->add_key('courseid', XMLDB_KEY_FOREIGN, array('courseid'), 'course', array('id'));
+        $table->add_key('userid', XMLDB_KEY_FOREIGN, ['userid'], 'user', ['id']);
+        $table->add_key('scormid', XMLDB_KEY_FOREIGN, ['scormid'], 'scorm', ['id']);
+        $table->add_key('courseid', XMLDB_KEY_FOREIGN, ['courseid'], 'course', ['id']);
 
         // Conditionally launch create table for local_recompletion_ssv.
         if (!$dbman->table_exists($table)) {
@@ -1024,10 +1027,10 @@ function xmldb_local_recompletion_upgrade($oldversion) {
 
         // Adding keys to table local_recompletion_ssv.
         $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
-        $table->add_key('scoid', XMLDB_KEY_FOREIGN, array('scoid'), 'scorm_scoes', array('id'));
-        $table->add_key('attemptid', XMLDB_KEY_FOREIGN, array('attemptid'), 'scorm_attempt', array('id'));
-        $table->add_key('elementid', XMLDB_KEY_FOREIGN, array('elementid'), 'scorm_element', array('id'));
-        $table->add_key('courseid', XMLDB_KEY_FOREIGN, array('courseid'), 'course', array('id'));
+        $table->add_key('scoid', XMLDB_KEY_FOREIGN, ['scoid'], 'scorm_scoes', ['id']);
+        $table->add_key('attemptid', XMLDB_KEY_FOREIGN, ['attemptid'], 'scorm_attempt', ['id']);
+        $table->add_key('elementid', XMLDB_KEY_FOREIGN, ['elementid'], 'scorm_element', ['id']);
+        $table->add_key('courseid', XMLDB_KEY_FOREIGN, ['courseid'], 'course', ['id']);
         // Conditionally launch create table for local_recompletion_ssv.
         if (!$dbman->table_exists($table)) {
             $dbman->create_table($table);
@@ -1036,9 +1039,9 @@ function xmldb_local_recompletion_upgrade($oldversion) {
         $total = $DB->count_records('local_recompletion_sst');
         if ($total > 500000) {
             // This site has a large number of user track records, lets warn that this next part may take some time.
-            $notification = new \core\output\notification(
-                get_string('largetrackupgrade', 'scorm', format_float($total, 0)),
-                \core\output\notification::NOTIFY_WARNING
+            $notification = new notification(
+                    get_string('largetrackupgrade', 'scorm', format_float($total, 0)),
+                    notification::NOTIFY_WARNING
             );
             $notification->set_show_closebutton(false);
             echo $OUTPUT->render($notification);
@@ -1067,24 +1070,24 @@ function xmldb_local_recompletion_upgrade($oldversion) {
     if ($oldversion < 2024071100) {
         // We renamed some site admin settings.
         $update = [
-            'assignattempts' => 'assign',
-            'choiceattempts' => 'choice',
-            'customcertcertificates' => 'customcert',
-            'h5pattempts' => 'h5pactivity',
-            'archiveh5p' => 'archiveh5pactivity',
-            'hotpotattempts' => 'hotpot',
-            'hvpattempts' => 'hvp',
-            'lessonattempts' => 'lesson',
-            'pulsenotifications' => 'pulse',
-            'questionnaireattempts' => 'questionnaire',
-            'quizattempts' => 'quiz',
-            'scormattempts' => 'scorm',
-            'schedule' => 'recompletionschedule',
-            'duration' => 'recompletionduration',
-            'emailenable' => 'recompletionemailenable',
-            'emailsubject' => 'recompletionemailsubject',
-            'emailbody' => 'recompletionemailbody',
-            'unenrolenable' => 'recompletionunenrolenable'
+                'assignattempts' => 'assign',
+                'choiceattempts' => 'choice',
+                'customcertcertificates' => 'customcert',
+                'h5pattempts' => 'h5pactivity',
+                'archiveh5p' => 'archiveh5pactivity',
+                'hotpotattempts' => 'hotpot',
+                'hvpattempts' => 'hvp',
+                'lessonattempts' => 'lesson',
+                'pulsenotifications' => 'pulse',
+                'questionnaireattempts' => 'questionnaire',
+                'quizattempts' => 'quiz',
+                'scormattempts' => 'scorm',
+                'schedule' => 'recompletionschedule',
+                'duration' => 'recompletionduration',
+                'emailenable' => 'recompletionemailenable',
+                'emailsubject' => 'recompletionemailsubject',
+                'emailbody' => 'recompletionemailbody',
+                'unenrolenable' => 'recompletionunenrolenable',
         ];
 
         foreach ($update as $old => $new) {

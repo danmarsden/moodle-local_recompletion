@@ -25,7 +25,7 @@ use MoodleQuickForm;
 
 defined('MOODLE_INTERNAL') || die;
 
-require_once($CFG->dirroot.'/local/recompletion/locallib.php');
+require_once($CFG->dirroot . '/local/recompletion/locallib.php');
 
 /**
  * H5P handler event.
@@ -77,8 +77,8 @@ class mod_hvp {
         }
 
         $choices = [
-            LOCAL_RECOMPLETION_NOTHING => get_string('donothing', 'local_recompletion'),
-            LOCAL_RECOMPLETION_DELETE => get_string('delete', 'local_recompletion')
+                LOCAL_RECOMPLETION_NOTHING => get_string('donothing', 'local_recompletion'),
+                LOCAL_RECOMPLETION_DELETE => get_string('delete', 'local_recompletion'),
         ];
 
         $settings->add(new admin_setting_configselect('local_recompletion/hvp',
@@ -86,7 +86,7 @@ class mod_hvp {
                 new lang_string('hvpattempts_help', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING, $choices));
 
         $settings->add(new admin_setting_configcheckbox('local_recompletion/archivehvp',
-            new lang_string('archivehvp', 'local_recompletion'), '', 1));
+                new lang_string('archivehvp', 'local_recompletion'), '', 1));
     }
 
     /**
@@ -109,8 +109,8 @@ class mod_hvp {
 
         if ($config->hvp == LOCAL_RECOMPLETION_DELETE) {
             $params = [
-                'userid' => $userid,
-                'course' => $course->id
+                    'userid' => $userid,
+                    'course' => $course->id,
             ];
 
             $selectsql = 'user_id = :userid AND hvp_id IN (SELECT id FROM {hvp} WHERE course = :course)';
@@ -129,6 +129,7 @@ class mod_hvp {
 
     /**
      * Helper function to check if the plugin is installed.
+     *
      * @return bool
      */
     public static function installed(): bool {

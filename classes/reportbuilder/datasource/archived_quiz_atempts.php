@@ -54,19 +54,19 @@ class archived_quiz_atempts extends datasource {
         $courseentity = new course();
         $coursealias = $courseentity->get_table_alias('course');
         $this->add_entity($courseentity
-            ->add_join("JOIN {course} {$coursealias} ON {$coursealias}.id = {$quizgradesalias}.course"));
+                ->add_join("JOIN {course} {$coursealias} ON {$coursealias}.id = {$quizgradesalias}.course"));
 
         // Join the course category entity.
         $coursecatentity = new course_category();
-        $categoriesalias  = $coursecatentity->get_table_alias('course_categories');
+        $categoriesalias = $coursecatentity->get_table_alias('course_categories');
         $this->add_entity($coursecatentity
-            ->add_join("JOIN {course_categories} {$categoriesalias} ON {$categoriesalias}.id = {$coursealias}.category"));
+                ->add_join("JOIN {course_categories} {$categoriesalias} ON {$categoriesalias}.id = {$coursealias}.category"));
 
         // Join the user entity.
         $userentity = new user();
         $useralias = $userentity->get_table_alias('user');
         $this->add_entity($userentity
-            ->add_join("JOIN {user} {$useralias} ON {$useralias}.id = {$quizgradesalias}.userid"));
+                ->add_join("JOIN {user} {$useralias} ON {$useralias}.id = {$quizgradesalias}.userid"));
 
         $this->add_all_from_entities();
     }
@@ -78,14 +78,14 @@ class archived_quiz_atempts extends datasource {
      */
     public function get_default_columns(): array {
         return [
-            'user:fullnamewithlink',
-            'course:coursefullnamewithlink',
-            'quiz_attempts:quiz',
-            'quiz_attempts:attempt',
-            'quiz_attempts:state',
-            'quiz_attempts:timestart',
-            'quiz_attempts:timefinish',
-            'quiz_attempts:sumgrades',
+                'user:fullnamewithlink',
+                'course:coursefullnamewithlink',
+                'quiz_attempts:quiz',
+                'quiz_attempts:attempt',
+                'quiz_attempts:state',
+                'quiz_attempts:timestart',
+                'quiz_attempts:timefinish',
+                'quiz_attempts:sumgrades',
         ];
     }
 
@@ -96,7 +96,7 @@ class archived_quiz_atempts extends datasource {
      */
     public function get_default_filters(): array {
         return [
-            'course:courseselector',
+                'course:courseselector',
         ];
     }
 

@@ -54,19 +54,19 @@ class archived_course_module_completions extends datasource {
         $courseentity = new course();
         $coursealias = $courseentity->get_table_alias('course');
         $this->add_entity($courseentity
-            ->add_join("JOIN {course} {$coursealias} ON {$coursealias}.id = {$completionsalias}.course"));
+                ->add_join("JOIN {course} {$coursealias} ON {$coursealias}.id = {$completionsalias}.course"));
 
         // Join the course category entity.
         $coursecatentity = new course_category();
-        $categoriesalias  = $coursecatentity->get_table_alias('course_categories');
+        $categoriesalias = $coursecatentity->get_table_alias('course_categories');
         $this->add_entity($coursecatentity
-            ->add_join("JOIN {course_categories} {$categoriesalias} ON {$categoriesalias}.id = {$coursealias}.category"));
+                ->add_join("JOIN {course_categories} {$categoriesalias} ON {$categoriesalias}.id = {$coursealias}.category"));
 
         // Join the user entity.
         $userentity = new user();
         $useralias = $userentity->get_table_alias('user');
         $this->add_entity($userentity
-            ->add_join("JOIN {user} {$useralias} ON {$useralias}.id = {$completionsalias}.userid"));
+                ->add_join("JOIN {user} {$useralias} ON {$useralias}.id = {$completionsalias}.userid"));
 
         $this->add_all_from_entities();
     }
@@ -78,10 +78,10 @@ class archived_course_module_completions extends datasource {
      */
     public function get_default_columns(): array {
         return [
-            'user:fullnamewithlink',
-            'course:coursefullnamewithlink',
-            'course_modules_completion:coursemodule',
-            'course_modules_completion:completionstate',
+                'user:fullnamewithlink',
+                'course:coursefullnamewithlink',
+                'course_modules_completion:coursemodule',
+                'course_modules_completion:completionstate',
         ];
     }
 
@@ -92,10 +92,11 @@ class archived_course_module_completions extends datasource {
      */
     public function get_default_filters(): array {
         return [
-            'course:courseselector',
-            'course_modules_completion:completionstate',
+                'course:courseselector',
+                'course_modules_completion:completionstate',
         ];
     }
+
     /**
      * Return the conditions that will be added to the report once is created
      *

@@ -40,7 +40,7 @@ class course_completions extends base {
      */
     protected function get_default_tables(): array {
         return [
-            'local_recompletion_cc',
+                'local_recompletion_cc',
         ];
     }
 
@@ -56,7 +56,7 @@ class course_completions extends base {
     /**
      * Initialise.
      *
-     * @return \core_reportbuilder\local\entities\base
+     * @return base
      */
     public function initialise(): base {
         $columns = $this->get_all_columns();
@@ -82,69 +82,69 @@ class course_completions extends base {
 
         // Completed column.
         $columns[] = (new column(
-            'completed',
-            new lang_string('completed', 'completion'),
-            $this->get_entity_name()
+                'completed',
+                new lang_string('completed', 'completion'),
+                $this->get_entity_name()
         ))
-            ->add_joins($this->get_joins())
-            ->set_type(column::TYPE_BOOLEAN)
-            ->add_field("CASE WHEN {$coursecompletion}.timecompleted > 0 THEN 1 ELSE 0 END", 'completed')
-            ->add_field("{$coursecompletion}.userid")
-            ->set_is_sortable(true)
-            ->add_callback(static function(bool $value, stdClass $row): string {
-                if (!$row->userid) {
-                    return '';
-                }
-                return format::boolean_as_text($value);
-            });
+                ->add_joins($this->get_joins())
+                ->set_type(column::TYPE_BOOLEAN)
+                ->add_field("CASE WHEN {$coursecompletion}.timecompleted > 0 THEN 1 ELSE 0 END", 'completed')
+                ->add_field("{$coursecompletion}.userid")
+                ->set_is_sortable(true)
+                ->add_callback(static function(bool $value, stdClass $row): string {
+                    if (!$row->userid) {
+                        return '';
+                    }
+                    return format::boolean_as_text($value);
+                });
 
         // Time enrolled.
         $columns[] = (new column(
-            'timeenrolled',
-            new lang_string('timeenrolled', 'enrol'),
-            $this->get_entity_name()
+                'timeenrolled',
+                new lang_string('timeenrolled', 'enrol'),
+                $this->get_entity_name()
         ))
-            ->add_joins($this->get_joins())
-            ->set_type(column::TYPE_TIMESTAMP)
-            ->add_field("{$coursecompletion}.timeenrolled")
-            ->set_is_sortable(true)
-            ->add_callback([format::class, 'userdate']);
+                ->add_joins($this->get_joins())
+                ->set_type(column::TYPE_TIMESTAMP)
+                ->add_field("{$coursecompletion}.timeenrolled")
+                ->set_is_sortable(true)
+                ->add_callback([format::class, 'userdate']);
 
         // Time started.
         $columns[] = (new column(
-            'timestarted',
-            new lang_string('timestarted', 'enrol'),
-            $this->get_entity_name()
+                'timestarted',
+                new lang_string('timestarted', 'enrol'),
+                $this->get_entity_name()
         ))
-            ->add_joins($this->get_joins())
-            ->set_type(column::TYPE_TIMESTAMP)
-            ->add_field("{$coursecompletion}.timestarted")
-            ->set_is_sortable(true)
-            ->add_callback([format::class, 'userdate']);
+                ->add_joins($this->get_joins())
+                ->set_type(column::TYPE_TIMESTAMP)
+                ->add_field("{$coursecompletion}.timestarted")
+                ->set_is_sortable(true)
+                ->add_callback([format::class, 'userdate']);
 
         // Time completed.
         $columns[] = (new column(
-            'timecompleted',
-            new lang_string('timecompleted', 'completion'),
-            $this->get_entity_name()
+                'timecompleted',
+                new lang_string('timecompleted', 'completion'),
+                $this->get_entity_name()
         ))
-            ->add_joins($this->get_joins())
-            ->set_type(column::TYPE_TIMESTAMP)
-            ->add_field("{$coursecompletion}.timecompleted")
-            ->set_is_sortable(true)
-            ->add_callback([format::class, 'userdate']);
+                ->add_joins($this->get_joins())
+                ->set_type(column::TYPE_TIMESTAMP)
+                ->add_field("{$coursecompletion}.timecompleted")
+                ->set_is_sortable(true)
+                ->add_callback([format::class, 'userdate']);
 
         // Time reaggregated.
         $columns[] = (new column(
-            'reaggregate',
-            new lang_string('timereaggregated', 'enrol'),
-            $this->get_entity_name()
+                'reaggregate',
+                new lang_string('timereaggregated', 'enrol'),
+                $this->get_entity_name()
         ))
-            ->add_joins($this->get_joins())
-            ->set_type(column::TYPE_TIMESTAMP)
-            ->add_field("{$coursecompletion}.reaggregate")
-            ->set_is_sortable(true)
-            ->add_callback([format::class, 'userdate']);
+                ->add_joins($this->get_joins())
+                ->set_type(column::TYPE_TIMESTAMP)
+                ->add_field("{$coursecompletion}.reaggregate")
+                ->set_is_sortable(true)
+                ->add_callback([format::class, 'userdate']);
 
         return $columns;
     }
@@ -159,21 +159,21 @@ class course_completions extends base {
 
         // Time completed filter.
         $filters[] = (new filter(
-            date::class,
-            'timecompleted',
-            new lang_string('timecompleted', 'completion'),
-            $this->get_entity_name(),
-            "{$coursecompletion}.timecompleted"
+                date::class,
+                'timecompleted',
+                new lang_string('timecompleted', 'completion'),
+                $this->get_entity_name(),
+                "{$coursecompletion}.timecompleted"
         ))
-            ->add_joins($this->get_joins())
-            ->set_limited_operators([
-                date::DATE_ANY,
-                date::DATE_NOT_EMPTY,
-                date::DATE_EMPTY,
-                date::DATE_RANGE,
-                date::DATE_LAST,
-                date::DATE_CURRENT,
-            ]);
+                ->add_joins($this->get_joins())
+                ->set_limited_operators([
+                        date::DATE_ANY,
+                        date::DATE_NOT_EMPTY,
+                        date::DATE_EMPTY,
+                        date::DATE_RANGE,
+                        date::DATE_LAST,
+                        date::DATE_CURRENT,
+                ]);
 
         return $filters;
     }

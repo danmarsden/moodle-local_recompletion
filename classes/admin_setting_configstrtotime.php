@@ -16,9 +16,14 @@
 
 namespace local_recompletion;
 
+use admin_setting;
+use html_writer;
+use MoodleQuickForm;
+use function format_admin_setting;
+
 defined('MOODLE_INTERNAL') || die;
 
-require_once($CFG->dirroot.'/lib/adminlib.php');
+require_once($CFG->dirroot . '/lib/adminlib.php');
 
 /**
  * A strtotime based admin setting config
@@ -28,7 +33,7 @@ require_once($CFG->dirroot.'/lib/adminlib.php');
  * @copyright  Catalyst IT, 2023
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class admin_setting_configstrtotime extends \admin_setting {
+class admin_setting_configstrtotime extends admin_setting {
 
     /**
      * Return the structure configuration for this setting if it has been set.
@@ -53,7 +58,7 @@ class admin_setting_configstrtotime extends \admin_setting {
     public function validate($data) {
         $value = local_recompletion_calculate_schedule_time($data);
         if ($value === 0) {
-            return  get_string('invalidscheduledate', 'local_recompletion');
+            return get_string('invalidscheduledate', 'local_recompletion');
         }
 
         return true;
@@ -81,10 +86,10 @@ class admin_setting_configstrtotime extends \admin_setting {
      * @param string $query
      * @return string
      */
-    public function output_html($data, $query='') {
+    public function output_html($data, $query = '') {
         $prefix = $this->get_full_name();
         // Use MoodleQuickForm to build the form.
-        $mform = new \MoodleQuickForm('unused', 'unused', 'unused');
+        $mform = new MoodleQuickForm('unused', 'unused', 'unused');
 
         // Handle display of errors.
         $errors = self::validate($data ?: '');
@@ -104,20 +109,20 @@ class admin_setting_configstrtotime extends \admin_setting {
             $calculated = local_recompletion_calculate_schedule_time($data);
             $formatted = userdate($calculated, get_string('strftimedatetime', 'langconfig'));
             $mform->addElement('static', 'calculatedtime',
-                               get_string('recompletioncalculateddate', 'local_recompletion', $formatted));
+                    get_string('recompletioncalculateddate', 'local_recompletion', $formatted));
         }
 
         $html = $mform->toHtml();
 
-        return \format_admin_setting(
-            $this,
-            $this->visiblename,
-            \html_writer::div($html, 'w-100'),
-            $this->description,
-            true,
-            '',
-            '',
-            $query,
+        return format_admin_setting(
+                $this,
+                $this->visiblename,
+                html_writer::div($html, 'w-100'),
+                $this->description,
+                true,
+                '',
+                '',
+                $query,
         );
     }
 }

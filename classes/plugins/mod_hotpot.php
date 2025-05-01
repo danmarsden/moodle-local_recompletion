@@ -25,7 +25,7 @@ use MoodleQuickForm;
 
 defined('MOODLE_INTERNAL') || die;
 
-require_once($CFG->dirroot.'/local/recompletion/locallib.php');
+require_once($CFG->dirroot . '/local/recompletion/locallib.php');
 
 /**
  * Hotpot handler event.
@@ -77,8 +77,8 @@ class mod_hotpot {
         }
 
         $choices = [
-            LOCAL_RECOMPLETION_NOTHING => get_string('donothing', 'local_recompletion'),
-            LOCAL_RECOMPLETION_DELETE => get_string('delete', 'local_recompletion')
+                LOCAL_RECOMPLETION_NOTHING => get_string('donothing', 'local_recompletion'),
+                LOCAL_RECOMPLETION_DELETE => get_string('delete', 'local_recompletion'),
         ];
 
         $settings->add(new admin_setting_configselect('local_recompletion/hotpot',
@@ -86,7 +86,7 @@ class mod_hotpot {
                 new lang_string('hotpotattempts_help', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING, $choices));
 
         $settings->add(new admin_setting_configcheckbox('local_recompletion/archivehotpot',
-            new lang_string('archivehotpot', 'local_recompletion'), '', 1));
+                new lang_string('archivehotpot', 'local_recompletion'), '', 1));
     }
 
     /**
@@ -109,8 +109,8 @@ class mod_hotpot {
 
         if ($config->hotpot == LOCAL_RECOMPLETION_DELETE) {
             $params = [
-                'userid' => $userid,
-                'course' => $course->id
+                    'userid' => $userid,
+                    'course' => $course->id,
             ];
 
             $attemptsselectsql = 'userid = :userid AND hotpotid IN (SELECT id FROM {hotpot} WHERE course = :course)';
@@ -132,6 +132,7 @@ class mod_hotpot {
 
     /**
      * Helper function to check if the plugin is installed.
+     *
      * @return bool
      */
     public static function installed(): bool {

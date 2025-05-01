@@ -25,6 +25,8 @@
 
 namespace local_recompletion\event;
 
+use core\event\base;
+
 /**
  * completion_reset event class.
  *
@@ -36,7 +38,7 @@ namespace local_recompletion\event;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
  */
-class completion_reset extends \core\event\base {
+class completion_reset extends base {
     /**
      * Init method.
      *

@@ -22,8 +22,10 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(__DIR__.'/../../config.php');
-require_once($CFG->dirroot.'/local/recompletion/locallib.php');
+use core\output\notification;
+
+require_once(__DIR__ . '/../../config.php');
+require_once($CFG->dirroot . '/local/recompletion/locallib.php');
 
 $id = required_param('id', PARAM_INT); // Course id.
 $confirm = optional_param('confirm', '', PARAM_INT);
@@ -33,7 +35,7 @@ if ($id == SITEID) {
     // Don't allow editing of 'site course' using this form.
     throw new moodle_exception('cannoteditsiteform');
 }
-$course = $DB->get_record('course', array('id' => $id), '*', MUST_EXIST);
+$course = $DB->get_record('course', ['id' => $id], '*', MUST_EXIST);
 require_login($course);
 
 if (empty($userid)) {
@@ -42,9 +44,9 @@ if (empty($userid)) {
 
 $context = context_course::instance($course->id);
 if ($USER->id <> $userid) {
-    $cancelurl = new moodle_url('/local/recompletion/participants.php', array('id' => $course->id));
+    $cancelurl = new moodle_url('/local/recompletion/participants.php', ['id' => $course->id]);
     require_capability('local/recompletion:manage', $context);
-    $user = $DB->get_record('user', array('id' => $userid));
+    $user = $DB->get_record('user', ['id' => $userid]);
 } else {
     $cancelurl = course_get_url($course);
     require_capability('local/recompletion:resetmycompletion', $context);
@@ -55,12 +57,12 @@ if (!empty($confirm) && confirm_sesskey()) {
     $reset = new local_recompletion\task\check_recompletion();
     $errors = $reset->reset_user($userid, $course);
     if ($USER->id <> $userid) {
-        $returnurl = new moodle_url('/local/recompletion/participants.php', array('id' => $course->id));
+        $returnurl = new moodle_url('/local/recompletion/participants.php', ['id' => $course->id]);
     } else {
         $returnurl = course_get_url($course);
     }
     if (!empty($errors)) {
-        redirect($returnurl, implode(', ', $errors), '',  \core\output\notification::NOTIFY_WARNING);
+        redirect($returnurl, implode(', ', $errors), '', notification::NOTIFY_WARNING);
     } else {
         redirect($returnurl, get_string('completionresetuser', 'local_recompletion', fullname($user)));
     }
@@ -69,7 +71,7 @@ if (!empty($confirm) && confirm_sesskey()) {
 
 // Set up the page.
 $PAGE->set_course($course);
-$PAGE->set_url('/local/recompletion/resetcompletion.php', array('id' => $course->id));
+$PAGE->set_url('/local/recompletion/resetcompletion.php', ['id' => $course->id]);
 $PAGE->set_title($course->shortname);
 $PAGE->set_heading($course->fullname);
 

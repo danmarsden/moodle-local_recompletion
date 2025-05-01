@@ -16,6 +16,8 @@
 
 namespace local_recompletion\plugins;
 
+use advanced_testcase;
+
 /**
  * Tests for mod_h5pactivity.
  *
@@ -25,7 +27,7 @@ namespace local_recompletion\plugins;
  *
  * @covers \local_recompletion\plugins\mod_h5pactivity
  */
-class mod_h5pactivity_test extends \advanced_testcase {
+class mod_h5pactivity_test extends advanced_testcase {
 
     /**
      * Test mod_h5pactivity recompletion.
@@ -51,7 +53,7 @@ class mod_h5pactivity_test extends \advanced_testcase {
         $generator->create_attempt(['h5pactivityid' => $h5p->id, 'userid' => $user1->id]);
 
         // Reset user 2 without any attempts to make sure that it doesn't explode.
-        mod_h5pactivity::reset($user2->id, $course, (object)['h5pactivity' => 1, 'archiveh5pactivity' => 1]);
+        mod_h5pactivity::reset($user2->id, $course, (object) ['h5pactivity' => 1, 'archiveh5pactivity' => 1]);
 
         // Check that data is created in original tables.
         $this->assertTrue($DB->record_exists('h5pactivity_attempts', ['userid' => $user1->id, 'h5pactivityid' => $h5p->id]));
@@ -60,7 +62,7 @@ class mod_h5pactivity_test extends \advanced_testcase {
         $this->assertFalse($DB->record_exists('local_recompletion_h5pr', []));
 
         // Reset data with "do nothing".
-        mod_h5pactivity::reset($user1->id, $course, (object)['h5pactivity' => 0, 'archiveh5pactivity' => 0]);
+        mod_h5pactivity::reset($user1->id, $course, (object) ['h5pactivity' => 0, 'archiveh5pactivity' => 0]);
 
         // Check that nothing happened.
         $this->assertTrue($DB->record_exists('h5pactivity_attempts', ['userid' => $user1->id, 'h5pactivityid' => $h5p->id]));
@@ -69,7 +71,7 @@ class mod_h5pactivity_test extends \advanced_testcase {
         $this->assertFalse($DB->record_exists('local_recompletion_h5pr', []));
 
         // Reset data with "do nothing", but archiving enabled.
-        mod_h5pactivity::reset($user1->id, $course, (object)['h5pactivity' => 0, 'archiveh5pactivity' => 1]);
+        mod_h5pactivity::reset($user1->id, $course, (object) ['h5pactivity' => 0, 'archiveh5pactivity' => 1]);
 
         // Check that nothing happened.
         $this->assertTrue($DB->record_exists('h5pactivity_attempts', ['userid' => $user1->id, 'h5pactivityid' => $h5p->id]));
@@ -78,7 +80,7 @@ class mod_h5pactivity_test extends \advanced_testcase {
         $this->assertFalse($DB->record_exists('local_recompletion_h5pr', []));
 
         // Reset data for user 2.
-        mod_h5pactivity::reset($user2->id, $course, (object)['h5pactivity' => 1, 'archiveh5pactivity' => 0]);
+        mod_h5pactivity::reset($user2->id, $course, (object) ['h5pactivity' => 1, 'archiveh5pactivity' => 0]);
 
         // Check that nothing happened for user 1.
         $this->assertTrue($DB->record_exists('h5pactivity_attempts', ['userid' => $user1->id, 'h5pactivityid' => $h5p->id]));
@@ -87,7 +89,7 @@ class mod_h5pactivity_test extends \advanced_testcase {
         $this->assertFalse($DB->record_exists('local_recompletion_h5pr', []));
 
         // Reset data without archiving.
-        mod_h5pactivity::reset($user1->id, $course, (object)['h5pactivity' => 1, 'archiveh5pactivity' => 0]);
+        mod_h5pactivity::reset($user1->id, $course, (object) ['h5pactivity' => 1, 'archiveh5pactivity' => 0]);
 
         // Check data is gone from original tables.
         $this->assertFalse($DB->record_exists('h5pactivity_attempts', ['userid' => $user1->id, 'h5pactivityid' => $h5p->id]));
@@ -108,7 +110,7 @@ class mod_h5pactivity_test extends \advanced_testcase {
         $originalresult = $DB->get_record('h5pactivity_attempts_results', ['attemptid' => $originalattempt->id]);
 
         // Reset with archiving.
-        mod_h5pactivity::reset($user1->id, $course, (object)['h5pactivity' => 1, 'archiveh5pactivity' => 1]);
+        mod_h5pactivity::reset($user1->id, $course, (object) ['h5pactivity' => 1, 'archiveh5pactivity' => 1]);
 
         // Check that data is created in archived tables.
         $this->assertFalse($DB->record_exists('h5pactivity_attempts', ['userid' => $user1->id, 'h5pactivityid' => $h5p->id]));
@@ -159,14 +161,14 @@ class mod_h5pactivity_test extends \advanced_testcase {
         $generator->create_attempt(['h5pactivityid' => $h5p->id, 'userid' => $user1->id]);
         $generator->create_attempt(['h5pactivityid' => $h5p->id, 'userid' => $user2->id]);
 
-        mod_h5pactivity::reset($user1->id, $course, (object)['h5pactivity' => 1, 'archiveh5pactivity' => 1]);
+        mod_h5pactivity::reset($user1->id, $course, (object) ['h5pactivity' => 1, 'archiveh5pactivity' => 1]);
         $this->assertFalse($DB->record_exists('h5pactivity_attempts', ['userid' => $user1->id, 'h5pactivityid' => $h5p->id]));
         $this->assertTrue($DB->record_exists('h5pactivity_attempts', ['userid' => $user2->id, 'h5pactivityid' => $h5p->id]));
 
         $generator->create_attempt(['h5pactivityid' => $h5p->id, 'userid' => $user1->id]);
         $generator->create_attempt(['h5pactivityid' => $h5p->id, 'userid' => $user2->id]);
 
-        mod_h5pactivity::reset($user1->id, $course, (object)['h5pactivity' => 1, 'archiveh5pactivity' => 1]);
+        mod_h5pactivity::reset($user1->id, $course, (object) ['h5pactivity' => 1, 'archiveh5pactivity' => 1]);
         $this->assertFalse($DB->record_exists('h5pactivity_attempts', ['userid' => $user1->id, 'h5pactivityid' => $h5p->id]));
         $this->assertTrue($DB->record_exists('h5pactivity_attempts', ['userid' => $user2->id, 'h5pactivityid' => $h5p->id]));
 
@@ -176,7 +178,7 @@ class mod_h5pactivity_test extends \advanced_testcase {
             $this->assertTrue($DB->record_exists('local_recompletion_h5pr', ['attemptid' => $attempt->id]));
         }
 
-        mod_h5pactivity::reset($user2->id, $course, (object)['h5pactivity' => 1, 'archiveh5pactivity' => 1]);
+        mod_h5pactivity::reset($user2->id, $course, (object) ['h5pactivity' => 1, 'archiveh5pactivity' => 1]);
         $this->assertFalse($DB->record_exists('h5pactivity_attempts', ['userid' => $user1->id, 'h5pactivityid' => $h5p->id]));
         $this->assertFalse($DB->record_exists('h5pactivity_attempts', ['userid' => $user2->id, 'h5pactivityid' => $h5p->id]));
 

@@ -25,7 +25,12 @@
 
 namespace local_recompletion\plugins;
 
+use admin_setting_configcheckbox;
+use admin_setting_configselect;
+use coding_exception;
+use dml_exception;
 use lang_string;
+use stdClass;
 
 /**
  * Questionnaire handler event.
@@ -39,28 +44,29 @@ use lang_string;
 class mod_questionnaire {
     /**
      * Add params to form.
+     *
      * @param moodleform $mform
-     * @throws \coding_exception
-     * @throws \dml_exception
+     * @throws coding_exception
+     * @throws dml_exception
      */
-    public static function editingform($mform) : void {
+    public static function editingform($mform): void {
         if (!self::installed()) {
             return;
         }
         $config = get_config('local_recompletion');
 
-        $cba = array();
+        $cba = [];
         $cba[] = $mform->createElement('radio', 'questionnaire', '',
-            get_string('donothing', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING);
+                get_string('donothing', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING);
         $cba[] = $mform->createElement('radio', 'questionnaire', '',
-            get_string('delete', 'local_recompletion'), LOCAL_RECOMPLETION_DELETE);
+                get_string('delete', 'local_recompletion'), LOCAL_RECOMPLETION_DELETE);
 
-        $mform->addGroup($cba, 'questionnaire', get_string('questionnaireattempts', 'local_recompletion'), array(' '), false);
+        $mform->addGroup($cba, 'questionnaire', get_string('questionnaireattempts', 'local_recompletion'), [' '], false);
         $mform->addHelpButton('questionnaire', 'questionnaireattempts', 'local_recompletion');
         $mform->setDefault('questionnaire', $config->questionnaire);
 
         $mform->addElement('checkbox', 'archivequestionnaire',
-            get_string('archive', 'local_recompletion'));
+                get_string('archive', 'local_recompletion'));
         $mform->setDefault('archivequestionnaire', $config->archivequestionnaire);
 
         $mform->disabledIf('questionnaire', 'enable', 'notchecked');
@@ -77,41 +83,42 @@ class mod_questionnaire {
         if (!self::installed()) {
             return;
         }
-        $choices = array(LOCAL_RECOMPLETION_NOTHING => new lang_string('donothing', 'local_recompletion'),
-            LOCAL_RECOMPLETION_DELETE => new lang_string('delete', 'local_recompletion'),
-            LOCAL_RECOMPLETION_EXTRAATTEMPT => new lang_string('extraattempt', 'local_recompletion'));
+        $choices = [LOCAL_RECOMPLETION_NOTHING => new lang_string('donothing', 'local_recompletion'),
+                LOCAL_RECOMPLETION_DELETE => new lang_string('delete', 'local_recompletion'),
+                LOCAL_RECOMPLETION_EXTRAATTEMPT => new lang_string('extraattempt', 'local_recompletion')];
 
-        $settings->add(new \admin_setting_configselect('local_recompletion/questionnaire',
-            new lang_string('questionnaireattempts', 'local_recompletion'),
-            new lang_string('questionnaireattempts_help', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING, $choices));
+        $settings->add(new admin_setting_configselect('local_recompletion/questionnaire',
+                new lang_string('questionnaireattempts', 'local_recompletion'),
+                new lang_string('questionnaireattempts_help', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING, $choices));
 
-        $settings->add(new \admin_setting_configcheckbox('local_recompletion/archivequestionnaire',
-            new lang_string('archivequestionnaire', 'local_recompletion'), '', 1));
+        $settings->add(new admin_setting_configcheckbox('local_recompletion/archivequestionnaire',
+                new lang_string('archivequestionnaire', 'local_recompletion'), '', 1));
     }
 
     /**
      * Reset and archive questionnaire records.
-     * @param \int $userid - userid
-     * @param \stdclass $course - course record.
-     * @param \stdClass $config - recompletion config.
+     *
+     * @param int $userid - userid
+     * @param stdclass $course - course record.
+     * @param stdClass $config - recompletion config.
      */
     public static function reset($userid, $course, $config) {
         global $DB;
         if (!self::installed()) {
             return;
         }
-        $extratables = ['local_recompletion_qr_bool'   => 'questionnaire_response_bool' ,
-                        'local_recompletion_qr_date'   => 'questionnaire_response_date',
-                        'local_recompletion_qr_m'      => 'questionnaire_resp_multiple',
-                        'local_recompletion_qr_other'  => 'questionnaire_response_other',
-                        'local_recompletion_qr_rank'   => 'questionnaire_response_rank',
-                        'local_recompletion_qr_single' => 'questionnaire_resp_single',
-                        'local_recompletion_qr_text'   => 'questionnaire_response_text'];
+        $extratables = ['local_recompletion_qr_bool' => 'questionnaire_response_bool',
+                'local_recompletion_qr_date' => 'questionnaire_response_date',
+                'local_recompletion_qr_m' => 'questionnaire_resp_multiple',
+                'local_recompletion_qr_other' => 'questionnaire_response_other',
+                'local_recompletion_qr_rank' => 'questionnaire_response_rank',
+                'local_recompletion_qr_single' => 'questionnaire_resp_single',
+                'local_recompletion_qr_text' => 'questionnaire_response_text'];
 
         if (empty($config->questionnaire)) {
             return;
         } else if ($config->questionnaire == LOCAL_RECOMPLETION_DELETE) {
-            $params = array('userid' => $userid, 'course' => $course->id);
+            $params = ['userid' => $userid, 'course' => $course->id];
             $selectsql = 'userid = ? AND questionnaireid IN (SELECT id FROM {questionnaire} WHERE course = ?)';
 
             $questionnaireattempts = $DB->get_records_select('questionnaire_response', $selectsql, $params);
@@ -146,11 +153,12 @@ class mod_questionnaire {
 
     /**
      * Helper function to check if questionnaire is installed.
+     *
      * @return bool
      */
     public static function installed() {
         global $CFG;
-        if (!file_exists($CFG->dirroot.'/mod/questionnaire/version.php')) {
+        if (!file_exists($CFG->dirroot . '/mod/questionnaire/version.php')) {
             return false;
         }
         return true;

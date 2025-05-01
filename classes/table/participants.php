@@ -24,8 +24,15 @@
 
 namespace local_recompletion\table;
 
+use completion_completion;
 use context;
+use core\output\checkbox_toggleall;
+use core_user\fields;
+use core_user\output\user_roles_editable;
 use DateTime;
+use moodle_url;
+use pix_icon;
+use stdClass;
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -45,6 +52,7 @@ class participants extends \core_user\table\participants {
 
     /**
      * A list of roles that current user can view in a context.
+     *
      * @var array
      */
     protected $viewableroles;
@@ -69,13 +77,13 @@ class participants extends \core_user\table\participants {
 
         $bulkoperations = has_capability('local/recompletion:bulkoperations', $this->context);
         if ($bulkoperations) {
-            $mastercheckbox = new \core\output\checkbox_toggleall('participants-table', true, [
-                'id' => 'select-all-participants',
-                'name' => 'select-all-participants',
-                'label' => get_string('selectall'),
-                'labelclasses' => 'sr-only',
-                'classes' => 'm-1',
-                'checked' => false,
+            $mastercheckbox = new checkbox_toggleall('participants-table', true, [
+                    'id' => 'select-all-participants',
+                    'name' => 'select-all-participants',
+                    'label' => get_string('selectall'),
+                    'labelclasses' => 'sr-only',
+                    'classes' => 'm-1',
+                    'checked' => false,
             ]);
             $headers[] = $OUTPUT->render($mastercheckbox);
             $columns[] = 'select';
@@ -84,9 +92,9 @@ class participants extends \core_user\table\participants {
         $headers[] = get_string('fullname');
         $columns[] = 'fullname';
 
-        $extrafields = \core_user\fields::get_identity_fields($this->context);
+        $extrafields = fields::get_identity_fields($this->context);
         foreach ($extrafields as $field) {
-            $headers[] = \core_user\fields::get_display_name($field);
+            $headers[] = fields::get_display_name($field);
             $columns[] = $field;
         }
 
@@ -94,7 +102,7 @@ class participants extends \core_user\table\participants {
         $columns[] = 'roles';
 
         // Get the list of fields we have to hide.
-        $hiddenfields = array();
+        $hiddenfields = [];
         if (!has_capability('moodle/course:viewhiddenuserfields', $this->context)) {
             $hiddenfields = array_flip(explode(',', $CFG->hiddenuserfields));
         }
@@ -155,14 +163,14 @@ class participants extends \core_user\table\participants {
         $this->profileroles = get_profile_roles($this->context);
         $this->viewableroles = get_viewable_roles($this->context);
         $this->recompletionenabled = $DB->get_field('local_recompletion_config',
-            'value', array('course' => $this->course->id, 'name' => 'recompletiontype'));
+                'value', ['course' => $this->course->id, 'name' => 'recompletiontype']);
 
         if (!$this->columns) {
             $onerow = $DB->get_record_sql("SELECT {$this->sql->fields} FROM {$this->sql->from} WHERE {$this->sql->where}",
-                $this->sql->params, IGNORE_MULTIPLE);
+                    $this->sql->params, IGNORE_MULTIPLE);
             // If columns is not set then define columns as the keys of the rows returned from the db.
-            $this->define_columns(array_keys((array)$onerow));
-            $this->define_headers(array_keys((array)$onerow));
+            $this->define_columns(array_keys((array) $onerow));
+            $this->define_headers(array_keys((array) $onerow));
         }
         $this->pagesize = $pagesize;
         $this->setup();
@@ -172,52 +180,54 @@ class participants extends \core_user\table\participants {
         $this->finish_output();
 
     }
+
     /**
      * Generate the course completion column.
      *
-     * @param \stdClass $data
+     * @param stdClass $data
      * @return string
      */
     public function col_coursecompletion($data) {
         global $OUTPUT;
         // Load completion from cache.
-        $params = array(
-            'userid'    => $data->id,
-            'course'    => $this->course->id
-        );
+        $params = [
+                'userid' => $data->id,
+                'course' => $this->course->id,
+        ];
 
-        $ccompletion = new \completion_completion($params);
+        $ccompletion = new completion_completion($params);
         $value = '';
         if ($ccompletion->is_complete()) {
             $value = userdate($ccompletion->timecompleted, get_string('strftimedatetimeshort', 'langconfig'));
         }
-        $url = new \moodle_url('/local/recompletion/editcompletion.php', array('id' => $this->course->id, 'user' => $data->id));
-        $value .= $OUTPUT->action_link($url, '', null, null, new \pix_icon('t/edit', get_string('edit')));
+        $url = new moodle_url('/local/recompletion/editcompletion.php', ['id' => $this->course->id, 'user' => $data->id]);
+        $value .= $OUTPUT->action_link($url, '', null, null, new pix_icon('t/edit', get_string('edit')));
         if (!empty($this->recompletionenabled)) {
-            $url = new \moodle_url('/local/recompletion/resetcompletion.php',
-                array('id' => $this->course->id, 'user' => $data->id));
+            $url = new moodle_url('/local/recompletion/resetcompletion.php',
+                    ['id' => $this->course->id, 'user' => $data->id]);
             $value .= $OUTPUT->action_link($url, get_string('resetallcompletion', 'local_recompletion'));
         }
         return $value;
     }
+
     /**
      * User roles column.
      *
-     * @param \stdClass $data
+     * @param stdClass $data
      * @return string
      */
     public function col_roles($data) {
         global $OUTPUT;
 
         $roles = isset($this->allroleassignments[$data->id]) ? $this->allroleassignments[$data->id] : [];
-        $editable = new \core_user\output\user_roles_editable($this->course,
-            $this->context,
-            $data,
-            $this->allroles,
-            $this->assignableroles,
-            $this->profileroles,
-            $roles,
-            $this->viewableroles);
+        $editable = new user_roles_editable($this->course,
+                $this->context,
+                $data,
+                $this->allroles,
+                $this->assignableroles,
+                $this->profileroles,
+                $roles,
+                $this->viewableroles);
 
         return $OUTPUT->render_from_template('core/inplace_editable', $editable->export_for_template($OUTPUT));
     }

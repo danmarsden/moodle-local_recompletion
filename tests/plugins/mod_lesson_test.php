@@ -16,6 +16,9 @@
 
 namespace local_recompletion\plugins;
 
+use advanced_testcase;
+use stdClass;
+
 /**
  * Tests for mod_lesson.
  *
@@ -25,17 +28,19 @@ namespace local_recompletion\plugins;
  *
  * @covers \local_recompletion\plugins\mod_lesson
  */
-class mod_lesson_test extends \advanced_testcase {
+class mod_lesson_test extends advanced_testcase {
 
     /**
      * Lesson object.
-     * @var \stdClass
+     *
+     * @var stdClass
      */
     protected $lesson;
 
     /**
      * User object.
-     * @var \stdClass
+     *
+     * @var stdClass
      */
     protected $user;
 
@@ -47,55 +52,55 @@ class mod_lesson_test extends \advanced_testcase {
 
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_lesson');
         $page = $generator->create_question_truefalse($this->lesson);
-        $panswers = $DB->get_records('lesson_answers', array('lessonid' => $this->lesson->id, 'pageid' => $page->id), 'id');
+        $panswers = $DB->get_records('lesson_answers', ['lessonid' => $this->lesson->id, 'pageid' => $page->id], 'id');
         $answerid = reset($panswers)->id;
 
         $newpageattempt = [
-            'lessonid' => $this->lesson->id,
-            'pageid' => $page->id,
-            'userid' => $this->user->id,
-            'answerid' => $answerid,
-            'retry' => 1,
-            'correct' => 1,
-            'useranswer' => '1',
-            'timeseen' => time(),
+                'lessonid' => $this->lesson->id,
+                'pageid' => $page->id,
+                'userid' => $this->user->id,
+                'answerid' => $answerid,
+                'retry' => 1,
+                'correct' => 1,
+                'useranswer' => '1',
+                'timeseen' => time(),
         ];
         $DB->insert_record('lesson_attempts', (object) $newpageattempt);
 
         $newgrade = [
-            'lessonid' => $this->lesson->id,
-            'userid' => $this->user->id,
-            'grade' => 50,
-            'late' => 0,
-            'completed' => time(),
+                'lessonid' => $this->lesson->id,
+                'userid' => $this->user->id,
+                'grade' => 50,
+                'late' => 0,
+                'completed' => time(),
         ];
         $DB->insert_record('lesson_grades', (object) $newgrade);
 
-        $timer = (object)[
-            'lessonid' => $this->lesson->id,
-            'userid' => $this->user->id,
-            'completed' => 1,
-            'starttime' => time(),
-            'lessontime' => time(),
+        $timer = (object) [
+                'lessonid' => $this->lesson->id,
+                'userid' => $this->user->id,
+                'completed' => 1,
+                'starttime' => time(),
+                'lessontime' => time(),
         ];
         $DB->insert_record("lesson_timer", $timer);
 
-        $branch = (object)[
-            'lessonid' => $this->lesson->id,
-            'userid' => $this->user->id,
-            'pageid' => $page->id,
-            'retry' => 1,
-            'flag' => 0,
-            'timeseen' => time(),
+        $branch = (object) [
+                'lessonid' => $this->lesson->id,
+                'userid' => $this->user->id,
+                'pageid' => $page->id,
+                'retry' => 1,
+                'flag' => 0,
+                'timeseen' => time(),
         ];
         $DB->insert_record("lesson_branch", $branch);
 
-        $useroverride = (object)[
-            'lessonid' => $this->lesson->id,
-            'userid' => $this->user->id,
-            'sortorder' => 1,
-            'available' => 100,
-            'deadline' => 200
+        $useroverride = (object) [
+                'lessonid' => $this->lesson->id,
+                'userid' => $this->user->id,
+                'sortorder' => 1,
+                'available' => 100,
+                'deadline' => 200,
         ];
         $DB->insert_record('lesson_overrides', $useroverride);
     }
@@ -122,11 +127,11 @@ class mod_lesson_test extends \advanced_testcase {
         $this->attempt_lesson();
 
         $tables = [
-            'lesson_attempts' => 'local_recompletion_la',
-            'lesson_grades' => 'local_recompletion_lg',
-            'lesson_timer' => 'local_recompletion_lt',
-            'lesson_branch' => 'local_recompletion_lb',
-            'lesson_overrides' => 'local_recompletion_lo',
+                'lesson_attempts' => 'local_recompletion_la',
+                'lesson_grades' => 'local_recompletion_lg',
+                'lesson_timer' => 'local_recompletion_lt',
+                'lesson_branch' => 'local_recompletion_lb',
+                'lesson_overrides' => 'local_recompletion_lo',
         ];
 
         foreach ($tables as $originaltable => $archivetable) {
@@ -134,20 +139,20 @@ class mod_lesson_test extends \advanced_testcase {
             $this->assertFalse($DB->record_exists($archivetable, ['userid' => $this->user->id, 'lessonid' => $this->lesson->id]));
         }
 
-        mod_lesson::reset($this->user->id, $course, (object)['lesson' => 0, 'archivelesson' => 0]);
+        mod_lesson::reset($this->user->id, $course, (object) ['lesson' => 0, 'archivelesson' => 0]);
         $this->assertTrue($DB->record_exists($originaltable, ['userid' => $this->user->id, 'lessonid' => $this->lesson->id]));
         $this->assertFalse($DB->record_exists($archivetable, ['userid' => $this->user->id, 'lessonid' => $this->lesson->id]));
 
-        mod_lesson::reset($this->user->id, $course, (object)['lesson' => 0, 'archivelesson' => 1]);
+        mod_lesson::reset($this->user->id, $course, (object) ['lesson' => 0, 'archivelesson' => 1]);
         $this->assertTrue($DB->record_exists($originaltable, ['userid' => $this->user->id, 'lessonid' => $this->lesson->id]));
         $this->assertFalse($DB->record_exists($archivetable, ['userid' => $this->user->id, 'lessonid' => $this->lesson->id]));
 
-        mod_lesson::reset($this->user->id, $course, (object)['lesson' => 1, 'archivelesson' => 0]);
+        mod_lesson::reset($this->user->id, $course, (object) ['lesson' => 1, 'archivelesson' => 0]);
         $this->assertFalse($DB->record_exists($originaltable, ['userid' => $this->user->id, 'lessonid' => $this->lesson->id]));
         $this->assertFalse($DB->record_exists($archivetable, ['userid' => $this->user->id, 'lessonid' => $this->lesson->id]));
 
         $this->attempt_lesson();
-        mod_lesson::reset($this->user->id, $course, (object)['lesson' => 1, 'archivelesson' => 1]);
+        mod_lesson::reset($this->user->id, $course, (object) ['lesson' => 1, 'archivelesson' => 1]);
         $this->assertFalse($DB->record_exists($originaltable, ['userid' => $this->user->id, 'lessonid' => $this->lesson->id]));
         $this->assertTrue($DB->record_exists($archivetable, ['userid' => $this->user->id, 'lessonid' => $this->lesson->id]));
     }

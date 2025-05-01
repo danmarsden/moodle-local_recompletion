@@ -25,7 +25,15 @@
 
 namespace local_recompletion\plugins;
 
+use admin_setting_configcheckbox;
+use admin_setting_configselect;
+use assign;
+use coding_exception;
+use context_module;
+use dml_exception;
 use lang_string;
+use ReflectionMethod;
+use stdClass;
 
 /**
  * Quiz handler event.
@@ -39,20 +47,21 @@ use lang_string;
 class mod_assign {
     /**
      * Add params to form.
+     *
      * @param moodleform $mform
-     * @throws \coding_exception
-     * @throws \dml_exception
+     * @throws coding_exception
+     * @throws dml_exception
      */
     public static function editingform($mform): void {
         $config = get_config('local_recompletion');
 
-        $cba = array();
+        $cba = [];
         $cba[] = $mform->createElement('radio', 'assign', '',
-            get_string('donothing', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING);
+                get_string('donothing', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING);
         $cba[] = $mform->createElement('radio', 'assign', '',
-            get_string('extraattempt', 'local_recompletion'), LOCAL_RECOMPLETION_EXTRAATTEMPT);
+                get_string('extraattempt', 'local_recompletion'), LOCAL_RECOMPLETION_EXTRAATTEMPT);
 
-        $mform->addGroup($cba, 'assign', get_string('assignattempts', 'local_recompletion'), array(' '), false);
+        $mform->addGroup($cba, 'assign', get_string('assignattempts', 'local_recompletion'), [' '], false);
         $mform->addHelpButton('assign', 'assignattempts', 'local_recompletion');
         $mform->setDefault('assign', $config->assign);
 
@@ -69,23 +78,24 @@ class mod_assign {
      * @param admin_settingpage $settings
      */
     public static function settings($settings) {
-        $choices = array(LOCAL_RECOMPLETION_NOTHING => new lang_string('donothing', 'local_recompletion'),
-            LOCAL_RECOMPLETION_EXTRAATTEMPT => new lang_string('extraattempt', 'local_recompletion'));
+        $choices = [LOCAL_RECOMPLETION_NOTHING => new lang_string('donothing', 'local_recompletion'),
+                LOCAL_RECOMPLETION_EXTRAATTEMPT => new lang_string('extraattempt', 'local_recompletion')];
 
-        $settings->add(new \admin_setting_configselect('local_recompletion/assign',
-            new lang_string('assignattempts', 'local_recompletion'),
-            new lang_string('assignattempts_help', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING, $choices));
+        $settings->add(new admin_setting_configselect('local_recompletion/assign',
+                new lang_string('assignattempts', 'local_recompletion'),
+                new lang_string('assignattempts_help', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING, $choices));
 
-        $settings->add(new \admin_setting_configcheckbox('local_recompletion/assignevent',
-            new lang_string('assignevent', 'local_recompletion'),
-            '', 0));
+        $settings->add(new admin_setting_configcheckbox('local_recompletion/assignevent',
+                new lang_string('assignevent', 'local_recompletion'),
+                '', 0));
     }
 
     /**
      * Reset assign records.
-     * @param \int $userid - record with user information for recompletion
-     * @param \stdClass $course - course record.
-     * @param \stdClass $config - recompletion config.
+     *
+     * @param int $userid - record with user information for recompletion
+     * @param stdClass $course - course record.
+     * @param stdClass $config - recompletion config.
      */
     public static function reset($userid, $course, $config) {
         global $DB;
@@ -96,17 +106,17 @@ class mod_assign {
                       FROM {assign} a
                       JOIN {assign_submission} s ON a.id = s.assignment
                      WHERE a.course = ? AND s.userid = ?";
-            $assigns = $DB->get_recordset_sql($sql, array($course->id, $userid));
+            $assigns = $DB->get_recordset_sql($sql, [$course->id, $userid]);
             $nopermissions = false;
             foreach ($assigns as $assign) {
                 $cm = get_coursemodule_from_instance('assign', $assign->id);
-                $context = \context_module::instance($cm->id);
+                $context = context_module::instance($cm->id);
                 if (has_capability('mod/assign:grade', $context)) {
                     // Assign add_attempt() is protected and requires sesskey, use reflection so we don't have to write our own.
                     $_POST['sesskey'] = sesskey();
-                    $r = new \ReflectionMethod('assign', 'add_attempt');
+                    $r = new ReflectionMethod('assign', 'add_attempt');
                     $r->setAccessible(true);
-                    $r->invoke(new \assign($context, $cm, $course), $userid);
+                    $r->invoke(new assign($context, $cm, $course), $userid);
                 } else {
                     $nopermissions = true;
                 }

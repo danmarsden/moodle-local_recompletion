@@ -23,42 +23,45 @@
  */
 
 require_once('../../config.php');
-require_once($CFG->dirroot.'/user/lib.php');
-require_once($CFG->dirroot.'/course/lib.php');
-require_once($CFG->dirroot.'/notes/lib.php');
-require_once($CFG->libdir.'/tablelib.php');
-require_once($CFG->libdir.'/filelib.php');
-require_once($CFG->dirroot.'/enrol/locallib.php');
+require_once($CFG->dirroot . '/user/lib.php');
+require_once($CFG->dirroot . '/course/lib.php');
+require_once($CFG->dirroot . '/notes/lib.php');
+require_once($CFG->libdir . '/tablelib.php');
+require_once($CFG->libdir . '/filelib.php');
+require_once($CFG->dirroot . '/enrol/locallib.php');
 
+use core_group\output\group_details;
 use core_table\local\filter\filter;
 use core_table\local\filter\integer_filter;
 use core_table\local\filter\string_filter;
+use local_recompletion\table\participants;
+use local_recompletion\table\participants_filterset;
 
 define('DEFAULT_PAGE_SIZE', 20);
 
-$page         = optional_param('page', 0, PARAM_INT); // Which page to show.
-$perpage      = optional_param('perpage', DEFAULT_PAGE_SIZE, PARAM_INT); // How many per page.
-$contextid    = optional_param('contextid', 0, PARAM_INT); // One of this or.
-$courseid     = optional_param('id', 0, PARAM_INT); // This are required.
-$newcourse    = optional_param('newcourse', false, PARAM_BOOL);
-$roleid       = optional_param('roleid', 0, PARAM_INT);
-$urlgroupid   = optional_param('group', 0, PARAM_INT);
+$page = optional_param('page', 0, PARAM_INT); // Which page to show.
+$perpage = optional_param('perpage', DEFAULT_PAGE_SIZE, PARAM_INT); // How many per page.
+$contextid = optional_param('contextid', 0, PARAM_INT); // One of this or.
+$courseid = optional_param('id', 0, PARAM_INT); // This are required.
+$newcourse = optional_param('newcourse', false, PARAM_BOOL);
+$roleid = optional_param('roleid', 0, PARAM_INT);
+$urlgroupid = optional_param('group', 0, PARAM_INT);
 
-$PAGE->set_url('/local/recompletion/participants.php', array(
-    'page' => $page,
-    'perpage' => $perpage,
-    'contextid' => $contextid,
-    'id' => $courseid,
-    'newcourse' => $newcourse));
+$PAGE->set_url('/local/recompletion/participants.php', [
+        'page' => $page,
+        'perpage' => $perpage,
+        'contextid' => $contextid,
+        'id' => $courseid,
+        'newcourse' => $newcourse]);
 
 if ($contextid) {
     $context = context::instance_by_id($contextid, MUST_EXIST);
     if ($context->contextlevel != CONTEXT_COURSE) {
         throw new moodle_exception('invalidcontext');
     }
-    $course = $DB->get_record('course', array('id' => $context->instanceid), '*', MUST_EXIST);
+    $course = $DB->get_record('course', ['id' => $context->instanceid], '*', MUST_EXIST);
 } else {
-    $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
+    $course = $DB->get_record('course', ['id' => $courseid], '*', MUST_EXIST);
     $context = context_course::instance($course->id, MUST_EXIST);
 }
 // Not needed anymore.
@@ -85,7 +88,7 @@ user_list_view($course, $context);
 
 $bulkoperations = has_capability('local/recompletion:bulkoperations', $context);
 
-$PAGE->set_title("$course->shortname: ".get_string('participants'));
+$PAGE->set_title("$course->shortname: " . get_string('participants'));
 $PAGE->set_heading($course->fullname);
 $PAGE->set_pagetype('course-view-' . $course->format);
 $PAGE->set_docs_path('enrol/users');
@@ -95,10 +98,10 @@ $PAGE->set_other_editing_capability('moodle/course:manageactivities');
 echo $OUTPUT->header();
 echo $OUTPUT->heading(get_string('participants'));
 
-$filterset = new \local_recompletion\table\participants_filterset();
-$filterset->add_filter(new integer_filter('courseid', filter::JOINTYPE_DEFAULT, [(int)$course->id]));
+$filterset = new participants_filterset();
+$filterset->add_filter(new integer_filter('courseid', filter::JOINTYPE_DEFAULT, [(int) $course->id]));
 
-$participanttable = new \local_recompletion\table\participants("user-recompletion-participants-{$course->id}");
+$participanttable = new participants("user-recompletion-participants-{$course->id}");
 
 $canaccessallgroups = has_capability('moodle/site:accessallgroups', $context);
 $filtergroupids = $urlgroupid ? [$urlgroupid] : [];
@@ -107,8 +110,8 @@ $filtergroupids = $urlgroupid ? [$urlgroupid] : [];
 if ($course->groupmode != NOGROUPS && !$canaccessallgroups) {
     if ($filtergroupids) {
         $filtergroupids = array_intersect(
-            $filtergroupids,
-            array_keys(groups_get_all_groups($course->id, $USER->id))
+                $filtergroupids,
+                array_keys(groups_get_all_groups($course->id, $USER->id))
         );
     } else {
         $filtergroupids = array_keys(groups_get_all_groups($course->id, $USER->id));
@@ -134,7 +137,7 @@ if (!empty($filtergroupids)) {
 // Display single group information if requested in the URL.
 if ($urlgroupid > 0 && ($course->groupmode != SEPARATEGROUPS || $canaccessallgroups)) {
     $grouprenderer = $PAGE->get_renderer('core_group');
-    $groupdetailpage = new \core_group\output\group_details($urlgroupid);
+    $groupdetailpage = new group_details($urlgroupid);
     echo $grouprenderer->group_details($groupdetailpage);
 }
 
@@ -158,8 +161,8 @@ foreach ($enrolbuttons as $enrolbutton) {
 }
 
 echo html_writer::div($enrolbuttonsout, 'd-flex justify-content-end', [
-    'data-region' => 'wrapper',
-    'data-table-uniqueid' => $participanttable->uniqueid,
+        'data-region' => 'wrapper',
+        'data-table-uniqueid' => $participanttable->uniqueid,
 ]);
 
 // Render the user filters.
@@ -176,30 +179,31 @@ $participanttablehtml = ob_get_contents();
 ob_end_clean();
 
 echo html_writer::start_tag('form', [
-    'action' => 'editcompletion.php',
-    'method' => 'post',
-    'id' => 'participantsform',
-    'data-course-id' => $course->id,
-    'data-table-unique-id' => $participanttable->uniqueid,
+        'action' => 'editcompletion.php',
+        'method' => 'post',
+        'id' => 'participantsform',
+        'data-course-id' => $course->id,
+        'data-table-unique-id' => $participanttable->uniqueid,
 ]);
 echo '<div>';
-echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
-echo '<input type="hidden" name="returnto" value="'.s($PAGE->url->out(false)).'" />';
+echo '<input type="hidden" name="sesskey" value="' . sesskey() . '" />';
+echo '<input type="hidden" name="returnto" value="' . s($PAGE->url->out(false)) . '" />';
 
 echo html_writer::tag(
-    'p',
-    get_string('countparticipantsfound', 'core_user', $participanttable->totalrows),
-    [
-        'data-region' => 'participant-count',
-    ]
+        'p',
+        get_string('countparticipantsfound', 'core_user', $participanttable->totalrows),
+        [
+                'data-region' => 'participant-count',
+        ]
 );
 
 echo $participanttablehtml;
 
 if ($bulkoperations) {
     echo '<br /><div class="buttons"><div class="form-inline">';
-    echo '<input type="submit" name="submit" value="'.get_string('bulkchangedate', 'local_recompletion').'"/>';
-    echo '<input type="submit" name="reset_completion" value="'.get_string('bulkresetallcompletion', 'local_recompletion').'"/>';
+    echo '<input type="submit" name="submit" value="' . get_string('bulkchangedate', 'local_recompletion') . '"/>';
+    echo '<input type="submit" name="reset_completion" value="' . get_string('bulkresetallcompletion', 'local_recompletion') .
+            '"/>';
     echo '<input type="hidden" name="id" value="' . $course->id . '" />';
     echo '</div></div>';
 }
@@ -215,8 +219,8 @@ foreach ($enrolbuttons as $enrolbutton) {
     $enrolbuttonsout .= $enrolrenderer->render($enrolbutton);
 }
 echo html_writer::div($enrolbuttonsout, 'd-flex justify-content-end', [
-    'data-region' => 'wrapper',
-    'data-table-uniqueid' => $participanttable->uniqueid,
+        'data-region' => 'wrapper',
+        'data-table-uniqueid' => $participanttable->uniqueid,
 ]);
 
 echo $OUTPUT->footer();

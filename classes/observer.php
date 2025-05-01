@@ -16,9 +16,16 @@
 
 namespace local_recompletion;
 
+use completion_completion;
+use core\event\course_created;
+use core\event\user_enrolment_deleted;
+use Exception;
+use local_recompletion\task\check_recompletion;
+use mod_assign\event\submission_graded;
+
 defined('MOODLE_INTERNAL') || die;
 
-require_once($CFG->dirroot.'/local/recompletion/locallib.php');
+require_once($CFG->dirroot . '/local/recompletion/locallib.php');
 
 /**
  * Class local_recompletion_observer
@@ -30,20 +37,21 @@ require_once($CFG->dirroot.'/local/recompletion/locallib.php');
 class observer {
     /**
      * Observer function to handle the assessable_uploaded event in mod_assign.
-     * @param \mod_assign\event\submission_graded $event
+     *
+     * @param submission_graded $event
      */
-    public static function submission_graded(\mod_assign\event\submission_graded $event) {
+    public static function submission_graded(submission_graded $event) {
         global $DB;
         $assign = $event->get_assign();
         $course = $assign->get_course();
         // Check if recompletion enabled.
         $config = local_recompletion_get_config($course);
         if (!empty($config->recompletiontype) && !empty($config->assignevent)) {
-            $params = array(
-                'userid'    => $event->relateduserid,
-                'course'    => $course->id
-            );
-            $ccompletion = new \completion_completion($params);
+            $params = [
+                    'userid' => $event->relateduserid,
+                    'course' => $course->id,
+            ];
+            $ccompletion = new completion_completion($params);
             // Only update course completion date if already flagged complete.
             if ($ccompletion->is_complete()) {
                 // If we already have a completion date, clear it first so that mark_complete works.
@@ -55,9 +63,10 @@ class observer {
 
     /**
      * Observer function to handle user un-enrolment.
-     * @param \core\event\user_enrolment_deleted $event
+     *
+     * @param user_enrolment_deleted $event
      */
-    public static function user_enrolment_deleted(\core\event\user_enrolment_deleted $event) {
+    public static function user_enrolment_deleted(user_enrolment_deleted $event) {
         global $DB;
 
         $userid = $event->relateduserid;
@@ -66,25 +75,26 @@ class observer {
         $config = local_recompletion_get_config($course);
         if (!empty($config->recompletiontype) && !empty($config->recompletionunenrolenable)) {
             try {
-                $reset = new \local_recompletion\task\check_recompletion();
+                $reset = new check_recompletion();
                 $errors = $reset->reset_user($userid, $course);
-            } catch (\Exception $exception) {
+            } catch (Exception $exception) {
                 $errors = [$exception->getMessage()];
             }
 
             if (!empty($errors)) {
                 // TODO: implement a new completion_reset_failed event.
                 debugging('Completion reset failed for user ' . $userid .
-                    ' in course ' . $course->id . ' Errors: ' . implode(',', $errors), DEBUG_DEVELOPER);
+                        ' in course ' . $course->id . ' Errors: ' . implode(',', $errors), DEBUG_DEVELOPER);
             }
         }
     }
 
     /**
      * Observer function to handle saving default settings on course creation.
-     * @param \core\event\course_created $event
+     *
+     * @param course_created $event
      */
-    public static function course_created(\core\event\course_created $event) {
+    public static function course_created(course_created $event) {
         global $DB;
 
         $defaultsettings = get_config('local_recompletion');
@@ -96,21 +106,21 @@ class observer {
                 }
                 if ($key === 'recompletionemailbody' && !empty($value)) {
                     $DB->insert_record('local_recompletion_config', [
-                        'course' => $event->courseid,
-                        'name' => 'recompletionemailbody_format',
-                        'value' => FORMAT_HTML]);
+                            'course' => $event->courseid,
+                            'name' => 'recompletionemailbody_format',
+                            'value' => FORMAT_HTML]);
                 }
                 if ($key === 'recompletionschedule' && !empty($value)) {
                     $nextresttime = local_recompletion_calculate_schedule_time($value);
                     $DB->insert_record('local_recompletion_config', [
-                        'course' => $event->courseid,
-                        'name' => 'nextresettime',
-                        'value' => $nextresttime]);
+                            'course' => $event->courseid,
+                            'name' => 'nextresettime',
+                            'value' => $nextresttime]);
                 }
                 $setting = [
-                    'name' => $key,
-                    'value' => $value,
-                    'course' => $event->courseid
+                        'name' => $key,
+                        'value' => $value,
+                        'course' => $event->courseid,
                 ];
 
                 $DB->insert_record('local_recompletion_config', $setting);

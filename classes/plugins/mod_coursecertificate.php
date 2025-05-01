@@ -23,10 +23,11 @@ use admin_setting_configcheckbox;
 use admin_settingpage;
 use core\output\notification;
 use MoodleQuickForm;
+use tool_certificate\template;
 
 defined('MOODLE_INTERNAL') || die;
 
-require_once($CFG->dirroot.'/local/recompletion/locallib.php');
+require_once($CFG->dirroot . '/local/recompletion/locallib.php');
 
 /**
  * Course certificate handler event.
@@ -91,8 +92,8 @@ class mod_coursecertificate {
         }
 
         $choices = [
-            LOCAL_RECOMPLETION_NOTHING => get_string('donothing', 'local_recompletion'),
-                LOCAL_RECOMPLETION_DELETE => get_string('customcertresetcertificates', 'local_recompletion')
+                LOCAL_RECOMPLETION_NOTHING => get_string('donothing', 'local_recompletion'),
+                LOCAL_RECOMPLETION_DELETE => get_string('customcertresetcertificates', 'local_recompletion'),
         ];
 
         $settings->add(new admin_setting_configselect('local_recompletion/coursecertificate',
@@ -124,27 +125,27 @@ class mod_coursecertificate {
 
         if ($config->coursecertificate == LOCAL_RECOMPLETION_DELETE) {
             $params = [
-                'courseid' => $course->id,
-                'component' => 'mod_coursecertificate',
-                'userid' => $userid,
+                    'courseid' => $course->id,
+                    'component' => 'mod_coursecertificate',
+                    'userid' => $userid,
             ];
 
             if ($config->archivecoursecertificate) {
                 // Archive all user's certificate within a given course.
                 $DB->execute(
-                    "UPDATE {tool_certificate_issues}
+                        "UPDATE {tool_certificate_issues}
                         SET archived = 1
                       WHERE courseid = :courseid
                             AND component = :component
                             AND userid = :userid
                             AND archived = 0",
-                    $params
+                        $params
                 );
             } else {
                 // Revoke all user's certificate within a given course.
                 $records = $DB->get_records('tool_certificate_issues', $params);
                 foreach ($records as $record) {
-                    \tool_certificate\template::instance($record->templateid)->revoke_issue($record->id);
+                    template::instance($record->templateid)->revoke_issue($record->id);
                 }
             }
         }
@@ -152,6 +153,7 @@ class mod_coursecertificate {
 
     /**
      * Helper function to check if it's installed.
+     *
      * @return bool
      */
     public static function installed(): bool {

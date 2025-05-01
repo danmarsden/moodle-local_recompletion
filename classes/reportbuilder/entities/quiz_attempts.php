@@ -31,7 +31,6 @@ use lang_string;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class quiz_attempts extends base {
-
     /**
      * Database tables that this entity uses
      *
@@ -39,7 +38,7 @@ class quiz_attempts extends base {
      */
     protected function get_default_tables(): array {
         return [
-            'local_recompletion_qa',
+                'local_recompletion_qa',
         ];
     }
 
@@ -55,7 +54,7 @@ class quiz_attempts extends base {
     /**
      * Initialise.
      *
-     * @return \core_reportbuilder\local\entities\base
+     * @return base
      */
     public function initialise(): base {
         $columns = $this->get_all_columns();
@@ -75,104 +74,104 @@ class quiz_attempts extends base {
         $alias = $this->get_table_alias('local_recompletion_qa');
 
         $columns[] = (new column(
-            'quiz',
-            new lang_string('pluginname', 'quiz'),
-            $this->get_entity_name()
+                'quiz',
+                new lang_string('pluginname', 'quiz'),
+                $this->get_entity_name()
         ))
-            ->add_joins($this->get_joins())
-            ->set_type(column::TYPE_INTEGER)
-            ->add_fields("{$alias}.quiz, {$alias}.course")
-            ->set_is_sortable(true)
-            ->add_callback(static function($value, $row): string {
-                global $PAGE;
+                ->add_joins($this->get_joins())
+                ->set_type(column::TYPE_INTEGER)
+                ->add_fields("{$alias}.quiz, {$alias}.course")
+                ->set_is_sortable(true)
+                ->add_callback(static function($value, $row): string {
+                    global $PAGE;
 
-                $renderer = new core_renderer($PAGE, RENDERER_TARGET_GENERAL);
-                $modinfo = get_fast_modinfo($row->course);
+                    $renderer = new core_renderer($PAGE, RENDERER_TARGET_GENERAL);
+                    $modinfo = get_fast_modinfo($row->course);
 
-                if (!empty($modinfo) && !empty($modinfo->get_instances_of('quiz')
-                        && !empty($modinfo->get_instances_of('quiz')[$row->quiz]))) {
-                    $cm = $modinfo->get_instances_of('quiz')[$row->quiz];
-                    $modulename = get_string('modulename', $cm->modname);
-                    $activityicon = $renderer->pix_icon('monologo', $modulename, $cm->modname, ['class' => 'icon']);
+                    if (!empty($modinfo) && !empty($modinfo->get_instances_of('quiz')
+                                    && !empty($modinfo->get_instances_of('quiz')[$row->quiz]))) {
+                        $cm = $modinfo->get_instances_of('quiz')[$row->quiz];
+                        $modulename = get_string('modulename', $cm->modname);
+                        $activityicon = $renderer->pix_icon('monologo', $modulename, $cm->modname, ['class' => 'icon']);
 
-                    return $activityicon . html_writer::link($cm->url, format_string($cm->name), []);
-                } else {
-                    return (string) $row->quiz;
-                }
-            });
+                        return $activityicon . html_writer::link($cm->url, format_string($cm->name), []);
+                    } else {
+                        return (string) $row->quiz;
+                    }
+                });
 
         $columns[] = (new column(
-            'attempt',
-            new lang_string('attemptnumber', 'quiz'),
-            $this->get_entity_name()
+                'attempt',
+                new lang_string('attemptnumber', 'quiz'),
+                $this->get_entity_name()
         ))
-            ->add_joins($this->get_joins())
-            ->set_type(column::TYPE_INTEGER)
-            ->add_field("{$alias}.attempt")
-            ->set_is_sortable(true);
+                ->add_joins($this->get_joins())
+                ->set_type(column::TYPE_INTEGER)
+                ->add_field("{$alias}.attempt")
+                ->set_is_sortable(true);
 
         $columns[] = (new column(
-            'state',
-            new lang_string('attemptstate', 'quiz'),
-            $this->get_entity_name()
+                'state',
+                new lang_string('attemptstate', 'quiz'),
+                $this->get_entity_name()
         ))
-            ->add_joins($this->get_joins())
-            ->set_type(column::TYPE_TEXT)
-            ->add_field("{$alias}.state")
-            ->set_is_sortable(true)
-            ->add_callback(static function($state): string {
-                $states = [
-                    'inprogress' => get_string('stateinprogress', 'quiz'),
-                    'overdue' => get_string('stateoverdue', 'quiz'),
-                    'finished' => get_string('statefinished', 'quiz'),
-                    'abandoned' => get_string('stateabandoned', 'quiz'),
-                ];
+                ->add_joins($this->get_joins())
+                ->set_type(column::TYPE_TEXT)
+                ->add_field("{$alias}.state")
+                ->set_is_sortable(true)
+                ->add_callback(static function($state): string {
+                    $states = [
+                            'inprogress' => get_string('stateinprogress', 'quiz'),
+                            'overdue' => get_string('stateoverdue', 'quiz'),
+                            'finished' => get_string('statefinished', 'quiz'),
+                            'abandoned' => get_string('stateabandoned', 'quiz'),
+                    ];
 
-                return $states[$state] ?? $state;
-            });
-
-        $columns[] = (new column(
-            'timestart',
-            new lang_string('startedon', 'quiz'),
-            $this->get_entity_name()
-        ))
-            ->add_joins($this->get_joins())
-            ->set_type(column::TYPE_TIMESTAMP)
-            ->add_field("{$alias}.timestart")
-            ->set_is_sortable(true)
-            ->add_callback([format::class, 'userdate']);
+                    return $states[$state] ?? $state;
+                });
 
         $columns[] = (new column(
-            'timefinish',
-            new lang_string('completedon', 'quiz'),
-            $this->get_entity_name()
+                'timestart',
+                new lang_string('startedon', 'quiz'),
+                $this->get_entity_name()
         ))
-            ->add_joins($this->get_joins())
-            ->set_type(column::TYPE_TIMESTAMP)
-            ->add_field("{$alias}.timefinish")
-            ->set_is_sortable(true)
-            ->add_callback([format::class, 'userdate']);
+                ->add_joins($this->get_joins())
+                ->set_type(column::TYPE_TIMESTAMP)
+                ->add_field("{$alias}.timestart")
+                ->set_is_sortable(true)
+                ->add_callback([format::class, 'userdate']);
 
         $columns[] = (new column(
-            'sumgrades',
-            new lang_string('grade', 'quiz'),
-            $this->get_entity_name()
+                'timefinish',
+                new lang_string('completedon', 'quiz'),
+                $this->get_entity_name()
         ))
-            ->add_joins($this->get_joins())
-            ->set_type(column::TYPE_INTEGER)
-            ->add_field("{$alias}.sumgrades")
-            ->set_is_sortable(true);
+                ->add_joins($this->get_joins())
+                ->set_type(column::TYPE_TIMESTAMP)
+                ->add_field("{$alias}.timefinish")
+                ->set_is_sortable(true)
+                ->add_callback([format::class, 'userdate']);
 
         $columns[] = (new column(
-            'timemodified',
-            new lang_string('timemodified', 'local_recompletion'),
-            $this->get_entity_name()
+                'sumgrades',
+                new lang_string('grade', 'quiz'),
+                $this->get_entity_name()
         ))
-            ->add_joins($this->get_joins())
-            ->set_type(column::TYPE_TIMESTAMP)
-            ->add_field("{$alias}.timemodified")
-            ->set_is_sortable(true)
-            ->add_callback([format::class, 'userdate']);
+                ->add_joins($this->get_joins())
+                ->set_type(column::TYPE_INTEGER)
+                ->add_field("{$alias}.sumgrades")
+                ->set_is_sortable(true);
+
+        $columns[] = (new column(
+                'timemodified',
+                new lang_string('timemodified', 'local_recompletion'),
+                $this->get_entity_name()
+        ))
+                ->add_joins($this->get_joins())
+                ->set_type(column::TYPE_TIMESTAMP)
+                ->add_field("{$alias}.timemodified")
+                ->set_is_sortable(true)
+                ->add_callback([format::class, 'userdate']);
 
         return $columns;
     }

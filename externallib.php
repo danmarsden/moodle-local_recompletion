@@ -32,6 +32,7 @@ require_once("$CFG->libdir/grade/grade_grade.php");
 
 /**
  * local recompletion functions
+ *
  * @author     Noémie Ariste <noemie.ariste@catalyst.net.nz>
  * @copyright  2024 Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -40,27 +41,29 @@ class local_recompletion_external extends external_api {
 
     /**
      * Describes the parameters for reset_course
+     *
      * @return external_function_parameters
      */
     public static function reset_course_parameters() {
         return new external_function_parameters(
-            [
-                'courseid' => new external_value(PARAM_INT, 'course id'),
-                'userid' => new external_value(PARAM_INT, 'userid')
-            ]
+                [
+                        'courseid' => new external_value(PARAM_INT, 'course id'),
+                        'userid' => new external_value(PARAM_INT, 'userid'),
+                ]
         );
     }
 
     /**
      * Resets course completion for the requested course id and user id
+     *
      * @param int $courseid
      * @param int $userid
      * @return array of errors and status result
      */
     public static function reset_course($courseid, $userid) {
         $params = self::validate_parameters(self::reset_course_parameters(), [
-            'courseid' => $courseid,
-            'userid' => $userid
+                'courseid' => $courseid,
+                'userid' => $userid,
         ]);
 
         $course = get_course($params['courseid']);
@@ -86,10 +89,10 @@ class local_recompletion_external extends external_api {
      */
     public static function reset_course_returns() {
         return new external_single_structure(
-            [
-                'status' => new external_value(PARAM_BOOL, 'status: true if success'),
-                'errors' => new external_value(PARAM_TEXT, 'errors'),
-            ]
+                [
+                        'status' => new external_value(PARAM_BOOL, 'status: true if success'),
+                        'errors' => new external_value(PARAM_TEXT, 'errors'),
+                ]
         );
     }
 }

@@ -54,19 +54,19 @@ class archived_certificate_issues extends datasource {
         $courseentity = new course();
         $coursealias = $courseentity->get_table_alias('course');
         $this->add_entity($courseentity
-            ->add_join("JOIN {course} {$coursealias} ON {$coursealias}.id = {$tablealias}.course"));
+                ->add_join("JOIN {course} {$coursealias} ON {$coursealias}.id = {$tablealias}.course"));
 
         // Join the course category entity.
         $coursecatentity = new course_category();
-        $categoriesalias  = $coursecatentity->get_table_alias('course_categories');
+        $categoriesalias = $coursecatentity->get_table_alias('course_categories');
         $this->add_entity($coursecatentity
-            ->add_join("JOIN {course_categories} {$categoriesalias} ON {$categoriesalias}.id = {$coursealias}.category"));
+                ->add_join("JOIN {course_categories} {$categoriesalias} ON {$categoriesalias}.id = {$coursealias}.category"));
 
         // Join the user entity.
         $userentity = new user();
         $useralias = $userentity->get_table_alias('user');
         $this->add_entity($userentity
-            ->add_join("JOIN {user} {$useralias} ON {$useralias}.id = {$tablealias}.userid"));
+                ->add_join("JOIN {user} {$useralias} ON {$useralias}.id = {$tablealias}.userid"));
 
         $this->add_all_from_entities();
     }
@@ -78,12 +78,12 @@ class archived_certificate_issues extends datasource {
      */
     public function get_default_columns(): array {
         return [
-            'user:fullnamewithlink',
-            'course:coursefullnamewithlink',
-            'certificate_issues:certificate',
-            'certificate_issues:code',
-            'certificate_issues:issueddate',
-            'certificate_issues:printdate',
+                'user:fullnamewithlink',
+                'course:coursefullnamewithlink',
+                'certificate_issues:certificate',
+                'certificate_issues:code',
+                'certificate_issues:issueddate',
+                'certificate_issues:printdate',
         ];
     }
 
@@ -94,7 +94,7 @@ class archived_certificate_issues extends datasource {
      */
     public function get_default_filters(): array {
         return [
-            'course:courseselector',
+                'course:courseselector',
         ];
     }
 

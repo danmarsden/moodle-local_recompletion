@@ -64,6 +64,7 @@ abstract class base {
 
     /**
      * Get restriction reason.
+     *
      * @return string
      */
     public static function get_restriction_reason(): string {

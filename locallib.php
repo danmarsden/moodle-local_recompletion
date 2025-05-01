@@ -30,26 +30,27 @@ define('LOCAL_RECOMPLETION_NOTHING', 0);
 define('LOCAL_RECOMPLETION_DELETE', 1);
 define('LOCAL_RECOMPLETION_EXTRAATTEMPT', 2);
 
-require_once($CFG->dirroot.'/user/lib.php');
-require_once($CFG->libdir.'/formslib.php');
-require_once($CFG->dirroot.'/course/lib.php');
-require_once($CFG->libdir.'/completionlib.php');
-require_once($CFG->libdir.'/gradelib.php');
+require_once($CFG->dirroot . '/user/lib.php');
+require_once($CFG->libdir . '/formslib.php');
+require_once($CFG->dirroot . '/course/lib.php');
+require_once($CFG->libdir . '/completionlib.php');
+require_once($CFG->libdir . '/gradelib.php');
 require_once($CFG->dirroot . '/mod/assign/locallib.php');
 require_once($CFG->dirroot . '/mod/quiz/lib.php');
 
 /**
  * Get list of supported plugin classes.
+ *
  * @return array
  * @throws coding_exception
  */
 function local_recompletion_get_supported_plugins() {
     global $CFG;
     $plugins = [];
-    $files = scandir($CFG->dirroot. '/local/recompletion/classes/plugins');
+    $files = scandir($CFG->dirroot . '/local/recompletion/classes/plugins');
     foreach ($files as $file) {
         $component = clean_param(str_replace('.php', '', $file), PARAM_ALPHANUMEXT);
-        list($plugin, $type) = core_component::normalize_component($component);
+        [$plugin, $type] = core_component::normalize_component($component);
 
         if (!core_component::is_valid_plugin_name($type, $plugin)) {
             continue;
@@ -65,13 +66,14 @@ function local_recompletion_get_supported_plugins() {
 
 /**
  * Get list of supported restriction classes.
+ *
  * @return array
  */
 function local_recompletion_get_supported_restrictions(): array {
     global $CFG;
 
     $restrictions = [];
-    $files = scandir($CFG->dirroot. '/local/recompletion/classes/local/restrictions');
+    $files = scandir($CFG->dirroot . '/local/recompletion/classes/local/restrictions');
     foreach ($files as $file) {
         $class = clean_param(str_replace('.php', '', $file), PARAM_ALPHANUMEXT);
         if (!empty($class) && $class !== 'base') {
@@ -106,6 +108,7 @@ function local_recompletion_set_form_data($mformdata) {
 
 /**
  * Return the data that will be used upon saving.
+ *
  * @param string[] $data
  * @return array|false
  */
@@ -118,7 +121,7 @@ function local_recompletion_get_data(array $data) {
         $result['recompletionemailbody_format'] = FORMAT_HTML;
     }
     // Prepare email body for editor.
-    $emailbody = array('text' => $result['recompletionemailbody'], 'format' => $result['recompletionemailbody_format']);
+    $emailbody = ['text' => $result['recompletionemailbody'], 'format' => $result['recompletionemailbody_format']];
     $result['recompletionemailbody'] = $emailbody;
 
     return $result;
@@ -126,6 +129,7 @@ function local_recompletion_get_data(array $data) {
 
 /**
  * Update course completions
+ *
  * @param int $courseid
  * @param array[] $users
  * @param int $timecompleted
@@ -133,7 +137,7 @@ function local_recompletion_get_data(array $data) {
 function local_recompletion_update_course_completion(int $courseid, array $users, int $timecompleted) {
     foreach ($users as $user) {
         $params = ['userid' => $user, 'course' => $courseid];
-        $ccompletion = new \completion_completion($params);
+        $ccompletion = new completion_completion($params);
         if ($ccompletion->is_complete()) {
             // If we already have a completion date, clear it first so that mark_complete works.
             $ccompletion->timecompleted = null;
@@ -142,9 +146,9 @@ function local_recompletion_update_course_completion(int $courseid, array $users
     }
 }
 
-
 /**
  * Get local config
+ *
  * @param stdClass $course - course record.
  */
 function local_recompletion_get_config($course) {
@@ -152,23 +156,23 @@ function local_recompletion_get_config($course) {
     // Ideally this would be picked up directly from settings or the override form.
     // Values if not set in the form are set to 0.
     $defaultconfig = [
-        'recompletiontype' => '',
-        'recompletionduration' => 0,
-        'recompletionschedule' => '',
-        'assignevent' => null,
-        'archivecompletiondata' => 0,
-        'recompletionnotify' => '',
-        'recompletionunenrolenable' => 0,
-        'recompletionemailbody' => '',
-        'recompletionemailbody_format' => FORMAT_HTML,
-        'recompletionemailsubject' => '',
-        'deletegradedata' => 0,
-        'nextresettime' => 0,
-        'course' => null    // This isn't in the form.
+            'recompletiontype' => '',
+            'recompletionduration' => 0,
+            'recompletionschedule' => '',
+            'assignevent' => null,
+            'archivecompletiondata' => 0,
+            'recompletionnotify' => '',
+            'recompletionunenrolenable' => 0,
+            'recompletionemailbody' => '',
+            'recompletionemailbody_format' => FORMAT_HTML,
+            'recompletionemailsubject' => '',
+            'deletegradedata' => 0,
+            'nextresettime' => 0,
+            'course' => null,    // This isn't in the form.
     ];
 
     $config = $defaultconfig;
-    $dbconfig = $DB->get_records_menu('local_recompletion_config', array('course' => $course->id), '', 'name, value');
+    $dbconfig = $DB->get_records_menu('local_recompletion_config', ['course' => $course->id], '', 'name, value');
     // If we get no values back, then we use the default above, otherwise update the config with the DB values a precedent.
     // We could also combine the settings values so that the code calling it doesn't need to do this.
     if (!empty($dbconfig)) {
@@ -180,7 +184,7 @@ function local_recompletion_get_config($course) {
     }
     $config['course'] = $course->id;
 
-    $config = (object)$config;
+    $config = (object) $config;
     return $config;
 }
 

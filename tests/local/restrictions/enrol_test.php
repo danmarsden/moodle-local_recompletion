@@ -16,6 +16,7 @@
 
 namespace local_recompletion\local\restrictions;
 
+use advanced_testcase;
 use stdClass;
 
 /**
@@ -26,7 +27,7 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers     \local_recompletion\local\restrictions\enrol
  */
-class enrol_test extends \advanced_testcase {
+class enrol_test extends advanced_testcase {
 
     /**
      * Test that method doesn't add restrictenrol attribute if not present in data.
@@ -45,12 +46,12 @@ class enrol_test extends \advanced_testcase {
      */
     public function set_form_data_data_provider(): array {
         return [
-            ['', ''],
-            [1, 1],
-            ['data', 'data'],
-            [(object)['data'], (object)['data']],
-            [['data'], 'data'],
-            [['data 1', 'data 2'], 'data 1,data 2'],
+                ['', ''],
+                [1, 1],
+                ['data', 'data'],
+                [(object) ['data'], (object) ['data']],
+                [['data'], 'data'],
+                [['data 1', 'data 2'], 'data 1,data 2'],
         ];
     }
 
@@ -80,25 +81,25 @@ class enrol_test extends \advanced_testcase {
         $usermanual = $this->getDataGenerator()->create_and_enrol($course);
         $userself = $this->getDataGenerator()->create_and_enrol($course, 'student', null, 'self');
 
-        $this->assertTrue(enrol::should_reset($usermanual->id, $course, (object)[]));
-        $this->assertTrue(enrol::should_reset($userself->id, $course, (object)[]));
+        $this->assertTrue(enrol::should_reset($usermanual->id, $course, (object) []));
+        $this->assertTrue(enrol::should_reset($userself->id, $course, (object) []));
 
-        $this->assertTrue(enrol::should_reset($usermanual->id, $course, (object)['restrictenrol' => ['paypal']]));
-        $this->assertTrue(enrol::should_reset($userself->id, $course, (object)['restrictenrol' => ['paypal']]));
+        $this->assertTrue(enrol::should_reset($usermanual->id, $course, (object) ['restrictenrol' => ['paypal']]));
+        $this->assertTrue(enrol::should_reset($userself->id, $course, (object) ['restrictenrol' => ['paypal']]));
 
-        $this->assertFalse(enrol::should_reset($usermanual->id, $course, (object)['restrictenrol' => 'paypal']));
-        $this->assertFalse(enrol::should_reset($userself->id, $course, (object)['restrictenrol' => 'paypal']));
+        $this->assertFalse(enrol::should_reset($usermanual->id, $course, (object) ['restrictenrol' => 'paypal']));
+        $this->assertFalse(enrol::should_reset($userself->id, $course, (object) ['restrictenrol' => 'paypal']));
 
-        $this->assertFalse(enrol::should_reset($usermanual->id, $course, (object)['restrictenrol' => 'self']));
-        $this->assertTrue(enrol::should_reset($userself->id, $course, (object)['restrictenrol' => 'self']));
+        $this->assertFalse(enrol::should_reset($usermanual->id, $course, (object) ['restrictenrol' => 'self']));
+        $this->assertTrue(enrol::should_reset($userself->id, $course, (object) ['restrictenrol' => 'self']));
 
-        $this->assertTrue(enrol::should_reset($usermanual->id, $course, (object)['restrictenrol' => 'manual']));
-        $this->assertFalse(enrol::should_reset($userself->id, $course, (object)['restrictenrol' => 'manual']));
+        $this->assertTrue(enrol::should_reset($usermanual->id, $course, (object) ['restrictenrol' => 'manual']));
+        $this->assertFalse(enrol::should_reset($userself->id, $course, (object) ['restrictenrol' => 'manual']));
 
-        $this->assertFalse(enrol::should_reset($usermanual->id, $course, (object)['restrictenrol' => 'paypal,self']));
-        $this->assertTrue(enrol::should_reset($userself->id, $course, (object)['restrictenrol' => 'paypal,self']));
+        $this->assertFalse(enrol::should_reset($usermanual->id, $course, (object) ['restrictenrol' => 'paypal,self']));
+        $this->assertTrue(enrol::should_reset($userself->id, $course, (object) ['restrictenrol' => 'paypal,self']));
 
-        $this->assertTrue(enrol::should_reset($usermanual->id, $course, (object)['restrictenrol' => 'paypal,self,manual']));
-        $this->assertTrue(enrol::should_reset($userself->id, $course, (object)['restrictenrol' => 'paypal,self,manual']));
+        $this->assertTrue(enrol::should_reset($usermanual->id, $course, (object) ['restrictenrol' => 'paypal,self,manual']));
+        $this->assertTrue(enrol::should_reset($userself->id, $course, (object) ['restrictenrol' => 'paypal,self,manual']));
     }
 }

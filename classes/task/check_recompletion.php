@@ -25,6 +25,15 @@
 
 namespace local_recompletion\task;
 
+use cache;
+use completion_info;
+use context_course;
+use core\task\scheduled_task;
+use grade_grade;
+use grade_item;
+use local_recompletion\event\completion_reset;
+use stdClass;
+
 /**
  * Check for users that need to recomplete.
  *
@@ -33,7 +42,7 @@ namespace local_recompletion\task;
  * @copyright  2017 Dan Marsden
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class check_recompletion extends \core\task\scheduled_task {
+class check_recompletion extends scheduled_task {
     /**
      * Returns the name of this task.
      */
@@ -56,9 +65,9 @@ class check_recompletion extends \core\task\scheduled_task {
                   JOIN {local_recompletion_config} r3 ON r3.course = cc.course
                                                      AND r3.name = 'recompletiontype' AND r3.value = 'period'
                   JOIN {course} c ON c.id = cc.course
-                 WHERE c.enablecompletion = ".COMPLETION_ENABLED."
+                 WHERE c.enablecompletion = " . COMPLETION_ENABLED . "
                    AND cc.timecompleted > 0
-                   AND (cc.timecompleted + ".$DB->sql_cast_char2int('r2.value').") < ?";
+                   AND (cc.timecompleted + " . $DB->sql_cast_char2int('r2.value') . ") < ?";
         $users = $DB->get_records_sql($sql, [$now]);
 
         // Schedule based recompletion.
@@ -74,7 +83,7 @@ class check_recompletion extends \core\task\scheduled_task {
              LEFT JOIN {local_recompletion_config} r3 ON r3.course = cc.course AND r3.name = 'nextresettime'
                   JOIN {local_recompletion_config} r4 ON r4.course = cc.course AND r4.name = 'recompletionschedule'
                   JOIN {course} c ON c.id = cc.course
-                 WHERE c.enablecompletion = ".COMPLETION_ENABLED."
+                 WHERE c.enablecompletion = " . COMPLETION_ENABLED . "
                    AND cc.timecompleted > 0";
         $recompletions = $DB->get_records_sql($sql, [$now]);
         foreach ($recompletions as $record) {
@@ -94,7 +103,7 @@ class check_recompletion extends \core\task\scheduled_task {
         global $CFG, $DB;
         require_once($CFG->dirroot . '/local/recompletion/locallib.php');
 
-        if (!\completion_info::is_enabled_for_site()) {
+        if (!completion_info::is_enabled_for_site()) {
             return;
         }
 
@@ -122,10 +131,10 @@ class check_recompletion extends \core\task\scheduled_task {
             // If this course hasn't had its nextresettime set, add it to the array for after.
             if (!isset($updateresettimes[$course->id]) && isset($user->schedule)) {
                 // Update next reset time.
-                $newconfig = new \stdClass();
+                $newconfig = new stdClass();
                 if (isset($config->nextresettime)) {
                     $newconfig->id = $DB->get_field('local_recompletion_config', 'id',
-                        ['course' => $course->id, 'name' => 'nextresettime']);
+                            ['course' => $course->id, 'name' => 'nextresettime']);
                 }
                 $newconfig->course = $course->id;
                 $newconfig->name = 'nextresettime';
@@ -147,9 +156,10 @@ class check_recompletion extends \core\task\scheduled_task {
 
     /**
      * Reset and archive completion records
-     * @param \int $userid - user id
-     * @param \stdClass $course - course record.
-     * @param \stdClass $config - recompletion config.
+     *
+     * @param int $userid - user id
+     * @param stdClass $course - course record.
+     * @param stdClass $config - recompletion config.
      */
     protected function reset_completions($userid, $course, $config) {
         global $DB;
@@ -191,17 +201,18 @@ class check_recompletion extends \core\task\scheduled_task {
 
     /**
      * Notify user of recompletion.
-     * @param \int $userid - user id
-     * @param \stdclass $course - record from course table.
-     * @param \stdClass $config - recompletion config.
+     *
+     * @param int $userid - user id
+     * @param stdclass $course - record from course table.
+     * @param stdClass $config - recompletion config.
      */
     protected function notify_user($userid, $course, $config) {
         global $DB, $CFG;
 
         $userrecord = $DB->get_record('user', ['id' => $userid]);
-        $context = \context_course::instance($course->id);
+        $context = context_course::instance($course->id);
         $from = get_admin();
-        $a = new \stdClass();
+        $a = new stdClass();
         $a->coursename = format_string($course->fullname, true, ['context' => $context]);
         $a->profileurl = "$CFG->wwwroot/user/view.php?id=$userrecord->id&course=$course->id";
         $a->link = course_get_url($course)->out();
@@ -212,15 +223,15 @@ class check_recompletion extends \core\task\scheduled_task {
             $message = str_replace($key, $value, $message);
             // Message body stored as html - some might be non-html so we have to handle both, not clean but it works for now.
             $keyhtml = [
-                '{$a-&gt;coursename}',
-                '{$a-&gt;profileurl}',
-                '{$a-&gt;link}',
-                '{$a-&gt;fullname}',
-                '{$a-&gt;email}',
+                    '{$a-&gt;coursename}',
+                    '{$a-&gt;profileurl}',
+                    '{$a-&gt;link}',
+                    '{$a-&gt;fullname}',
+                    '{$a-&gt;email}',
             ];
             $message = str_replace($keyhtml, $value, $message);
             $messagehtml = format_text($message, FORMAT_HTML, ['context' => $context,
-                'para' => false, 'newlines' => true, 'filter' => true]);
+                    'para' => false, 'newlines' => true, 'filter' => true]);
             $messagetext = html_to_text($messagehtml);
         } else {
             $messagetext = get_string('recompletionemaildefaultbody', 'local_recompletion', $a);
@@ -240,9 +251,10 @@ class check_recompletion extends \core\task\scheduled_task {
 
     /**
      * Reset user completion.
-     * @param \int $userid - id of user.
-     * @param \stdClass $course - course record.
-     * @param \stdClass $config - recompletion config.
+     *
+     * @param int $userid - id of user.
+     * @param stdClass $course - course record.
+     * @param stdClass $config - recompletion config.
      */
     public function reset_user($userid, $course, $config = null) {
         global $CFG, $DB;
@@ -251,7 +263,7 @@ class check_recompletion extends \core\task\scheduled_task {
 
         if (empty($config)) {
             $config = (object) $DB->get_records_menu('local_recompletion_config',
-                                                     ['course' => $course->id], '', 'name, value');
+                    ['course' => $course->id], '', 'name, value');
         }
         if (empty($config->recompletiontype)) {
             $errors[] = get_string('recompletionnotenabledincourse', 'local_recompletion', $course->id);
@@ -281,9 +293,9 @@ class check_recompletion extends \core\task\scheduled_task {
 
         // Delete current grade information.
         if ($config->deletegradedata) {
-            if ($items = \grade_item::fetch_all(['courseid' => $course->id])) {
+            if ($items = grade_item::fetch_all(['courseid' => $course->id])) {
                 foreach ($items as $item) {
-                    if ($grades = \grade_grade::fetch_all(['userid' => $userid, 'itemid' => $item->id])) {
+                    if ($grades = grade_grade::fetch_all(['userid' => $userid, 'itemid' => $item->id])) {
                         foreach ($grades as $grade) {
                             $grade->delete('local_recompletion');
                         }
@@ -292,7 +304,7 @@ class check_recompletion extends \core\task\scheduled_task {
             }
         }
 
-        $context = \context_course::instance($course->id);
+        $context = context_course::instance($course->id);
 
         // Determine if user should be notified.
         if (!empty($config->recompletionnotify)) {
@@ -311,13 +323,13 @@ class check_recompletion extends \core\task\scheduled_task {
         }
 
         // Trigger completion reset event for this user.
-        $event = \local_recompletion\event\completion_reset::create(
-            [
-                'objectid'      => $course->id,
-                'relateduserid' => $userid,
-                'courseid' => $course->id,
-                'context' => $context,
-            ]
+        $event = completion_reset::create(
+                [
+                        'objectid' => $course->id,
+                        'relateduserid' => $userid,
+                        'courseid' => $course->id,
+                        'context' => $context,
+                ]
         );
         $event->trigger();
 
@@ -325,10 +337,10 @@ class check_recompletion extends \core\task\scheduled_task {
 
         if ($clearcache) {
             // Difficult to find affected users, just purge all completion cache.
-            \cache::make('core', 'completion')->purge();
+            cache::make('core', 'completion')->purge();
             // Clear coursecompletion cache which was added in Moodle 3.2.
             if ($CFG->version >= 2016120500) {
-                \cache::make('core', 'coursecompletion')->purge();
+                cache::make('core', 'coursecompletion')->purge();
             }
         }
         return $errors;

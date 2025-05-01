@@ -25,7 +25,7 @@ use MoodleQuickForm;
 
 defined('MOODLE_INTERNAL') || die;
 
-require_once($CFG->dirroot.'/local/recompletion/locallib.php');
+require_once($CFG->dirroot . '/local/recompletion/locallib.php');
 
 /**
  * Lesson handler event.
@@ -69,8 +69,8 @@ class mod_lesson {
      */
     public static function settings(admin_settingpage $settings): void {
         $choices = [
-            LOCAL_RECOMPLETION_NOTHING => get_string('donothing', 'local_recompletion'),
-            LOCAL_RECOMPLETION_DELETE => get_string('delete', 'local_recompletion')
+                LOCAL_RECOMPLETION_NOTHING => get_string('donothing', 'local_recompletion'),
+                LOCAL_RECOMPLETION_DELETE => get_string('delete', 'local_recompletion'),
         ];
 
         $settings->add(new admin_setting_configselect('local_recompletion/lesson',
@@ -78,7 +78,7 @@ class mod_lesson {
                 new lang_string('lessonattempts_help', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING, $choices));
 
         $settings->add(new admin_setting_configcheckbox('local_recompletion/archivelesson',
-            new lang_string('archivelesson', 'local_recompletion'), '', 1));
+                new lang_string('archivelesson', 'local_recompletion'), '', 1));
     }
 
     /**
@@ -98,11 +98,11 @@ class mod_lesson {
         if ($config->lesson == LOCAL_RECOMPLETION_DELETE) {
 
             $tables = [
-                'lesson_attempts' => 'local_recompletion_la',
-                'lesson_grades' => 'local_recompletion_lg',
-                'lesson_timer' => 'local_recompletion_lt',
-                'lesson_branch' => 'local_recompletion_lb',
-                'lesson_overrides' => 'local_recompletion_lo',
+                    'lesson_attempts' => 'local_recompletion_la',
+                    'lesson_grades' => 'local_recompletion_lg',
+                    'lesson_timer' => 'local_recompletion_lt',
+                    'lesson_branch' => 'local_recompletion_lb',
+                    'lesson_overrides' => 'local_recompletion_lo',
             ];
 
             $params = ['userid' => $userid, 'course' => $course->id];

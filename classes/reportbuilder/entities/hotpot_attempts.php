@@ -33,7 +33,6 @@ use lang_string;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class hotpot_attempts extends base {
-    
     /**
      * Database tables that this entity uses
      *
@@ -41,7 +40,7 @@ class hotpot_attempts extends base {
      */
     protected function get_default_tables(): array {
         return [
-            'local_recompletion_hpa',
+                'local_recompletion_hpa',
         ];
     }
 
@@ -57,7 +56,7 @@ class hotpot_attempts extends base {
     /**
      * Initialise.
      *
-     * @return \core_reportbuilder\local\entities\base
+     * @return base
      */
     public function initialise(): base {
         $columns = $this->get_all_columns();
@@ -81,117 +80,117 @@ class hotpot_attempts extends base {
         $alias = $this->get_table_alias('local_recompletion_hpa');
 
         $columns[] = (new column(
-            'hotpotid',
-            new lang_string('pluginname', 'hotpot'),
-            $this->get_entity_name()
+                'hotpotid',
+                new lang_string('pluginname', 'hotpot'),
+                $this->get_entity_name()
         ))
-            ->add_joins($this->get_joins())
-            ->set_type(column::TYPE_INTEGER)
-            ->add_fields("{$alias}.hotpotid, {$alias}.course")
-            ->set_is_sortable(true)
-            ->add_callback(static function($value, $row): string {
-                global $PAGE;
+                ->add_joins($this->get_joins())
+                ->set_type(column::TYPE_INTEGER)
+                ->add_fields("{$alias}.hotpotid, {$alias}.course")
+                ->set_is_sortable(true)
+                ->add_callback(static function($value, $row): string {
+                    global $PAGE;
 
-                $renderer = new core_renderer($PAGE, RENDERER_TARGET_GENERAL);
-                $modinfo = get_fast_modinfo($row->course);
+                    $renderer = new core_renderer($PAGE, RENDERER_TARGET_GENERAL);
+                    $modinfo = get_fast_modinfo($row->course);
 
-                if (!empty($modinfo) && !empty($modinfo->get_instances_of('hotpot')
-                        && !empty($modinfo->get_instances_of('hotpot')[$row->hotpotid]))) {
-                    $cm = $modinfo->get_instances_of('hotpot')[$row->hotpotid];
-                    $modulename = get_string('modulename', $cm->modname);
-                    $activityicon = $renderer->pix_icon('monologo', $modulename, $cm->modname, ['class' => 'icon']);
+                    if (!empty($modinfo) && !empty($modinfo->get_instances_of('hotpot')
+                                    && !empty($modinfo->get_instances_of('hotpot')[$row->hotpotid]))) {
+                        $cm = $modinfo->get_instances_of('hotpot')[$row->hotpotid];
+                        $modulename = get_string('modulename', $cm->modname);
+                        $activityicon = $renderer->pix_icon('monologo', $modulename, $cm->modname, ['class' => 'icon']);
 
-                    return $activityicon . html_writer::link($cm->url, format_string($cm->name), []);
-                } else {
-                    return (string) $row->hotpotid;
-                }
-            });
+                        return $activityicon . html_writer::link($cm->url, format_string($cm->name), []);
+                    } else {
+                        return (string) $row->hotpotid;
+                    }
+                });
 
         $columns[] = (new column(
-            'starttime',
-            new lang_string('starttime', 'local_recompletion'),
-            $this->get_entity_name()
+                'starttime',
+                new lang_string('starttime', 'local_recompletion'),
+                $this->get_entity_name()
         ))
-            ->add_joins($this->get_joins())
-            ->set_type(column::TYPE_TIMESTAMP)
-            ->add_field("{$alias}.starttime")
-            ->set_is_sortable(true)
-            ->add_callback([format::class, 'userdate']);
+                ->add_joins($this->get_joins())
+                ->set_type(column::TYPE_TIMESTAMP)
+                ->add_field("{$alias}.starttime")
+                ->set_is_sortable(true)
+                ->add_callback([format::class, 'userdate']);
 
         $columns[] = (new column(
-            'endtime',
-            new lang_string('endtime', 'local_recompletion'),
-            $this->get_entity_name()
+                'endtime',
+                new lang_string('endtime', 'local_recompletion'),
+                $this->get_entity_name()
         ))
-            ->add_joins($this->get_joins())
-            ->set_type(column::TYPE_TIMESTAMP)
-            ->add_field("{$alias}.endtime")
-            ->set_is_sortable(true)
-            ->add_callback([format::class, 'userdate']);
+                ->add_joins($this->get_joins())
+                ->set_type(column::TYPE_TIMESTAMP)
+                ->add_field("{$alias}.endtime")
+                ->set_is_sortable(true)
+                ->add_callback([format::class, 'userdate']);
 
         $columns[] = (new column(
-            'score',
-            new lang_string('score', 'local_recompletion'),
-            $this->get_entity_name()
+                'score',
+                new lang_string('score', 'local_recompletion'),
+                $this->get_entity_name()
         ))
-            ->add_joins($this->get_joins())
-            ->set_type(column::TYPE_INTEGER)
-            ->add_field("{$alias}.score")
-            ->set_is_sortable(true);
+                ->add_joins($this->get_joins())
+                ->set_type(column::TYPE_INTEGER)
+                ->add_field("{$alias}.score")
+                ->set_is_sortable(true);
 
         $columns[] = (new column(
-            'penalties',
-            new lang_string('penalties', 'local_recompletion'),
-            $this->get_entity_name()
+                'penalties',
+                new lang_string('penalties', 'local_recompletion'),
+                $this->get_entity_name()
         ))
-            ->add_joins($this->get_joins())
-            ->set_type(column::TYPE_INTEGER)
-            ->add_field("{$alias}.penalties")
-            ->set_is_sortable(true);
+                ->add_joins($this->get_joins())
+                ->set_type(column::TYPE_INTEGER)
+                ->add_field("{$alias}.penalties")
+                ->set_is_sortable(true);
 
         $columns[] = (new column(
-            'attempt',
-            new lang_string('attempt', 'h5pactivity'),
-            $this->get_entity_name()
+                'attempt',
+                new lang_string('attempt', 'h5pactivity'),
+                $this->get_entity_name()
         ))
-            ->add_joins($this->get_joins())
-            ->set_type(column::TYPE_INTEGER)
-            ->add_field("{$alias}.attempt")
-            ->set_is_sortable(true);
+                ->add_joins($this->get_joins())
+                ->set_type(column::TYPE_INTEGER)
+                ->add_field("{$alias}.attempt")
+                ->set_is_sortable(true);
 
         $columns[] = (new column(
-            'status',
-            new lang_string('status', 'local_recompletion'),
-            $this->get_entity_name()
+                'status',
+                new lang_string('status', 'local_recompletion'),
+                $this->get_entity_name()
         ))
-            ->add_joins($this->get_joins())
-            ->set_type(column::TYPE_INTEGER)
-            ->add_field("{$alias}.status")
-            ->set_is_sortable(true);
+                ->add_joins($this->get_joins())
+                ->set_type(column::TYPE_INTEGER)
+                ->add_field("{$alias}.status")
+                ->set_is_sortable(true);
 
         $columns[] = (new column(
-            'status',
-            new lang_string('status', 'local_recompletion'),
-            $this->get_entity_name()
+                'status',
+                new lang_string('status', 'local_recompletion'),
+                $this->get_entity_name()
         ))
-            ->add_joins($this->get_joins())
-            ->set_type(column::TYPE_INTEGER)
-            ->add_field("{$alias}.status")
-            ->set_is_sortable(true)
-            ->add_callback(static function($status): string {
-                switch ($status) {
-                    case 1:
-                        return get_string('inprogress', 'local_recompletion');
-                    case 2:
-                        return get_string('timedout', 'local_recompletion');
-                    case 3:
-                        return get_string('abandoned', 'local_recompletion');
-                    case 4:
-                        return get_string('completed', 'local_recompletion');
-                    default:
-                        return $status;
-                }
-            });
+                ->add_joins($this->get_joins())
+                ->set_type(column::TYPE_INTEGER)
+                ->add_field("{$alias}.status")
+                ->set_is_sortable(true)
+                ->add_callback(static function($status): string {
+                    switch ($status) {
+                        case 1:
+                            return get_string('inprogress', 'local_recompletion');
+                        case 2:
+                            return get_string('timedout', 'local_recompletion');
+                        case 3:
+                            return get_string('abandoned', 'local_recompletion');
+                        case 4:
+                            return get_string('completed', 'local_recompletion');
+                        default:
+                            return $status;
+                    }
+                });
 
         return $columns;
     }
@@ -206,19 +205,19 @@ class hotpot_attempts extends base {
 
         // Time completed filter.
         $filters[] = (new filter(
-            select::class,
-            'status',
-            new lang_string('status', 'local_recompletion'),
-            $this->get_entity_name(),
-            "{$alias}.status"
+                select::class,
+                'status',
+                new lang_string('status', 'local_recompletion'),
+                $this->get_entity_name(),
+                "{$alias}.status"
         ))
-            ->add_joins($this->get_joins())
-            ->set_options([
-                1 => get_string('inprogress', 'local_recompletion'),
-                2 => get_string('timedout', 'local_recompletion'),
-                3 => get_string('abandoned', 'local_recompletion'),
-                4 => get_string('completed', 'local_recompletion')
-            ]);
+                ->add_joins($this->get_joins())
+                ->set_options([
+                        1 => get_string('inprogress', 'local_recompletion'),
+                        2 => get_string('timedout', 'local_recompletion'),
+                        3 => get_string('abandoned', 'local_recompletion'),
+                        4 => get_string('completed', 'local_recompletion'),
+                ]);
 
         return $filters;
     }

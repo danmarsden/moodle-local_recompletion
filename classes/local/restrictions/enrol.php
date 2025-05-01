@@ -16,6 +16,7 @@
 
 namespace local_recompletion\local\restrictions;
 
+use admin_setting_configmulticheckbox;
 use admin_settingpage;
 use core_component;
 use MoodleQuickForm;
@@ -38,22 +39,22 @@ class enrol extends base {
     public static function editingform(MoodleQuickForm $mform): void {
         $config = get_config('local_recompletion');
         $options = [
-            'multiple' => true,
-            'noselectionstring' => get_string('all'),
+                'multiple' => true,
+                'noselectionstring' => get_string('all'),
         ];
 
         $plugins = array_keys(core_component::get_plugin_list('enrol'));
         $enrolplugins = array_map(
-            fn (string $plugin): string => get_string('pluginname', 'enrol_' . $plugin),
-            array_combine($plugins, $plugins)
+                fn(string $plugin): string => get_string('pluginname', 'enrol_' . $plugin),
+                array_combine($plugins, $plugins)
         );
 
         $mform->addElement(
-            'autocomplete',
-            'restrictenrol',
-            get_string('restrictenrol', 'local_recompletion'),
-            $enrolplugins,
-            $options
+                'autocomplete',
+                'restrictenrol',
+                get_string('restrictenrol', 'local_recompletion'),
+                $enrolplugins,
+                $options
         );
 
         $mform->setDefault('restrictenrol', $config->restrictenrol);
@@ -62,6 +63,7 @@ class enrol extends base {
 
     /**
      * Set form data after submitting.
+     *
      * @param stdClass $data
      */
     public static function set_form_data(stdClass $data): void {
@@ -78,16 +80,16 @@ class enrol extends base {
     public static function settings(admin_settingpage $settings): void {
         $enrolplugins = array_keys(core_component::get_plugin_list('enrol'));
         $options = array_map(
-            fn (string $plugin): string => get_string('pluginname', 'enrol_' . $plugin),
-            array_combine($enrolplugins, $enrolplugins)
+                fn(string $plugin): string => get_string('pluginname', 'enrol_' . $plugin),
+                array_combine($enrolplugins, $enrolplugins)
         );
 
-        $settings->add(new \admin_setting_configmulticheckbox(
-            'local_recompletion/restrictenrol',
-            get_string('restrictenrol', 'local_recompletion'),
-            get_string('restrictenrol_help', 'local_recompletion'),
-            [],
-            $options
+        $settings->add(new admin_setting_configmulticheckbox(
+                'local_recompletion/restrictenrol',
+                get_string('restrictenrol', 'local_recompletion'),
+                get_string('restrictenrol_help', 'local_recompletion'),
+                [],
+                $options
         ));
     }
 
@@ -109,7 +111,7 @@ class enrol extends base {
         $allowedenrols = explode(',', $config->restrictenrol);
         $courseinstances = enrol_get_instances($course->id, false);
 
-        $courseallowedinstances = array_filter($courseinstances, function ($courseinstance) use ($allowedenrols){
+        $courseallowedinstances = array_filter($courseinstances, function($courseinstance) use ($allowedenrols) {
             return in_array($courseinstance->enrol, $allowedenrols);
         });
 
@@ -119,7 +121,7 @@ class enrol extends base {
         }
 
         // Check if a user is enrolled using one of the allowed instances.
-        list($sql, $params) = $DB->get_in_or_equal(array_keys($courseallowedinstances), SQL_PARAMS_NAMED);
+        [$sql, $params] = $DB->get_in_or_equal(array_keys($courseallowedinstances), SQL_PARAMS_NAMED);
         $params['userid'] = $userid;
         $userenrolments = $DB->get_records_select('user_enrolments', "enrolid $sql AND userid = :userid", $params);
 
@@ -128,6 +130,7 @@ class enrol extends base {
 
     /**
      * Get restriction reason.
+     *
      * @return string
      */
     public static function get_restriction_reason(): string {

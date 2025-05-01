@@ -25,7 +25,13 @@
 
 namespace local_recompletion\plugins;
 
+use admin_setting_configcheckbox;
+use admin_setting_configselect;
+use coding_exception;
+use core\output\notification;
+use dml_exception;
 use lang_string;
+use stdClass;
 
 /**
  * Custom certificate handler event.
@@ -42,8 +48,8 @@ class mod_customcert {
      *
      * @param moodleform $mform
      *
-     * @throws \coding_exception
-     * @throws \dml_exception
+     * @throws coding_exception
+     * @throws dml_exception
      */
     public static function editingform($mform): void {
         global $OUTPUT;
@@ -53,13 +59,13 @@ class mod_customcert {
         }
         $config = get_config('local_recompletion');
 
-        $cba = array();
+        $cba = [];
         $cba[] = $mform->createElement('radio', 'customcert', '',
                 get_string('donothing', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING);
         $cba[] = $mform->createElement('radio', 'customcert', '',
                 get_string('customcertresetcertificates', 'local_recompletion'), LOCAL_RECOMPLETION_DELETE);
 
-        $mform->addGroup($cba, 'customcert', get_string('customcertcertificates', 'local_recompletion'), array(' '), false);
+        $mform->addGroup($cba, 'customcert', get_string('customcertcertificates', 'local_recompletion'), [' '], false);
         $mform->addHelpButton('customcert', 'customcertcertificates', 'local_recompletion');
         $mform->setDefault('customcert', $config->customcert);
 
@@ -68,9 +74,9 @@ class mod_customcert {
         $mform->setDefault('archivecustomcert', $config->archivecustomcert);
 
         $verifywarngroup = []; // Use a workaround to hide a static mform element based on MDL-66251.
-        $verifywarn = new \core\output\notification(
+        $verifywarn = new notification(
                 get_string('customcertresetcertificatesverifywarn', 'local_recompletion'),
-                \core\output\notification::NOTIFY_WARNING);
+                notification::NOTIFY_WARNING);
         $verifywarn->set_show_closebutton(false);
         $verifywarngroup[] =
                 $mform->createElement('static', 'customcertresetcertificatesverifywarn', '', $OUTPUT->render($verifywarn));
@@ -91,14 +97,14 @@ class mod_customcert {
         if (!self::installed()) {
             return;
         }
-        $choices = array(LOCAL_RECOMPLETION_NOTHING => get_string('donothing', 'local_recompletion'),
-                LOCAL_RECOMPLETION_DELETE => get_string('customcertresetcertificates', 'local_recompletion'));
+        $choices = [LOCAL_RECOMPLETION_NOTHING => get_string('donothing', 'local_recompletion'),
+                LOCAL_RECOMPLETION_DELETE => get_string('customcertresetcertificates', 'local_recompletion')];
 
-        $settings->add(new \admin_setting_configselect('local_recompletion/customcert',
+        $settings->add(new admin_setting_configselect('local_recompletion/customcert',
                 new lang_string('customcertcertificates', 'local_recompletion'),
                 new lang_string('customcertcertificates_help', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING, $choices));
 
-        $settings->add(new \admin_setting_configcheckbox('local_recompletion/archivecustomcert',
+        $settings->add(new admin_setting_configcheckbox('local_recompletion/archivecustomcert',
                 new lang_string('archivecustomcertcertificates', 'local_recompletion'),
                 new lang_string('archivecustomcertcertificates_help', 'local_recompletion'), 1));
     }
@@ -106,9 +112,9 @@ class mod_customcert {
     /**
      * Reset custom certificate records.
      *
-     * @param \stdclass $userid - user id
-     * @param \stdClass $course - course record.
-     * @param \stdClass $config - recompletion config.
+     * @param stdclass $userid - user id
+     * @param stdClass $course - course record.
+     * @param stdClass $config - recompletion config.
      */
     public static function reset($userid, $course, $config) {
         global $DB;
@@ -120,7 +126,7 @@ class mod_customcert {
             return;
         } else if ($config->customcert == LOCAL_RECOMPLETION_DELETE) {
             // Prepare SQL Query.
-            $params = array('userid' => $userid, 'course' => $course->id);
+            $params = ['userid' => $userid, 'course' => $course->id];
             $selectsql = 'userid = ? AND customcertid IN (SELECT id FROM {customcert} WHERE course = ?)';
 
             // If archiving is activated.
@@ -141,11 +147,12 @@ class mod_customcert {
 
     /**
      * Helper function to check if custom certificate is installed.
+     *
      * @return bool
      */
     public static function installed() {
         global $CFG;
-        if (!file_exists($CFG->dirroot.'/mod/customcert/version.php')) {
+        if (!file_exists($CFG->dirroot . '/mod/customcert/version.php')) {
             return false;
         }
         return true;

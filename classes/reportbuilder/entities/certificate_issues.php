@@ -39,7 +39,7 @@ class certificate_issues extends base {
      */
     protected function get_default_tables(): array {
         return [
-            'local_recompletion_cert',
+                'local_recompletion_cert',
         ];
     }
 
@@ -55,7 +55,7 @@ class certificate_issues extends base {
     /**
      * Initialise.
      *
-     * @return \core_reportbuilder\local\entities\base
+     * @return base
      */
     public function initialise(): base {
         $columns = $this->get_all_columns();
@@ -76,63 +76,63 @@ class certificate_issues extends base {
 
         // Course module.
         $columns[] = (new column(
-            'certificate',
-            new lang_string('pluginname', 'certificate'),
-            $this->get_entity_name()
+                'certificate',
+                new lang_string('pluginname', 'certificate'),
+                $this->get_entity_name()
         ))
-            ->add_joins($this->get_joins())
-            ->set_type(column::TYPE_INTEGER)
-            ->add_fields("{$tablealias}.certificateid, {$tablealias}.course")
-            ->set_is_sortable(true)
-            ->add_callback(static function($value, $row): string {
-                global $PAGE;
+                ->add_joins($this->get_joins())
+                ->set_type(column::TYPE_INTEGER)
+                ->add_fields("{$tablealias}.certificateid, {$tablealias}.course")
+                ->set_is_sortable(true)
+                ->add_callback(static function($value, $row): string {
+                    global $PAGE;
 
-                $renderer = new core_renderer($PAGE, RENDERER_TARGET_GENERAL);
-                $modinfo = get_fast_modinfo($row->course);
+                    $renderer = new core_renderer($PAGE, RENDERER_TARGET_GENERAL);
+                    $modinfo = get_fast_modinfo($row->course);
 
-                if (!empty($modinfo) && !empty($modinfo->get_instances_of('certificate')
-                        && !empty($modinfo->get_instances_of('certificate')[$row->certificateid]))) {
-                    $cm = $modinfo->get_instances_of('certificate')[$row->certificateid];
-                    $modulename = get_string('modulename', $cm->modname);
-                    $activityicon = $renderer->pix_icon('monologo', $modulename, $cm->modname, ['class' => 'icon']);
+                    if (!empty($modinfo) && !empty($modinfo->get_instances_of('certificate')
+                                    && !empty($modinfo->get_instances_of('certificate')[$row->certificateid]))) {
+                        $cm = $modinfo->get_instances_of('certificate')[$row->certificateid];
+                        $modulename = get_string('modulename', $cm->modname);
+                        $activityicon = $renderer->pix_icon('monologo', $modulename, $cm->modname, ['class' => 'icon']);
 
-                    return $activityicon . html_writer::link($cm->url, format_string($cm->name), []);
-                } else {
-                    return (string) $row->certificateid;
-                }
-            });
+                        return $activityicon . html_writer::link($cm->url, format_string($cm->name), []);
+                    } else {
+                        return (string) $row->certificateid;
+                    }
+                });
 
         $columns[] = (new column(
-            'code',
-            new lang_string('code', 'certificate'),
-            $this->get_entity_name()
+                'code',
+                new lang_string('code', 'certificate'),
+                $this->get_entity_name()
         ))
-            ->add_joins($this->get_joins())
-            ->set_type(column::TYPE_TEXT)
-            ->add_field("{$tablealias}.code")
-            ->set_is_sortable(true);
+                ->add_joins($this->get_joins())
+                ->set_type(column::TYPE_TEXT)
+                ->add_field("{$tablealias}.code")
+                ->set_is_sortable(true);
 
         $columns[] = (new column(
-            'issueddate',
-            new lang_string('issueddate', 'certificate'),
-            $this->get_entity_name()
+                'issueddate',
+                new lang_string('issueddate', 'certificate'),
+                $this->get_entity_name()
         ))
-            ->add_joins($this->get_joins())
-            ->set_type(column::TYPE_TIMESTAMP)
-            ->add_field("{$tablealias}.timecreated")
-            ->set_is_sortable(true)
-            ->add_callback([format::class, 'userdate']);
+                ->add_joins($this->get_joins())
+                ->set_type(column::TYPE_TIMESTAMP)
+                ->add_field("{$tablealias}.timecreated")
+                ->set_is_sortable(true)
+                ->add_callback([format::class, 'userdate']);
 
         $columns[] = (new column(
-            'printdate',
-            new lang_string('printdate', 'certificate'),
-            $this->get_entity_name()
+                'printdate',
+                new lang_string('printdate', 'certificate'),
+                $this->get_entity_name()
         ))
-            ->add_joins($this->get_joins())
-            ->set_type(column::TYPE_TIMESTAMP)
-            ->add_field("{$tablealias}.printdate")
-            ->set_is_sortable(true)
-            ->add_callback([format::class, 'userdate']);
+                ->add_joins($this->get_joins())
+                ->set_type(column::TYPE_TIMESTAMP)
+                ->add_field("{$tablealias}.printdate")
+                ->set_is_sortable(true)
+                ->add_callback([format::class, 'userdate']);
 
         return $columns;
     }

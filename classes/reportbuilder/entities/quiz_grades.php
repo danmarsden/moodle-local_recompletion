@@ -39,7 +39,7 @@ class quiz_grades extends base {
      */
     protected function get_default_tables(): array {
         return [
-            'local_recompletion_qg',
+                'local_recompletion_qg',
         ];
     }
 
@@ -55,7 +55,7 @@ class quiz_grades extends base {
     /**
      * Initialise.
      *
-     * @return \core_reportbuilder\local\entities\base
+     * @return base
      */
     public function initialise(): base {
         $columns = $this->get_all_columns();
@@ -76,54 +76,54 @@ class quiz_grades extends base {
 
         // Course module.
         $columns[] = (new column(
-            'quiz',
-            new lang_string('pluginname', 'quiz'),
-            $this->get_entity_name()
+                'quiz',
+                new lang_string('pluginname', 'quiz'),
+                $this->get_entity_name()
         ))
-            ->add_joins($this->get_joins())
-            ->set_type(column::TYPE_INTEGER)
-            ->add_fields("{$quizgrades}.quiz, {$quizgrades}.course")
-            ->set_is_sortable(true)
-            ->add_callback(static function($value, $row): string {
-                global $PAGE;
+                ->add_joins($this->get_joins())
+                ->set_type(column::TYPE_INTEGER)
+                ->add_fields("{$quizgrades}.quiz, {$quizgrades}.course")
+                ->set_is_sortable(true)
+                ->add_callback(static function($value, $row): string {
+                    global $PAGE;
 
-                $renderer = new core_renderer($PAGE, RENDERER_TARGET_GENERAL);
-                $modinfo = get_fast_modinfo($row->course);
+                    $renderer = new core_renderer($PAGE, RENDERER_TARGET_GENERAL);
+                    $modinfo = get_fast_modinfo($row->course);
 
-                if (!empty($modinfo) && !empty($modinfo->get_instances_of('quiz')
-                        && !empty($modinfo->get_instances_of('quiz')[$row->quiz]))) {
-                    $cm = $modinfo->get_instances_of('quiz')[$row->quiz];
-                    $modulename = get_string('modulename', $cm->modname);
-                    $activityicon = $renderer->pix_icon('monologo', $modulename, $cm->modname, ['class' => 'icon']);
+                    if (!empty($modinfo) && !empty($modinfo->get_instances_of('quiz')
+                                    && !empty($modinfo->get_instances_of('quiz')[$row->quiz]))) {
+                        $cm = $modinfo->get_instances_of('quiz')[$row->quiz];
+                        $modulename = get_string('modulename', $cm->modname);
+                        $activityicon = $renderer->pix_icon('monologo', $modulename, $cm->modname, ['class' => 'icon']);
 
-                    return $activityicon . html_writer::link($cm->url, format_string($cm->name), []);
-                } else {
-                    return (string) $row->quiz;
-                }
-            });
+                        return $activityicon . html_writer::link($cm->url, format_string($cm->name), []);
+                    } else {
+                        return (string) $row->quiz;
+                    }
+                });
 
         // Grade.
         $columns[] = (new column(
-            'grade',
-            new lang_string('grade'),
-            $this->get_entity_name()
+                'grade',
+                new lang_string('grade'),
+                $this->get_entity_name()
         ))
-            ->add_joins($this->get_joins())
-            ->set_type(column::TYPE_FLOAT)
-            ->add_field("{$quizgrades}.grade")
-            ->set_is_sortable(true);
+                ->add_joins($this->get_joins())
+                ->set_type(column::TYPE_FLOAT)
+                ->add_field("{$quizgrades}.grade")
+                ->set_is_sortable(true);
 
         // Time timemodified.
         $columns[] = (new column(
-            'timemodified',
-            new lang_string('timemodified', 'local_recompletion'),
-            $this->get_entity_name()
+                'timemodified',
+                new lang_string('timemodified', 'local_recompletion'),
+                $this->get_entity_name()
         ))
-            ->add_joins($this->get_joins())
-            ->set_type(column::TYPE_TIMESTAMP)
-            ->add_field("{$quizgrades}.timemodified")
-            ->set_is_sortable(true)
-            ->add_callback([format::class, 'userdate']);
+                ->add_joins($this->get_joins())
+                ->set_type(column::TYPE_TIMESTAMP)
+                ->add_field("{$quizgrades}.timemodified")
+                ->set_is_sortable(true)
+                ->add_callback([format::class, 'userdate']);
 
         return $columns;
     }

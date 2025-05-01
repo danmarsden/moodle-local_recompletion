@@ -27,12 +27,12 @@ defined('MOODLE_INTERNAL') || die;
 
 $functions = [
 
-    'local_recompletion_reset_course' => [
-        'classname'     => 'local_recompletion_external',
-        'methodname'    => 'reset_course',
-        'classpath'     => 'local/recompletion/externallib.php',
-        'description'   => 'Reset course completion for a given course and user.',
-        'type'          => 'write',
-        'capabilities'  => 'local/recompletion:manage'
-    ],
+        'local_recompletion_reset_course' => [
+                'classname' => 'local_recompletion_external',
+                'methodname' => 'reset_course',
+                'classpath' => 'local/recompletion/externallib.php',
+                'description' => 'Reset course completion for a given course and user.',
+                'type' => 'write',
+                'capabilities' => 'local/recompletion:manage',
+        ],
 ];

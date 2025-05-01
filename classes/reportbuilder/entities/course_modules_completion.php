@@ -42,7 +42,7 @@ class course_modules_completion extends base {
      */
     protected function get_default_tables(): array {
         return [
-            'local_recompletion_cmc',
+                'local_recompletion_cmc',
         ];
     }
 
@@ -58,7 +58,7 @@ class course_modules_completion extends base {
     /**
      * Initialise.
      *
-     * @return \core_reportbuilder\local\entities\base
+     * @return base
      */
     public function initialise(): base {
         $columns = $this->get_all_columns();
@@ -83,63 +83,63 @@ class course_modules_completion extends base {
 
         // Completion state.
         $columns[] = (new column(
-            'completionstate',
-            new lang_string('status', 'local_recompletion'),
-            $this->get_entity_name()
+                'completionstate',
+                new lang_string('status', 'local_recompletion'),
+                $this->get_entity_name()
         ))
-            ->add_joins($this->get_joins())
-            ->set_type(column::TYPE_INTEGER)
-            ->add_field("{$completion}.completionstate")
-            ->set_is_sortable(true)
-            ->add_callback(static function($completionstate): string {
-                $states = [
-                    0 => get_string('notcompleted', 'completion'),
-                    1 => get_string('completion-y', 'completion'),
-                    2 => get_string('completion-pass', 'completion'),
-                    3 => get_string('completion-fail', 'completion'),
-                ];
+                ->add_joins($this->get_joins())
+                ->set_type(column::TYPE_INTEGER)
+                ->add_field("{$completion}.completionstate")
+                ->set_is_sortable(true)
+                ->add_callback(static function($completionstate): string {
+                    $states = [
+                            0 => get_string('notcompleted', 'completion'),
+                            1 => get_string('completion-y', 'completion'),
+                            2 => get_string('completion-pass', 'completion'),
+                            3 => get_string('completion-fail', 'completion'),
+                    ];
 
-                return $states[$completionstate] ?? $completionstate;
-            });
+                    return $states[$completionstate] ?? $completionstate;
+                });
 
         // Course module ID.
         $columns[] = (new column(
-            'coursemodule',
-            new lang_string('module', 'course'),
-            $this->get_entity_name()
+                'coursemodule',
+                new lang_string('module', 'course'),
+                $this->get_entity_name()
         ))
-            ->add_joins($this->get_joins())
-            ->set_type(column::TYPE_INTEGER)
-            ->add_fields("{$completion}.coursemoduleid, {$completion}.course")
-            ->set_is_sortable(true)
-            ->add_callback(static function($value, $row): string {
-                global $PAGE;
+                ->add_joins($this->get_joins())
+                ->set_type(column::TYPE_INTEGER)
+                ->add_fields("{$completion}.coursemoduleid, {$completion}.course")
+                ->set_is_sortable(true)
+                ->add_callback(static function($value, $row): string {
+                    global $PAGE;
 
-                $renderer = new core_renderer($PAGE, RENDERER_TARGET_GENERAL);
-                $modinfo = get_fast_modinfo($row->course);
+                    $renderer = new core_renderer($PAGE, RENDERER_TARGET_GENERAL);
+                    $modinfo = get_fast_modinfo($row->course);
 
-                if (!empty($modinfo) && !empty($modinfo->get_cms()[$row->coursemoduleid])) {
-                    $cm = $modinfo->get_cms()[$row->coursemoduleid];
-                    $modulename = get_string('modulename', $cm->modname);
-                    $activityicon = $renderer->pix_icon('monologo', $modulename, $cm->modname, ['class' => 'icon']);
+                    if (!empty($modinfo) && !empty($modinfo->get_cms()[$row->coursemoduleid])) {
+                        $cm = $modinfo->get_cms()[$row->coursemoduleid];
+                        $modulename = get_string('modulename', $cm->modname);
+                        $activityicon = $renderer->pix_icon('monologo', $modulename, $cm->modname, ['class' => 'icon']);
 
-                    return $activityicon . html_writer::link($cm->url, format_string($cm->name), []);
-                } else {
-                    return (string) $row->coursemoduleid;
-                }
-            });
+                        return $activityicon . html_writer::link($cm->url, format_string($cm->name), []);
+                    } else {
+                        return (string) $row->coursemoduleid;
+                    }
+                });
 
         // Time started.
         $columns[] = (new column(
-            'timemodified',
-            new lang_string('timemodified', 'local_recompletion'),
-            $this->get_entity_name()
+                'timemodified',
+                new lang_string('timemodified', 'local_recompletion'),
+                $this->get_entity_name()
         ))
-            ->add_joins($this->get_joins())
-            ->set_type(column::TYPE_TIMESTAMP)
-            ->add_field("{$completion}.timemodified")
-            ->set_is_sortable(true)
-            ->add_callback([format::class, 'userdate']);
+                ->add_joins($this->get_joins())
+                ->set_type(column::TYPE_TIMESTAMP)
+                ->add_field("{$completion}.timemodified")
+                ->set_is_sortable(true)
+                ->add_callback([format::class, 'userdate']);
 
         return $columns;
     }
@@ -154,29 +154,29 @@ class course_modules_completion extends base {
 
         // Time completed filter.
         $filters[] = (new filter(
-            select::class,
-            'completionstate',
-            new lang_string('status', 'local_recompletion'),
-            $this->get_entity_name(),
-            "{$coursecompletion}.completionstate"
+                select::class,
+                'completionstate',
+                new lang_string('status', 'local_recompletion'),
+                $this->get_entity_name(),
+                "{$coursecompletion}.completionstate"
         ))
-            ->add_joins($this->get_joins())
-            ->set_options([
-                0 => get_string('notcompleted', 'completion'),
-                1 => get_string('completion-y', 'completion'),
-                2 => get_string('completion-pass', 'completion'),
-                3 => get_string('completion-fail', 'completion'),
-            ]);
+                ->add_joins($this->get_joins())
+                ->set_options([
+                        0 => get_string('notcompleted', 'completion'),
+                        1 => get_string('completion-y', 'completion'),
+                        2 => get_string('completion-pass', 'completion'),
+                        3 => get_string('completion-fail', 'completion'),
+                ]);
 
         // Custom course selector filter.
         $filters[] = (new filter(
-            course_selector::class,
-            'courseselector',
-            new lang_string('courseselect', 'core_reportbuilder'),
-            $this->get_entity_name(),
-            "{$coursecompletion}.course"
+                course_selector::class,
+                'courseselector',
+                new lang_string('courseselect', 'core_reportbuilder'),
+                $this->get_entity_name(),
+                "{$coursecompletion}.course"
         ))
-            ->add_joins($this->get_joins());
+                ->add_joins($this->get_joins());
 
         return $filters;
     }

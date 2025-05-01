@@ -29,8 +29,8 @@ require_once($CFG->dirroot . '/user/lib.php');
 require_once($CFG->libdir . '/formslib.php');
 
 $courseid = required_param('id', PARAM_INT);
-$userid   = optional_param('user', 0, PARAM_INT);
-$users    = optional_param_array('users', [], PARAM_INT);
+$userid = optional_param('user', 0, PARAM_INT);
+$users = optional_param_array('users', [], PARAM_INT);
 
 $course = $DB->get_record('course', ['id' => $courseid], '*', MUST_EXIST);
 require_login($course);
@@ -52,7 +52,7 @@ if (empty($users) && empty($userid)) {
 
     if (empty($users)) {
         redirect($CFG->wwwroot . '/local/recompletion/participants.php?id=' . $course->id,
-            get_string('nousersselected', 'local_recompletion'));
+                get_string('nousersselected', 'local_recompletion'));
     }
 }
 
@@ -60,7 +60,7 @@ if (empty($users)) {
     $users = [$userid];
     // Get this users current completion date and use that in the form.
     $params = ['userid' => $userid, 'course' => $courseid];
-    $ccompletion = new \completion_completion($params);
+    $ccompletion = new completion_completion($params);
     if ($ccompletion->is_complete()) {
         $date = $ccompletion->timecompleted;
     }
@@ -72,9 +72,9 @@ if (empty($date)) {
 }
 
 $form = new local_recompletion_coursecompletion_form('editcompletion.php', [
-    'course' => $courseid,
-    'users' => $users,
-    'date' => $date,
+        'course' => $courseid,
+        'users' => $users,
+        'date' => $date,
 ]);
 
 if ($form->is_cancelled()) {
@@ -84,7 +84,7 @@ if ($form->is_cancelled()) {
         // Update course completion.
         local_recompletion_update_course_completion($courseid, $users, $data->newcompletion);
         redirect($CFG->wwwroot . '/local/recompletion/participants.php?id=' . $course->id,
-            get_string('completionupdated', 'local_recompletion'));
+                get_string('completionupdated', 'local_recompletion'));
     }
 }
 

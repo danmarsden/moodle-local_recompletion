@@ -26,7 +26,7 @@ use MoodleQuickForm;
 
 defined('MOODLE_INTERNAL') || die;
 
-require_once($CFG->dirroot.'/local/recompletion/locallib.php');
+require_once($CFG->dirroot . '/local/recompletion/locallib.php');
 
 /**
  * Certificate handler event.
@@ -91,8 +91,8 @@ class mod_certificate {
         }
 
         $choices = [
-            LOCAL_RECOMPLETION_NOTHING => get_string('donothing', 'local_recompletion'),
-            LOCAL_RECOMPLETION_DELETE => get_string('customcertresetcertificates', 'local_recompletion')
+                LOCAL_RECOMPLETION_NOTHING => get_string('donothing', 'local_recompletion'),
+                LOCAL_RECOMPLETION_DELETE => get_string('customcertresetcertificates', 'local_recompletion'),
         ];
 
         $settings->add(new admin_setting_configselect('local_recompletion/certificate',
@@ -124,8 +124,8 @@ class mod_certificate {
 
         if ($config->certificate == LOCAL_RECOMPLETION_DELETE) {
             $params = [
-                'userid' => $userid,
-                'courseid' => $course->id,
+                    'userid' => $userid,
+                    'courseid' => $course->id,
             ];
 
             if ($config->archivecertificate) {
@@ -142,10 +142,10 @@ class mod_certificate {
                     // Depending on activity settings actual date printed on a certificate can be different
                     // to a date of issue. Let's try to build printed date and archive it as well for future verification.
                     $issuedcerts[$ic]->printdate = self::certificate_get_date(
-                        $issuedcerts[$ic]->timecreated,
-                        $issuedcerts[$ic]->printdate,
-                        (object) ['id' => $course->id],
-                        $userid
+                            $issuedcerts[$ic]->timecreated,
+                            $issuedcerts[$ic]->printdate,
+                            (object) ['id' => $course->id],
+                            $userid
                     );
                 }
 
@@ -161,6 +161,7 @@ class mod_certificate {
 
     /**
      * Helper function to check if it's installed.
+     *
      * @return bool
      */
     public static function installed(): bool {
