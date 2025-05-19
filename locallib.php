@@ -23,6 +23,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use core\clock;
+use core\di;
+
 defined('MOODLE_INTERNAL') || die();
 
 // Used by settings to decide if attempts should be deleted or an extra attempt allowed.
@@ -192,21 +195,24 @@ function local_recompletion_get_config($course) {
  * @return int a future timestamp, or 0.
  */
 function local_recompletion_calculate_schedule_time(string $input): int {
+
+    $clock = di::get(clock::class);
+
     // Special handling for next reset time.
     // Assumptions. If this is in the past, try and append a year stamp for
     // next year. If that doesnt evaluate, we cannot deal with this.
-    $time = strtotime($input);
+    $time = strtotime($input, $clock->time());
     if ($time === false) {
         // We cannot handle this value.
         return 0;
     }
-    if ($time < time()) {
+    if ($time < $clock->time()) {
         // Try with a year appended to force a future calculation.
-        $schedulestring = $input . ' ' . date('Y', strtotime('+1 year'));
-        $time = strtotime($schedulestring);
+        $schedulestring = $input . ' ' . date('Y', strtotime('+1 year', $clock->time()));
+        $time = strtotime($schedulestring, $clock->time());
 
         // If this isn't valid or still in the past (somehow), we can't trust it.
-        if ($time === false || $time < time()) {
+        if ($time === false || $time < $clock->time()) {
             return 0;
         }
 

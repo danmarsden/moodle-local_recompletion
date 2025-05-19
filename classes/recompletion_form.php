@@ -13,6 +13,8 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+use core\clock;
+use core\di;
 
 /**
  * Course recompletion settings form.
@@ -192,6 +194,8 @@ class local_recompletion_recompletion_form extends moodleform {
     public function validation($data, $files): array {
         $errors = [];
 
+        $clock = di::get(clock::class);
+
         // Validate 'recompletionschedule' field.
         if (!empty($data['recompletionschedule'])) {
             // Check if the input is compatible with strtotime().
@@ -203,7 +207,7 @@ class local_recompletion_recompletion_form extends moodleform {
 
         // Validate 'recompletionschedulestart' field.
         if (!empty($data['recompletionschedulestart'])) {
-            $today = strtotime(date('Y-m-d'));
+            $today = $clock->now()->modify('midnight')->getTimestamp();
             if ($data['recompletionschedulestart'] < $today) {
                 $errors['recompletionschedulestart'] = get_string('invalidschedulestartdate', 'local_recompletion');
             }
