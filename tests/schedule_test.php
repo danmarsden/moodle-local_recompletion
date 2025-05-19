@@ -16,6 +16,9 @@
 
 namespace local_recompletion;
 
+use core\clock;
+use core\di;
+
 /**
  * Class schedule_test.
  *
@@ -33,7 +36,8 @@ class schedule_test extends \advanced_testcase {
         global $CFG;
         require_once($CFG->dirroot.'/local/recompletion/locallib.php');
 
-        $now = time();
+        $this->mock_clock_with_frozen();
+        $clock = di::get(clock::class);
 
         // Ensure the past cannot be set.
         $nextresettime = \local_recompletion_calculate_schedule_time('yesterday');
@@ -41,7 +45,7 @@ class schedule_test extends \advanced_testcase {
 
         // Ensure tomorrow is valid.
         $nextresettime = \local_recompletion_calculate_schedule_time('tomorrow');
-        $this->assertGreaterThan($now, $nextresettime);
+        $this->assertGreaterThan($clock->time(), $nextresettime);
 
         // Ensure the past (with a year) cannot be set.
         $nextresettime = \local_recompletion_calculate_schedule_time('Dec 31 2020');
@@ -49,11 +53,11 @@ class schedule_test extends \advanced_testcase {
 
         // Ensure no year dates, are okay.
         $nextresettime = \local_recompletion_calculate_schedule_time('Jan 1');
-        $this->assertGreaterThan($now, $nextresettime);
+        $this->assertGreaterThan($clock->time(), $nextresettime);
 
         // Same as previously, but for any time of the year.
         $nextresettime = \local_recompletion_calculate_schedule_time('Dec 31');
-        $this->assertGreaterThan($now, $nextresettime);
+        $this->assertGreaterThan($clock->time(), $nextresettime);
 
         // Ensure the time, not just a date, can also be used.
         $str = 'Dec 31 14:50';
@@ -99,6 +103,7 @@ class schedule_test extends \advanced_testcase {
      * @return array
      */
     public static function recompletion_form_validation_provider(): array {
+        $clock = di::get(clock::class);
         return [
             'Valid recompletionschedule, no recompletionschedulestart' => [
                 'data' => [
@@ -115,35 +120,35 @@ class schedule_test extends \advanced_testcase {
             'Valid recompletionschedule, valid recompletionschedulestart of today' => [
                 'data' => [
                     'recompletionschedule' => '3 months',
-                    'recompletionschedulestart' => strtotime('today'),
+                    'recompletionschedulestart' => $clock->now()->modify('today')->getTimestamp(),
                 ],
                 'valid' => true,
             ],
             'Valid recompletionschedule, valid recompletionschedulestart of tomorrow' => [
                 'data' => [
                     'recompletionschedule' => '3 months',
-                    'recompletionschedulestart' => strtotime('tomorrow'),
+                    'recompletionschedulestart' => $clock->now()->modify('tomorrow')->getTimestamp(),
                 ],
                 'valid' => true,
             ],
             'Invalid recompletionschedule, invalid recompletionschedulestart' => [
                 'data' => [
                     'recompletionschedule' => 'Invalid date string',
-                    'recompletionschedulestart' => strtotime('yesterday'),
+                    'recompletionschedulestart' => $clock->now()->modify('yesterday')->getTimestamp(),
                 ],
                 'valid' => false,
             ],
             'Valid recompletionschedule, invalid recompletionschedulestart' => [
                 'data' => [
                     'recompletionschedule' => '3 months',
-                    'recompletionschedulestart' => strtotime('yesterday'),
+                    'recompletionschedulestart' => $clock->now()->modify('yesterday')->getTimestamp()
                 ],
                 'valid' => false,
             ],
             'Invalid recompletionschedule, valid recompletionschedulestart' => [
                 'data' => [
                     'recompletionschedule' => 'Invalid date string',
-                    'recompletionschedulestart' => strtotime('today'),
+                    'recompletionschedulestart' => $clock->now()->modify('today')->getTimestamp(),
                 ],
                 'valid' => false,
             ],
