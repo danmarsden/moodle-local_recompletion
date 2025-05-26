@@ -35,7 +35,7 @@ class enrol_test extends \advanced_testcase {
         $data = new stdClass();
 
         enrol::set_form_data($data);
-        $this->assertObjectNotHasAttribute('restrictenrol', $data);
+        $this->assertObjectNotHasProperty('restrictenrol', $data);
     }
 
     /**
