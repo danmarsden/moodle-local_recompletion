@@ -18,6 +18,7 @@ namespace local_recompletion\reportbuilder\entities;
 
 use core_reportbuilder\local\entities\base;
 use core_reportbuilder\local\filters\course_selector;
+use core_reportbuilder\local\filters\date;
 use core_reportbuilder\local\filters\select;
 use core_reportbuilder\local\helpers\format;
 use core_reportbuilder\local\report\column;
@@ -152,7 +153,25 @@ class course_modules_completion extends base {
     protected function get_all_filters(): array {
         $coursecompletion = $this->get_table_alias('local_recompletion_cmc');
 
-        // Time completed filter.
+        // Time modified filter.
+        $filters[] = (new filter(
+            date::class,
+            'timemodified',
+            new lang_string('timemodified', 'core_reportbuilder'),
+            $this->get_entity_name(),
+            "{$coursecompletion}.timemodified"
+        ))
+            ->add_joins($this->get_joins())
+            ->set_limited_operators([
+                date::DATE_ANY,
+                date::DATE_NOT_EMPTY,
+                date::DATE_EMPTY,
+                date::DATE_RANGE,
+                date::DATE_LAST,
+                date::DATE_CURRENT,
+            ]);
+
+        // Completion state filter.
         $filters[] = (new filter(
             select::class,
             'completionstate',
