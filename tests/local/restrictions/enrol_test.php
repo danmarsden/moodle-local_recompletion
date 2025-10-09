@@ -43,7 +43,7 @@ class enrol_test extends \advanced_testcase {
      *
      * @return array
      */
-    public function set_form_data_data_provider(): array {
+    public static function set_form_data_data_provider(): array {
         return [
             ['', ''],
             [1, 1],
