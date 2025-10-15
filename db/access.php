@@ -36,7 +36,6 @@ $capabilities = [
         ]
     ],
     'local/recompletion:resetmycompletion' => [
-        'riskbitmask' => RISK_XSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => [
