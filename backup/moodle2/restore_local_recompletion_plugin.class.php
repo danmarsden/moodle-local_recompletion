@@ -36,29 +36,31 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
      * Returns the paths to be handled by the plugin at course level.
      */
     protected function define_course_plugin_structure() {
-        $paths = array();
+        $paths = [];
 
         $elepath = $this->get_pathfor('/');
-        $paths[] = new restore_path_element('recompletion', $elepath.'/recompletion_config');
-        $paths[] = new restore_path_element('recompletion_cc', $elepath.'/course_completion/coursecompletion');
-        $paths[] = new restore_path_element('recompletion_cc_cc',
-            $elepath.'/course_completion/course_completion_crit_completions/course_completion_crit_compl');
-        $paths[] = new restore_path_element('recompletion_completion', $elepath.'/course_completion/completions/completion');
-        $paths[] = new restore_path_element('recompletion_qa', $elepath.'/quizattempts/attempt');
-        $paths[] = new restore_path_element('recompletion_qg', $elepath.'/quizgrades/grade');
-        $paths[] = new restore_path_element('recompletion_sa', $elepath.'/scormattempts/scormattempt');
-        $paths[] = new restore_path_element('recompletion_ssv', $elepath.'/scormtracks/sco_track');
-        $paths[] = new restore_path_element('recompletion_cha', $elepath.'/choiceanswers/choiceanswer');
-        $paths[] = new restore_path_element('recompletion_hvp', $elepath.'/hvpattempts/hvpattempt');
-        $paths[] = new restore_path_element('recompletion_h5p', $elepath.'/h5ps/h5p');
-        $paths[] = new restore_path_element('recompletion_h5pr', $elepath.'/h5ps/h5p/h5presults/h5presult');
-        $paths[] = new restore_path_element('recompletion_lessonattempt', $elepath.'/lessonattempts/lessonattempt');
-        $paths[] = new restore_path_element('recompletion_lessongrade', $elepath.'/lessongrades/lessongrade');
-        $paths[] = new restore_path_element('recompletion_lessontimer', $elepath.'/lessontimers/lessontimer');
-        $paths[] = new restore_path_element('recompletion_lessonbrach', $elepath.'/lessonbraches/lessonbrach');
-        $paths[] = new restore_path_element('recompletion_lessonoverride', $elepath.'/lessonoverrides/lessonoverride');
-        $paths[] = new restore_path_element('recompletion_hpa', $elepath.'/hotpotattempts/hotpotattempt');
-        $paths[] = new restore_path_element('recompletion_cert', $elepath.'/certificates/certificate');
+        $paths[] = new restore_path_element('recompletion', $elepath . '/recompletion_config');
+        $paths[] = new restore_path_element('recompletion_cc', $elepath . '/course_completion/coursecompletion');
+        $paths[] = new restore_path_element(
+            'recompletion_cc_cc',
+            $elepath . '/course_completion/course_completion_crit_completions/course_completion_crit_compl'
+        );
+        $paths[] = new restore_path_element('recompletion_completion', $elepath . '/course_completion/completions/completion');
+        $paths[] = new restore_path_element('recompletion_qa', $elepath . '/quizattempts/attempt');
+        $paths[] = new restore_path_element('recompletion_qg', $elepath . '/quizgrades/grade');
+        $paths[] = new restore_path_element('recompletion_sa', $elepath . '/scormattempts/scormattempt');
+        $paths[] = new restore_path_element('recompletion_ssv', $elepath . '/scormtracks/sco_track');
+        $paths[] = new restore_path_element('recompletion_cha', $elepath . '/choiceanswers/choiceanswer');
+        $paths[] = new restore_path_element('recompletion_hvp', $elepath . '/hvpattempts/hvpattempt');
+        $paths[] = new restore_path_element('recompletion_h5p', $elepath . '/h5ps/h5p');
+        $paths[] = new restore_path_element('recompletion_h5pr', $elepath . '/h5ps/h5p/h5presults/h5presult');
+        $paths[] = new restore_path_element('recompletion_lessonattempt', $elepath . '/lessonattempts/lessonattempt');
+        $paths[] = new restore_path_element('recompletion_lessongrade', $elepath . '/lessongrades/lessongrade');
+        $paths[] = new restore_path_element('recompletion_lessontimer', $elepath . '/lessontimers/lessontimer');
+        $paths[] = new restore_path_element('recompletion_lessonbrach', $elepath . '/lessonbraches/lessonbrach');
+        $paths[] = new restore_path_element('recompletion_lessonoverride', $elepath . '/lessonoverrides/lessonoverride');
+        $paths[] = new restore_path_element('recompletion_hpa', $elepath . '/hotpotattempts/hotpotattempt');
+        $paths[] = new restore_path_element('recompletion_cert', $elepath . '/certificates/certificate');
 
         return $paths;
     }
@@ -355,7 +357,7 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
     protected function after_restore_course() {
         global $DB;
         // Fix local_recompletion_cmc records.
-        $rcm = $DB->get_recordset('local_recompletion_cmc', array('course' => $this->task->get_courseid()));
+        $rcm = $DB->get_recordset('local_recompletion_cmc', ['course' => $this->task->get_courseid()]);
         foreach ($rcm as $rc) {
             $rc->coursemoduleid = $this->get_mappingid('course_module', $rc->coursemoduleid);
             $DB->update_record('local_recompletion_cmc', $rc);
@@ -363,7 +365,7 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
         $rcm->close();
 
         // Fix SCORM tracks.
-        $rcm = $DB->get_recordset('local_recompletion_sa', array('courseid' => $this->task->get_courseid()));
+        $rcm = $DB->get_recordset('local_recompletion_sa', ['courseid' => $this->task->get_courseid()]);
         foreach ($rcm as $rc) {
             $rc->scormid = $this->get_mappingid('scorm', $rc->scormid);
             $DB->update_record('local_recompletion_sa', $rc);
@@ -371,14 +373,14 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
         $rcm->close();
 
         // Fix Quiz.
-        $rcm = $DB->get_recordset('local_recompletion_qg', array('course' => $this->task->get_courseid()));
+        $rcm = $DB->get_recordset('local_recompletion_qg', ['course' => $this->task->get_courseid()]);
         foreach ($rcm as $rc) {
             $rc->quiz = $this->get_mappingid('quiz', $rc->quiz);
             $DB->update_record('local_recompletion_qg', $rc);
         }
         $rcm->close();
 
-        $rcm = $DB->get_recordset('local_recompletion_qa', array('course' => $this->task->get_courseid()));
+        $rcm = $DB->get_recordset('local_recompletion_qa', ['course' => $this->task->get_courseid()]);
         foreach ($rcm as $rc) {
             $rc->quiz = $this->get_mappingid('quiz', $rc->quiz);
             $rc->uniqueid = $this->get_mappingid('question_usage', $rc->uniqueid);
@@ -387,7 +389,7 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
         $rcm->close();
 
         // Fix Choice answers.
-        $rcm = $DB->get_recordset('local_recompletion_cha', array('course' => $this->task->get_courseid()));
+        $rcm = $DB->get_recordset('local_recompletion_cha', ['course' => $this->task->get_courseid()]);
         foreach ($rcm as $rc) {
             $rc->choiceid = $this->get_mappingid('choice', $rc->choiceid);
             $DB->update_record('local_recompletion_cha', $rc);
@@ -395,7 +397,7 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
         $rcm->close();
 
         // Fix hvp attempts.
-        $rcm = $DB->get_recordset('local_recompletion_hvp', array('course' => $this->task->get_courseid()));
+        $rcm = $DB->get_recordset('local_recompletion_hvp', ['course' => $this->task->get_courseid()]);
         foreach ($rcm as $rc) {
             $rc->hvp_id = $this->get_mappingid('hvp', $rc->hvp_id);
             $DB->update_record('local_recompletion_hvp', $rc);
@@ -403,7 +405,7 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
         $rcm->close();
 
         // Fix h5p attempts.
-        $rcm = $DB->get_recordset('local_recompletion_h5p', array('course' => $this->task->get_courseid()));
+        $rcm = $DB->get_recordset('local_recompletion_h5p', ['course' => $this->task->get_courseid()]);
         foreach ($rcm as $rc) {
             $rc->h5pactivityid = $this->get_mappingid('h5pactivity', $rc->h5pactivityid);
             $rc->originalattemptid = 0; // Don't restore orginal attempt id.
@@ -413,11 +415,11 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
         $rcm->close();
 
         // Fix lesson tables.
-        $tables = array('local_recompletion_la', 'local_recompletion_lg', 'local_recompletion_lt',
-            'local_recompletion_lb', 'local_recompletion_lo');
+        $tables = ['local_recompletion_la', 'local_recompletion_lg', 'local_recompletion_lt',
+            'local_recompletion_lb', 'local_recompletion_lo'];
 
         foreach ($tables as $table) {
-            $rcm = $DB->get_recordset($table, array('course' => $this->task->get_courseid()));
+            $rcm = $DB->get_recordset($table, ['course' => $this->task->get_courseid()]);
             foreach ($rcm as $rc) {
                 $rc->lessonid = $this->get_mappingid('lesson', $rc->lessonid);
                 $DB->update_record($table, $rc);
@@ -426,7 +428,7 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
         }
 
         // Fix hotpot attempts.
-        $rcm = $DB->get_recordset('local_recompletion_hpa', array('course' => $this->task->get_courseid()));
+        $rcm = $DB->get_recordset('local_recompletion_hpa', ['course' => $this->task->get_courseid()]);
         foreach ($rcm as $rc) {
             $rc->hotpotid = $this->get_mappingid('hotpot', $rc->hotpotid);
             $DB->update_record('local_recompletion_hpa', $rc);
@@ -434,7 +436,7 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
         $rcm->close();
 
         // Fix certificates.
-        $rcm = $DB->get_recordset('local_recompletion_cert', array('course' => $this->task->get_courseid()));
+        $rcm = $DB->get_recordset('local_recompletion_cert', ['course' => $this->task->get_courseid()]);
         foreach ($rcm as $rc) {
             $rc->certificateid = $this->get_mappingid('certificate', $rc->certificateid);
             $DB->update_record('local_recompletion_cert', $rc);

@@ -32,7 +32,6 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class course_completions extends base {
-
     /**
      * Database tables that this entity uses
      *
@@ -91,7 +90,7 @@ class course_completions extends base {
             ->add_field("CASE WHEN {$coursecompletion}.timecompleted > 0 THEN 1 ELSE 0 END", 'completed')
             ->add_field("{$coursecompletion}.userid")
             ->set_is_sortable(true)
-            ->add_callback(static function(bool $value, stdClass $row): string {
+            ->add_callback(static function (bool $value, stdClass $row): string {
                 if (!$row->userid) {
                     return '';
                 }

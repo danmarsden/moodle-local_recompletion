@@ -37,25 +37,21 @@ use stdClass;
  * @copyright  2018 Catalyst IT
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class provider implements
-    \core_privacy\local\request\plugin\provider,
-    \core_privacy\local\request\core_userlist_provider,
-    \core_privacy\local\metadata\provider {
-
+class provider implements \core_privacy\local\metadata\provider, \core_privacy\local\request\core_userlist_provider, \core_privacy\local\request\plugin\provider {
     /**
      * Returns meta data about this system.
      *
      * @param collection $collection The initialised collection to add items to.
      * @return collection A listing of user data stored through this system.
      */
-    public static function get_metadata(collection $collection) : collection {
+    public static function get_metadata(collection $collection): collection {
         $collection->add_database_table('local_recompletion_cc', [
             'userid' => 'privacy:metadata:userid',
             'course' => 'privacy:metadata:course',
             'timeenrolled' => 'privacy:metadata:timeenrolled',
             'timestarted' => 'privacy:metadata:timestarted',
             'timecompleted' => 'privacy:metadata:timecompleted',
-            'reaggregate' => 'privacy:metadata:reaggregate'
+            'reaggregate' => 'privacy:metadata:reaggregate',
         ], 'privacy:metadata:local_recompletion_cc');
 
         $collection->add_database_table('local_recompletion_cmc', [
@@ -64,13 +60,13 @@ class provider implements
             'completionstate' => 'privacy:metadata:completionstate',
             'viewed' => 'privacy:metadata:viewed',
             'overrideby' => 'privacy:metadata:overrideby',
-            'timemodified' => 'privacy:metadata:timemodified'
+            'timemodified' => 'privacy:metadata:timemodified',
         ], 'privacy:metadata:local_recompletion_cmc');
 
         $collection->add_database_table('local_recompletion_cmv', [
             'userid' => 'privacy:metadata:userid',
             'coursemoduleid' => 'privacy:metadata:coursemoduleid',
-            'timemodified' => 'privacy:metadata:timemodified'
+            'timemodified' => 'privacy:metadata:timemodified',
         ], 'privacy:metadata:local_recompletion_cmv');
 
         $collection->add_database_table('local_recompletion_cc_cc', [
@@ -78,7 +74,7 @@ class provider implements
             'course' => 'privacy:metadata:course',
             'gradefinal' => 'privacy:metadata:gradefinal',
             'unenroled' => 'privacy:metadata:unenroled',
-            'timecompleted' => 'privacy:metadata:timecompleted'
+            'timecompleted' => 'privacy:metadata:timecompleted',
         ], 'privacy:metadata:local_recompletion_cc_cc');
 
         $collection->add_database_table('local_recompletion_qa', [
@@ -113,7 +109,7 @@ class provider implements
             'elementid' => 'privacy:metadata:scoes_value:element',
             'value' => 'privacy:metadata:scoes_value:value',
             'timemodified' => 'privacy:metadata:timemodified',
-            'courseid' => 'privacy:metadata:course'
+            'courseid' => 'privacy:metadata:course',
         ], 'privacy:metadata:scorm_scoes_value');
 
         $collection->add_database_table('local_recompletion_ltia', [
@@ -136,7 +132,7 @@ class provider implements
             'choiceid' => 'privacy:metadata:local_recompletion_cha:choiceid',
             'userid' => 'privacy:metadata:userid',
             'optionid' => 'privacy:metadata:local_recompletion_cha:optionid',
-            'timemodified' => 'privacy:metadata:timemodified'
+            'timemodified' => 'privacy:metadata:timemodified',
         ], 'privacy:metadata:local_recompletion_cha');
 
         $collection->add_database_table('local_recompletion_ccert_is', [
@@ -220,13 +216,14 @@ class provider implements
             if (!$context instanceof \context_course) {
                 return;
             }
-            $params = array('userid' => $userid, 'course' => $context->instanceid);
+            $params = ['userid' => $userid, 'course' => $context->instanceid];
             $records = $DB->get_records('local_recompletion_cc', $params);
             foreach ($records as $record) {
                 $context = \context_course::instance($record->course);
                 writer::with_context($context)->export_data(
                     [get_string('recompletion', 'local_recompletion'), 'course_completion'],
-                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]);
+                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]
+                );
             }
 
             $records = $DB->get_records('local_recompletion_cc_cc', $params);
@@ -234,7 +231,8 @@ class provider implements
                 $context = \context_course::instance($record->course);
                 writer::with_context($context)->export_data(
                     [get_string('recompletion', 'local_recompletion'), 'course_completion_criteria_compl'],
-                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]);
+                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]
+                );
             }
 
             $records = $DB->get_records('local_recompletion_cmc', $params);
@@ -242,7 +240,8 @@ class provider implements
                 $context = \context_course::instance($record->course);
                 writer::with_context($context)->export_data(
                     [get_string('recompletion', 'local_recompletion'), 'course_module_completion'],
-                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]);
+                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]
+                );
             }
 
             $records = $DB->get_records('local_recompletion_cmv', $params);
@@ -250,7 +249,8 @@ class provider implements
                 $context = \context_course::instance($record->course);
                 writer::with_context($context)->export_data(
                     [get_string('recompletion', 'local_recompletion'), 'course_module_completion'],
-                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]);
+                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]
+                );
             }
 
             $records = $DB->get_records('local_recompletion_qa', $params);
@@ -258,7 +258,8 @@ class provider implements
                 $context = \context_course::instance($record->course);
                 writer::with_context($context)->export_data(
                     [get_string('recompletion', 'local_recompletion'), 'quiz_attempts'],
-                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]);
+                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]
+                );
             }
 
             $records = $DB->get_records('local_recompletion_qg', $params);
@@ -266,7 +267,8 @@ class provider implements
                 $context = \context_course::instance($record->course);
                 writer::with_context($context)->export_data(
                     [get_string('recompletion', 'local_recompletion'), 'quiz_grades'],
-                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]);
+                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]
+                );
             }
 
             $sql = "SELECT v.id, v.scoid, v.attemptid, e.element, v.courseid, t.timemodified
@@ -278,7 +280,8 @@ class provider implements
                 $context = \context_course::instance($record->course);
                 writer::with_context($context)->export_data(
                     [get_string('recompletion', 'local_recompletion'), 'scorm_tracks'],
-                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]);
+                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]
+                );
             }
 
             $records = $DB->get_records('local_recompletion_ltia', ['userid' => $userid]);
@@ -286,7 +289,8 @@ class provider implements
                 $context = \context_course::instance($record->course);
                 writer::with_context($context)->export_data(
                     [get_string('recompletion', 'local_recompletion'), 'enrol_lti_users'],
-                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]);
+                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]
+                );
             }
 
             $records = $DB->get_records('local_recompletion_qr', $params);
@@ -294,7 +298,8 @@ class provider implements
                 $context = \context_course::instance($record->course);
                 writer::with_context($context)->export_data(
                     [get_string('recompletion', 'local_recompletion'), 'recompletion_qr'],
-                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]);
+                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]
+                );
             }
 
             $records = $DB->get_records('local_recompletion_cha', $params);
@@ -302,15 +307,17 @@ class provider implements
                 $context = \context_course::instance($record->course);
                 writer::with_context($context)->export_data(
                     [get_string('recompletion', 'local_recompletion'), 'recompletion_cha'],
-                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]);
+                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]
+                );
             }
 
-            $records = $DB->get_records('local_recompletion_hvp', array('user_id' => $userid, 'course' => $context->instanceid));
+            $records = $DB->get_records('local_recompletion_hvp', ['user_id' => $userid, 'course' => $context->instanceid]);
             foreach ($records as $record) {
                 $context = \context_course::instance($record->course);
                 writer::with_context($context)->export_data(
                     [get_string('recompletion', 'local_recompletion'), 'recompletion_hvp'],
-                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $record)]);
+                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $record)]
+                );
             }
 
             $sql = "SELECT har.id,
@@ -334,7 +341,8 @@ class provider implements
                 $context = \context_course::instance($record->course);
                 writer::with_context($context)->export_data(
                     [get_string('recompletion', 'local_recompletion'), 'recompletion_h5pr'],
-                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $record)]);
+                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $record)]
+                );
             }
 
             $records = $DB->get_records('local_recompletion_la', $params);
@@ -342,7 +350,8 @@ class provider implements
                 $context = \context_course::instance($record->course);
                 writer::with_context($context)->export_data(
                     [get_string('recompletion', 'local_recompletion'), 'lesson_attempts'],
-                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]);
+                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]
+                );
             }
 
             $records = $DB->get_records('local_recompletion_lg', $params);
@@ -350,7 +359,8 @@ class provider implements
                 $context = \context_course::instance($record->course);
                 writer::with_context($context)->export_data(
                     [get_string('recompletion', 'local_recompletion'), 'lesson_grades'],
-                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]);
+                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]
+                );
             }
 
             $records = $DB->get_records('local_recompletion_lt', $params);
@@ -358,7 +368,8 @@ class provider implements
                 $context = \context_course::instance($record->course);
                 writer::with_context($context)->export_data(
                     [get_string('recompletion', 'local_recompletion'), 'lesson_timer'],
-                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]);
+                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]
+                );
             }
 
             $records = $DB->get_records('local_recompletion_lb', $params);
@@ -366,7 +377,8 @@ class provider implements
                 $context = \context_course::instance($record->course);
                 writer::with_context($context)->export_data(
                     [get_string('recompletion', 'local_recompletion'), 'lesson_branch'],
-                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]);
+                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]
+                );
             }
 
             $records = $DB->get_records('local_recompletion_lo', $params);
@@ -374,7 +386,8 @@ class provider implements
                 $context = \context_course::instance($record->course);
                 writer::with_context($context)->export_data(
                     [get_string('recompletion', 'local_recompletion'), 'lesson_overrides'],
-                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]);
+                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]
+                );
             }
 
             $records = $DB->get_records('local_recompletion_hpa', $params);
@@ -382,7 +395,8 @@ class provider implements
                 $context = \context_course::instance($record->course);
                 writer::with_context($context)->export_data(
                     [get_string('recompletion', 'local_recompletion'), 'hotpot_attempts'],
-                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]);
+                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]
+                );
             }
 
             $records = $DB->get_records('local_recompletion_cert', $params);
@@ -390,7 +404,8 @@ class provider implements
                 $context = \context_course::instance($record->course);
                 writer::with_context($context)->export_data(
                     [get_string('recompletion', 'local_recompletion'), 'certificate_issues'],
-                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]);
+                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]
+                );
             }
         }
     }
@@ -404,9 +419,9 @@ class provider implements
      * @param stdClass $dbrow A row from the database containing session information.
      * @return stdClass The transformed row.
      */
-    private static function transform_db_row_to_session_data(stdClass $dbrow) : stdClass {
-        $times = array('timeenrolled', 'timestarted', 'timecompleted', 'timemodified', 'timemodifiedoffline',
-            'timestart', 'timefinish', 'timeseen', 'starttime', 'endtime', 'timecreated');
+    private static function transform_db_row_to_session_data(stdClass $dbrow): stdClass {
+        $times = ['timeenrolled', 'timestarted', 'timecompleted', 'timemodified', 'timemodifiedoffline',
+            'timestart', 'timefinish', 'timeseen', 'starttime', 'endtime', 'timecreated'];
         foreach ($times as $time) {
             if (isset($dbrow->$time) && (!empty($dbrow->$time))) {
                 $dbrow->$time = transform::datetime($dbrow->$time);
@@ -429,8 +444,8 @@ class provider implements
         }
         $courseid = $context->instanceid;
 
-        $params = array('course' => $courseid);
-        $paramsid = array('courseid' => $courseid);
+        $params = ['course' => $courseid];
+        $paramsid = ['courseid' => $courseid];
         $DB->delete_records('local_recompletion_cc', $params);
         $DB->delete_records('local_recompletion_cc_cc', $params);
         $DB->delete_records('local_recompletion_cmc', $params);
@@ -466,17 +481,20 @@ class provider implements
                 continue;
             }
             $courseid = $context->instanceid;
-            $params = array('userid' => $userid, 'course' => $courseid);
+            $params = ['userid' => $userid, 'course' => $courseid];
             $DB->delete_records('local_recompletion_cc', $params);
             $DB->delete_records('local_recompletion_cc_cc', $params);
             $DB->delete_records('local_recompletion_cmc', $params);
             $DB->delete_records('local_recompletion_cmv', $params);
             $DB->delete_records('local_recompletion_qa', $params);
             $DB->delete_records('local_recompletion_qg', $params);
-            $DB->delete_records_select('local_recompletion_ssv',
-                                       'attemptid in (SELECT id
+            $DB->delete_records_select(
+                'local_recompletion_ssv',
+                'attemptid in (SELECT id
                                                         FROM {local_recompletion_sa}
-                                                       WHERE userid = :userid AND courseid = :course', $params);
+                                                       WHERE userid = :userid AND courseid = :course',
+                $params
+            );
             $DB->delete_records('local_recompletion_sa', $params);
             $DB->delete_records('local_recompletion_ltia', ['userid' => $userid]);
             $DB->delete_records('local_recompletion_qr', $params);
@@ -499,10 +517,10 @@ class provider implements
      * @param int $userid The user to search.
      * @return contextlist $contextlist The contextlist containing the list of contexts used in this plugin.
      */
-    public static function get_contexts_for_userid(int $userid) : contextlist {
+    public static function get_contexts_for_userid(int $userid): contextlist {
         $contextlist = new \core_privacy\local\request\contextlist();
 
-        $params = array('contextlevel' => CONTEXT_COURSE, 'userid' => $userid);
+        $params = ['contextlevel' => CONTEXT_COURSE, 'userid' => $userid];
         $sql = "SELECT ctx.id
                   FROM {course} c
                   JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
@@ -609,7 +627,7 @@ class provider implements
             return;
         }
 
-        $params = array('contextlevel' => CONTEXT_COURSE, 'contextid' => $context->id);
+        $params = ['contextlevel' => CONTEXT_COURSE, 'contextid' => $context->id];
         $sql = "SELECT rc.userid
                   FROM {local_recompletion_cc} rc
                   JOIN {course} c ON rc.course = c.id
@@ -742,7 +760,7 @@ class provider implements
         }
         // Prepare SQL to gather all completed IDs.
         $userids = $userlist->get_userids();
-        list($insql, $inparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+        [$insql, $inparams] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
         $params = array_merge($inparams, ['contextlevel' => CONTEXT_COURSE, 'contextid' => $context->id]);
 
         // Should probably make this simpler using some helper functions... but for now...

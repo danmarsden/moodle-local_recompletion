@@ -25,7 +25,7 @@ use MoodleQuickForm;
 
 defined('MOODLE_INTERNAL') || die;
 
-require_once($CFG->dirroot.'/local/recompletion/locallib.php');
+require_once($CFG->dirroot . '/local/recompletion/locallib.php');
 
 /**
  * H5P handler event.
@@ -35,7 +35,6 @@ require_once($CFG->dirroot.'/local/recompletion/locallib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_h5pactivity {
-
     /**
      * Add params to form.
      *
@@ -45,10 +44,20 @@ class mod_h5pactivity {
         $config = get_config('local_recompletion');
 
         $cba = [];
-        $cba[] = $mform->createElement('radio', 'h5pactivity', '',
-                get_string('donothing', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING);
-        $cba[] = $mform->createElement('radio', 'h5pactivity', '',
-                get_string('delete', 'local_recompletion'), LOCAL_RECOMPLETION_DELETE);
+        $cba[] = $mform->createElement(
+            'radio',
+            'h5pactivity',
+            '',
+            get_string('donothing', 'local_recompletion'),
+            LOCAL_RECOMPLETION_NOTHING
+        );
+        $cba[] = $mform->createElement(
+            'radio',
+            'h5pactivity',
+            '',
+            get_string('delete', 'local_recompletion'),
+            LOCAL_RECOMPLETION_DELETE
+        );
 
         $mform->addGroup($cba, 'h5pactivity', get_string('h5pattempts', 'local_recompletion'), [' '], false);
         $mform->addHelpButton('h5pactivity', 'h5pattempts', 'local_recompletion');
@@ -70,15 +79,23 @@ class mod_h5pactivity {
     public static function settings(admin_settingpage $settings): void {
         $choices = [
             LOCAL_RECOMPLETION_NOTHING => get_string('donothing', 'local_recompletion'),
-            LOCAL_RECOMPLETION_DELETE => get_string('delete', 'local_recompletion')
+            LOCAL_RECOMPLETION_DELETE => get_string('delete', 'local_recompletion'),
         ];
 
-        $settings->add(new admin_setting_configselect('local_recompletion/h5pactivity',
-                new lang_string('h5pattempts', 'local_recompletion'),
-                new lang_string('h5pattempts_help', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING, $choices));
+        $settings->add(new admin_setting_configselect(
+            'local_recompletion/h5pactivity',
+            new lang_string('h5pattempts', 'local_recompletion'),
+            new lang_string('h5pattempts_help', 'local_recompletion'),
+            LOCAL_RECOMPLETION_NOTHING,
+            $choices
+        ));
 
-        $settings->add(new admin_setting_configcheckbox('local_recompletion/archiveh5pactivity',
-            new lang_string('archiveh5p', 'local_recompletion'), '', 1));
+        $settings->add(new admin_setting_configcheckbox(
+            'local_recompletion/archiveh5pactivity',
+            new lang_string('archiveh5p', 'local_recompletion'),
+            '',
+            1
+        ));
     }
 
     /**
@@ -98,14 +115,13 @@ class mod_h5pactivity {
         if ($config->h5pactivity == LOCAL_RECOMPLETION_DELETE) {
             $params = [
                 'userid' => $userid,
-                'course' => $course->id
+                'course' => $course->id,
             ];
 
             $attemptsselectsql = 'userid = :userid AND h5pactivityid IN (SELECT id FROM {h5pactivity} WHERE course = :course)';
             $resultsselectsql = 'attemptid IN (SELECT id FROM {h5pactivity_attempts} WHERE ' . $attemptsselectsql . ')';
 
             if ($config->archiveh5pactivity) {
-
                 // Archive attempts.
                 $attempts = $DB->get_records_select('h5pactivity_attempts', $attemptsselectsql, $params);
                 if (!empty($attempts)) {
@@ -145,11 +161,10 @@ class mod_h5pactivity {
                     // Now reset originalattemptid as we don't need it anymore.
                     // As well as to avoid issues with backup and restore when potentially originalattemptid can clash
                     // if restoring a course from another Moodle instance.
-                    list($insql, $inparams) = $DB->get_in_or_equal($attemptids, SQL_PARAMS_NAMED);
+                    [$insql, $inparams] = $DB->get_in_or_equal($attemptids, SQL_PARAMS_NAMED);
                     $sql = "UPDATE {local_recompletion_h5p} SET originalattemptid = 0 WHERE originalattemptid $insql";
                     $DB->execute($sql, $inparams);
                 }
-
             }
 
             // Finally can delete records.

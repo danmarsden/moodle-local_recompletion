@@ -26,12 +26,11 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @covers     \local_recompletion\local\restrictions\enrol
  */
-class enrol_test extends \advanced_testcase {
-
+final class enrol_test extends \advanced_testcase {
     /**
      * Test that method doesn't add restrictenrol attribute if not present in data.
      */
-    public function test_set_form_data_does_not_add_attributes() {
+    public function test_set_form_data_does_not_add_attributes(): void {
         $data = new stdClass();
 
         enrol::set_form_data($data);
@@ -62,7 +61,7 @@ class enrol_test extends \advanced_testcase {
      * @param mixed $value
      * @param mixed $expected
      */
-    public function test_set_form_data($value, $expected) {
+    public function test_set_form_data($value, $expected): void {
         $data = new stdClass();
         $data->restrictenrol = $value;
 
@@ -73,7 +72,7 @@ class enrol_test extends \advanced_testcase {
     /**
      * Test logic of should reset method.
      */
-    public function test_should_reset() {
+    public function test_should_reset(): void {
         $this->resetAfterTest();
 
         $course = $this->getDataGenerator()->create_course();

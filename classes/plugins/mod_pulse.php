@@ -51,13 +51,23 @@ class mod_pulse {
         }
         $config = get_config('local_recompletion');
 
-        $cba = array();
-        $cba[] = $mform->createElement('radio', 'pulse', '',
-                get_string('donothing', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING);
-        $cba[] = $mform->createElement('radio', 'pulse', '',
-                get_string('pulseresetnotifications', 'local_recompletion'), LOCAL_RECOMPLETION_DELETE);
+        $cba = [];
+        $cba[] = $mform->createElement(
+            'radio',
+            'pulse',
+            '',
+            get_string('donothing', 'local_recompletion'),
+            LOCAL_RECOMPLETION_NOTHING
+        );
+        $cba[] = $mform->createElement(
+            'radio',
+            'pulse',
+            '',
+            get_string('pulseresetnotifications', 'local_recompletion'),
+            LOCAL_RECOMPLETION_DELETE
+        );
 
-        $mform->addGroup($cba, 'pulse', get_string('pulsenotifications', 'local_recompletion'), array(' '), false);
+        $mform->addGroup($cba, 'pulse', get_string('pulsenotifications', 'local_recompletion'), [' '], false);
         $mform->addHelpButton('pulse', 'pulsenotifications', 'local_recompletion');
         $mform->setDefault('pulse', $config->pulse);
     }
@@ -71,11 +81,15 @@ class mod_pulse {
         if (!self::installed()) {
             return;
         }
-        $choices = array(LOCAL_RECOMPLETION_NOTHING => get_string('donothing', 'local_recompletion'),
-                LOCAL_RECOMPLETION_DELETE => get_string('pulseresetnotifications', 'local_recompletion'));
-        $settings->add(new \admin_setting_configselect('local_recompletion/pulse',
-                new lang_string('pulsenotifications', 'local_recompletion'),
-                new lang_string('pulsenotifications_help', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING, $choices));
+        $choices = [LOCAL_RECOMPLETION_NOTHING => get_string('donothing', 'local_recompletion'),
+                LOCAL_RECOMPLETION_DELETE => get_string('pulseresetnotifications', 'local_recompletion')];
+        $settings->add(new \admin_setting_configselect(
+            'local_recompletion/pulse',
+            new lang_string('pulsenotifications', 'local_recompletion'),
+            new lang_string('pulsenotifications_help', 'local_recompletion'),
+            LOCAL_RECOMPLETION_NOTHING,
+            $choices
+        ));
     }
 
     /**
@@ -95,7 +109,7 @@ class mod_pulse {
             return;
         } else if ($config->pulse == LOCAL_RECOMPLETION_DELETE) {
             // Prepare SQL Query.
-            $params = array('userid' => $userid, 'course' => $course->id);
+            $params = ['userid' => $userid, 'course' => $course->id];
             $selectsql = 'userid = ? AND pulseid IN (SELECT id FROM {pulse} WHERE course = ?)';
 
             // Delete records from pulse_users.
@@ -114,7 +128,7 @@ class mod_pulse {
      */
     public static function installed() {
         global $CFG;
-        if (!file_exists($CFG->dirroot.'/mod/pulse/version.php')) {
+        if (!file_exists($CFG->dirroot . '/mod/pulse/version.php')) {
             return false;
         }
         return true;

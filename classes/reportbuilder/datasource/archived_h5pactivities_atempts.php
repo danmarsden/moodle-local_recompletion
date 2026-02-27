@@ -30,7 +30,6 @@ use local_recompletion\reportbuilder\entities\h5pactivity_attempts;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class archived_h5pactivities_atempts extends datasource {
-
     /**
      * Return user friendly name of the datasource
      *
@@ -99,7 +98,7 @@ class archived_h5pactivities_atempts extends datasource {
     public function get_default_filters(): array {
         return [
             'course:courseselector',
-            'h5pactivity_attempts:success'
+            'h5pactivity_attempts:success',
         ];
     }
 

@@ -65,5 +65,4 @@ class completion_reset extends \core\event\base {
     public function get_description() {
         return "The user with id '$this->relateduserid' was set to recomplete the course with id '$this->courseid'";
     }
-
 }

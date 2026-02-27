@@ -27,14 +27,13 @@ use core\di;
  * @copyright  Catalyst IT, 2023
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class schedule_test extends \advanced_testcase {
-
+final class schedule_test extends \advanced_testcase {
     /**
      * Basic test for future time scheduling.
      */
-    public function test_local_recompletion() {
+    public function test_local_recompletion(): void {
         global $CFG;
-        require_once($CFG->dirroot.'/local/recompletion/locallib.php');
+        require_once($CFG->dirroot . '/local/recompletion/locallib.php');
 
         $this->mock_clock_with_frozen();
         $clock = di::get(clock::class);
@@ -76,7 +75,7 @@ class schedule_test extends \advanced_testcase {
      * @param array $data the form data to mock submit
      * @param bool $valid if this form data is valid
      */
-    public function test_recompletion_form_validation(array $data, bool $valid) {
+    public function test_recompletion_form_validation(array $data, bool $valid): void {
         $this->resetAfterTest(true);
 
         $course = $this->getDataGenerator()->create_course();
@@ -141,7 +140,7 @@ class schedule_test extends \advanced_testcase {
             'Valid recompletionschedule, invalid recompletionschedulestart' => [
                 'data' => [
                     'recompletionschedule' => '3 months',
-                    'recompletionschedulestart' => $clock->now()->modify('yesterday')->getTimestamp()
+                    'recompletionschedulestart' => $clock->now()->modify('yesterday')->getTimestamp(),
                 ],
                 'valid' => false,
             ],

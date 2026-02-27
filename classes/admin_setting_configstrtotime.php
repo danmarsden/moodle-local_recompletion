@@ -18,7 +18,7 @@ namespace local_recompletion;
 
 defined('MOODLE_INTERNAL') || die;
 
-require_once($CFG->dirroot.'/lib/adminlib.php');
+require_once($CFG->dirroot . '/lib/adminlib.php');
 
 /**
  * A strtotime based admin setting config
@@ -29,7 +29,6 @@ require_once($CFG->dirroot.'/lib/adminlib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class admin_setting_configstrtotime extends \admin_setting {
-
     /**
      * Return the structure configuration for this setting if it has been set.
      *
@@ -81,7 +80,7 @@ class admin_setting_configstrtotime extends \admin_setting {
      * @param string $query
      * @return string
      */
-    public function output_html($data, $query='') {
+    public function output_html($data, $query = '') {
         $prefix = $this->get_full_name();
         // Use MoodleQuickForm to build the form.
         $mform = new \MoodleQuickForm('unused', 'unused', 'unused');
@@ -103,8 +102,11 @@ class admin_setting_configstrtotime extends \admin_setting {
         if ($data) {
             $calculated = local_recompletion_calculate_schedule_time($data);
             $formatted = userdate($calculated, get_string('strftimedatetime', 'langconfig'));
-            $mform->addElement('static', 'calculatedtime',
-                               get_string('recompletioncalculateddate', 'local_recompletion', $formatted));
+            $mform->addElement(
+                'static',
+                'calculatedtime',
+                get_string('recompletioncalculateddate', 'local_recompletion', $formatted)
+            );
         }
 
         $html = $mform->toHtml();

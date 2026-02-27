@@ -25,8 +25,7 @@ namespace local_recompletion;
  *
  * @covers \local_recompletion\observer
  */
-class observer_test extends \advanced_testcase {
-
+final class observer_test extends \advanced_testcase {
     /**
      * Set up recompletion for a given course.
      *
@@ -60,7 +59,7 @@ class observer_test extends \advanced_testcase {
     /**
      * Test completion is reset after a user is un-enrolled based on course settings.
      */
-    public function test_recompletion_rest_after_user_is_unenrolled_based_on_settings() {
+    public function test_recompletion_rest_after_user_is_unenrolled_based_on_settings(): void {
         global $DB;
 
         $this->resetAfterTest();

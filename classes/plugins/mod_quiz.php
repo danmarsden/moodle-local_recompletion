@@ -43,27 +43,48 @@ class mod_quiz {
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public static function editingform($mform) : void {
+    public static function editingform($mform): void {
         $config = get_config('local_recompletion');
 
-        $cba = array();
-        $cba[] = $mform->createElement('radio', 'quiz', '',
-            get_string('donothing', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING);
-        $cba[] = $mform->createElement('radio', 'quiz', '',
-            get_string('delete', 'local_recompletion'), LOCAL_RECOMPLETION_DELETE);
-        $cba[] = $mform->createElement('radio', 'quiz', '',
-            get_string('extraattempt', 'local_recompletion'), LOCAL_RECOMPLETION_EXTRAATTEMPT);
+        $cba = [];
+        $cba[] = $mform->createElement(
+            'radio',
+            'quiz',
+            '',
+            get_string('donothing', 'local_recompletion'),
+            LOCAL_RECOMPLETION_NOTHING
+        );
+        $cba[] = $mform->createElement(
+            'radio',
+            'quiz',
+            '',
+            get_string('delete', 'local_recompletion'),
+            LOCAL_RECOMPLETION_DELETE
+        );
+        $cba[] = $mform->createElement(
+            'radio',
+            'quiz',
+            '',
+            get_string('extraattempt', 'local_recompletion'),
+            LOCAL_RECOMPLETION_EXTRAATTEMPT
+        );
 
-        $mform->addGroup($cba, 'quiz', get_string('quizattempts', 'local_recompletion'), array(' '), false);
+        $mform->addGroup($cba, 'quiz', get_string('quizattempts', 'local_recompletion'), [' '], false);
         $mform->addHelpButton('quiz', 'quizattempts', 'local_recompletion');
         $mform->setDefault('quiz', $config->quiz);
 
-        $mform->addElement('checkbox', 'archivequiz',
-            get_string('archive', 'local_recompletion'));
+        $mform->addElement(
+            'checkbox',
+            'archivequiz',
+            get_string('archive', 'local_recompletion')
+        );
         $mform->setDefault('archivequiz', $config->archivequiz);
 
-        $mform->addElement('checkbox', 'resetquizoverride',
-            get_string('resetquizoverride', 'local_recompletion'));
+        $mform->addElement(
+            'checkbox',
+            'resetquizoverride',
+            get_string('resetquizoverride', 'local_recompletion')
+        );
         $mform->setDefault('resetquizoverride', $config->resetquizoverride);
 
         $mform->disabledIf('quiz', 'enable', 'notchecked');
@@ -79,19 +100,31 @@ class mod_quiz {
      * @param admin_settingpage $settings
      */
     public static function settings($settings) {
-        $choices = array(LOCAL_RECOMPLETION_NOTHING => new lang_string('donothing', 'local_recompletion'),
+        $choices = [LOCAL_RECOMPLETION_NOTHING => new lang_string('donothing', 'local_recompletion'),
                          LOCAL_RECOMPLETION_DELETE => new lang_string('delete', 'local_recompletion'),
-                         LOCAL_RECOMPLETION_EXTRAATTEMPT => new lang_string('extraattempt', 'local_recompletion'));
+                         LOCAL_RECOMPLETION_EXTRAATTEMPT => new lang_string('extraattempt', 'local_recompletion')];
 
-        $settings->add(new \admin_setting_configselect('local_recompletion/quiz',
+        $settings->add(new \admin_setting_configselect(
+            'local_recompletion/quiz',
             new lang_string('quizattempts', 'local_recompletion'),
-            new lang_string('quizattempts_help', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING, $choices));
+            new lang_string('quizattempts_help', 'local_recompletion'),
+            LOCAL_RECOMPLETION_NOTHING,
+            $choices
+        ));
 
-        $settings->add(new \admin_setting_configcheckbox('local_recompletion/archivequiz',
-            new lang_string('archivequiz', 'local_recompletion'), '', 1));
+        $settings->add(new \admin_setting_configcheckbox(
+            'local_recompletion/archivequiz',
+            new lang_string('archivequiz', 'local_recompletion'),
+            '',
+            1
+        ));
 
-        $settings->add(new \admin_setting_configcheckbox('local_recompletion/resetquizoverride',
-            new lang_string('resetquizoverride', 'local_recompletion'), '', 0));
+        $settings->add(new \admin_setting_configcheckbox(
+            'local_recompletion/resetquizoverride',
+            new lang_string('resetquizoverride', 'local_recompletion'),
+            '',
+            0
+        ));
     }
 
     /**
@@ -105,7 +138,7 @@ class mod_quiz {
         if (empty($config->quiz)) {
             return;
         } else if ($config->quiz == LOCAL_RECOMPLETION_DELETE) {
-            $params = array('userid' => $userid, 'course' => $course->id);
+            $params = ['userid' => $userid, 'course' => $course->id];
             $selectsql = 'userid = ? AND quiz IN (SELECT id FROM {quiz} WHERE course = ?)';
             if ($config->archivequiz) {
                 $quizattempts = $DB->get_records_select('quiz_attempts', $selectsql, $params);
@@ -133,7 +166,7 @@ class mod_quiz {
                       FROM {quiz} q
                       JOIN {quiz_attempts} qa ON q.id = qa.quiz
                      WHERE q.attempts > 0 AND q.course = ? AND qa.userid = ?";
-            $quizzes = $DB->get_recordset_sql( $sql, array($course->id, $userid));
+            $quizzes = $DB->get_recordset_sql($sql, [$course->id, $userid]);
             foreach ($quizzes as $quiz) {
                 // Get number of this users attempts.
                 $attempts = \quiz_get_user_attempts($quiz->id, $userid);
@@ -147,17 +180,17 @@ class mod_quiz {
                 $cm = get_coursemodule_from_instance('quiz', $quiz->id);
                 $context = \context_module::instance($cm->id);
 
-                $eventparams = array(
+                $eventparams = [
                     'context' => $context,
-                    'other' => array(
-                        'quizid' => $quiz->id
-                    ),
-                    'relateduserid' => $userid
-                );
+                    'other' => [
+                        'quizid' => $quiz->id,
+                    ],
+                    'relateduserid' => $userid,
+                ];
 
-                $conditions = array(
+                $conditions = [
                     'quiz' => $quiz->id,
-                    'userid' => $userid);
+                    'userid' => $userid];
                 if ($oldoverride = $DB->get_record('quiz_overrides', $conditions)) {
                     if ($oldoverride->attempts < $nowallowed) {
                         $oldoverride->attempts = $nowallowed;
@@ -172,7 +205,7 @@ class mod_quiz {
                     $data->quiz = $quiz->id;
                     $data->userid = $userid;
                     // Merge quiz defaults with data.
-                    $keys = array('timeopen', 'timeclose', 'timelimit', 'password');
+                    $keys = ['timeopen', 'timeclose', 'timelimit', 'password'];
                     foreach ($keys as $key) {
                         if (!isset($data->{$key})) {
                             $data->{$key} = $quiz->{$key};

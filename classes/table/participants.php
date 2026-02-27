@@ -42,7 +42,6 @@ require_once($CFG->dirroot . '/user/lib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class participants extends \core_user\table\participants {
-
     /**
      * A list of roles that current user can view in a context.
      * @var array
@@ -94,7 +93,7 @@ class participants extends \core_user\table\participants {
         $columns[] = 'roles';
 
         // Get the list of fields we have to hide.
-        $hiddenfields = array();
+        $hiddenfields = [];
         if (!has_capability('moodle/course:viewhiddenuserfields', $this->context)) {
             $hiddenfields = array_flip(explode(',', $CFG->hiddenuserfields));
         }
@@ -154,12 +153,18 @@ class participants extends \core_user\table\participants {
         $this->assignableroles = get_assignable_roles($this->context, ROLENAME_BOTH, false);
         $this->profileroles = get_profile_roles($this->context);
         $this->viewableroles = get_viewable_roles($this->context);
-        $this->recompletionenabled = $DB->get_field('local_recompletion_config',
-            'value', array('course' => $this->course->id, 'name' => 'recompletiontype'));
+        $this->recompletionenabled = $DB->get_field(
+            'local_recompletion_config',
+            'value',
+            ['course' => $this->course->id, 'name' => 'recompletiontype']
+        );
 
         if (!$this->columns) {
-            $onerow = $DB->get_record_sql("SELECT {$this->sql->fields} FROM {$this->sql->from} WHERE {$this->sql->where}",
-                $this->sql->params, IGNORE_MULTIPLE);
+            $onerow = $DB->get_record_sql(
+                "SELECT {$this->sql->fields} FROM {$this->sql->from} WHERE {$this->sql->where}",
+                $this->sql->params,
+                IGNORE_MULTIPLE
+            );
             // If columns is not set then define columns as the keys of the rows returned from the db.
             $this->define_columns(array_keys((array)$onerow));
             $this->define_headers(array_keys((array)$onerow));
@@ -170,7 +175,6 @@ class participants extends \core_user\table\participants {
         $this->build_table();
         $this->close_recordset();
         $this->finish_output();
-
     }
     /**
      * Generate the course completion column.
@@ -181,21 +185,23 @@ class participants extends \core_user\table\participants {
     public function col_coursecompletion($data) {
         global $OUTPUT;
         // Load completion from cache.
-        $params = array(
+        $params = [
             'userid'    => $data->id,
-            'course'    => $this->course->id
-        );
+            'course'    => $this->course->id,
+        ];
 
         $ccompletion = new \completion_completion($params);
         $value = '';
         if ($ccompletion->is_complete()) {
             $value = userdate($ccompletion->timecompleted, get_string('strftimedatetimeshort', 'langconfig'));
         }
-        $url = new \moodle_url('/local/recompletion/editcompletion.php', array('id' => $this->course->id, 'user' => $data->id));
+        $url = new \moodle_url('/local/recompletion/editcompletion.php', ['id' => $this->course->id, 'user' => $data->id]);
         $value .= $OUTPUT->action_link($url, '', null, null, new \pix_icon('t/edit', get_string('edit')));
         if (!empty($this->recompletionenabled)) {
-            $url = new \moodle_url('/local/recompletion/resetcompletion.php',
-                array('id' => $this->course->id, 'user' => $data->id));
+            $url = new \moodle_url(
+                '/local/recompletion/resetcompletion.php',
+                ['id' => $this->course->id, 'user' => $data->id]
+            );
             $value .= $OUTPUT->action_link($url, get_string('resetallcompletion', 'local_recompletion'));
         }
         return $value;
@@ -210,14 +216,16 @@ class participants extends \core_user\table\participants {
         global $OUTPUT;
 
         $roles = isset($this->allroleassignments[$data->id]) ? $this->allroleassignments[$data->id] : [];
-        $editable = new \core_user\output\user_roles_editable($this->course,
+        $editable = new \core_user\output\user_roles_editable(
+            $this->course,
             $this->context,
             $data,
             $this->allroles,
             $this->assignableroles,
             $this->profileroles,
             $roles,
-            $this->viewableroles);
+            $this->viewableroles
+        );
 
         return $OUTPUT->render_from_template('core/inplace_editable', $editable->export_for_template($OUTPUT));
     }

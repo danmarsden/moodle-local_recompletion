@@ -30,7 +30,6 @@ use local_recompletion\reportbuilder\entities\hotpot_attempts;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class archived_hotpot_atempts extends datasource {
-
     /**
      * Return user friendly name of the datasource
      *

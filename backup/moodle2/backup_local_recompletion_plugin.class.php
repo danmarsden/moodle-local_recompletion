@@ -32,7 +32,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class backup_local_recompletion_plugin extends backup_local_plugin {
-
     /**
      * Returns the format information to attach to course element.
      */
@@ -44,27 +43,27 @@ class backup_local_recompletion_plugin extends backup_local_plugin {
         $plugin = $this->get_plugin_element();
         $recompletion = new backup_nested_element($this->get_recommended_name());
 
-        $recompletiondata = new backup_nested_element('recompletion_config', null, array(
-            'course', 'name', 'value'));
+        $recompletiondata = new backup_nested_element('recompletion_config', null, [
+            'course', 'name', 'value']);
 
         // Handle Historical course completions.
         $cc = new backup_nested_element('course_completion');
 
-        $coursecompletions = new backup_nested_element('coursecompletion', array('id'), array(
-            'userid', 'course', 'timeenrolled', 'timestarted', 'timecompleted', 'reaggregate'
-        ));
+        $coursecompletions = new backup_nested_element('coursecompletion', ['id'], [
+            'userid', 'course', 'timeenrolled', 'timestarted', 'timecompleted', 'reaggregate',
+        ]);
 
         // Now Handle historical course_completion_crit_compl table.
         $criteriacompletions = new backup_nested_element('course_completion_crit_completions');
 
-        $criteriacomplete = new backup_nested_element('course_completion_crit_compl', array('id'), array(
-            'criteriaid', 'userid', 'gradefinal', 'unenrolled', 'timecompleted'
-        ));
+        $criteriacomplete = new backup_nested_element('course_completion_crit_compl', ['id'], [
+            'criteriaid', 'userid', 'gradefinal', 'unenrolled', 'timecompleted',
+        ]);
 
         $completions = new backup_nested_element('completions');
 
-        $completion = new backup_nested_element('completion', array('id'), array(
-            'userid', 'completionstate', 'viewed', 'timemodified', 'coursemoduleid', 'course'));
+        $completion = new backup_nested_element('completion', ['id'], [
+            'userid', 'completionstate', 'viewed', 'timemodified', 'coursemoduleid', 'course']);
 
         $plugin->add_child($recompletion);
         $recompletion->add_child($recompletiondata);
@@ -76,14 +75,14 @@ class backup_local_recompletion_plugin extends backup_local_plugin {
         $completions->add_child($completion);
 
         // Set source to populate the data.
-        $recompletiondata->set_source_table('local_recompletion_config', array(
-            'course' => backup::VAR_PARENTID));
+        $recompletiondata->set_source_table('local_recompletion_config', [
+            'course' => backup::VAR_PARENTID]);
 
         // Only include the archive info if usercompletion is also being saved to backup.
         if ($usercompletion) {
-            $coursecompletions->set_source_table('local_recompletion_cc', array('course' => backup::VAR_COURSEID));
-            $criteriacomplete->set_source_table('local_recompletion_cc_cc', array('course' => backup::VAR_COURSEID));
-            $completion->set_source_table('local_recompletion_cmc', array('course' => backup::VAR_COURSEID));
+            $coursecompletions->set_source_table('local_recompletion_cc', ['course' => backup::VAR_COURSEID]);
+            $criteriacomplete->set_source_table('local_recompletion_cc_cc', ['course' => backup::VAR_COURSEID]);
+            $completion->set_source_table('local_recompletion_cmc', ['course' => backup::VAR_COURSEID]);
         }
         $coursecompletions->annotate_ids('user', 'userid');
         $criteriacomplete->annotate_ids('user', 'userid');
@@ -94,22 +93,22 @@ class backup_local_recompletion_plugin extends backup_local_plugin {
         // Now deal with Quiz Archive tables.
         $quizgrades = new backup_nested_element('quizgrades');
 
-        $grade = new backup_nested_element('grade', array('id'), array(
-            'userid', 'quiz', 'gradeval', 'timemodified', 'course'));
+        $grade = new backup_nested_element('grade', ['id'], [
+            'userid', 'quiz', 'gradeval', 'timemodified', 'course']);
 
         $quizattempts = new backup_nested_element('quizattempts');
 
-        $attempt = new backup_nested_element('attempt', array('id'), array(
+        $attempt = new backup_nested_element('attempt', ['id'], [
             'userid', 'attempt', 'uniqueid', 'layout', 'currentpage', 'preview', 'quiz',
-            'state', 'timestart', 'timefinish', 'timemodified', 'timemodifiedoffline', 'timecheckstate', 'sumgrades', 'course'));
+            'state', 'timestart', 'timefinish', 'timemodified', 'timemodifiedoffline', 'timecheckstate', 'sumgrades', 'course']);
 
         $recompletion->add_child($quizgrades);
         $quizgrades->add_child($grade);
         $recompletion->add_child($quizattempts);
         $quizattempts->add_child($attempt);
         if ($usercompletion) {
-            $attempt->set_source_table('local_recompletion_qa', array('course' => backup::VAR_COURSEID));
-            $grade->set_source_table('local_recompletion_qg', array('course' => backup::VAR_COURSEID));
+            $attempt->set_source_table('local_recompletion_qa', ['course' => backup::VAR_COURSEID]);
+            $grade->set_source_table('local_recompletion_qg', ['course' => backup::VAR_COURSEID]);
         }
 
         $attempt->annotate_ids('user', 'userid');
@@ -118,66 +117,66 @@ class backup_local_recompletion_plugin extends backup_local_plugin {
         // Now deal with SCORM archive tables.
         $scormattempts = new backup_nested_element('scormattempts');
 
-        $scormattempt = new backup_nested_element('scormattempt', array('id'), array(
-            'scormid', 'userid', 'attempt', 'courseid'));
+        $scormattempt = new backup_nested_element('scormattempt', ['id'], [
+            'scormid', 'userid', 'attempt', 'courseid']);
 
         $recompletion->add_child($scormattempts);
         $scormattempts->add_child($scormattempt);
 
         if ($usercompletion) {
-            $scormattempt->set_source_table('local_recompletion_sa', array('courseid' => backup::VAR_COURSEID));
+            $scormattempt->set_source_table('local_recompletion_sa', ['courseid' => backup::VAR_COURSEID]);
         }
         $scormattempt->annotate_ids('user', 'userid');
 
         $scotracks = new backup_nested_element('scormtracks');
 
-        $scotrack = new backup_nested_element('sco_track', array('id'), array(
-            'scoid', 'attemptid', 'elementid', 'value', 'courseid', 'timemodified'));
+        $scotrack = new backup_nested_element('sco_track', ['id'], [
+            'scoid', 'attemptid', 'elementid', 'value', 'courseid', 'timemodified']);
 
         $recompletion->add_child($scotracks);
         $scotracks->add_child($scotrack);
 
         if ($usercompletion) {
-            $scotrack->set_source_table('local_recompletion_ssv', array('courseid' => backup::VAR_COURSEID));
+            $scotrack->set_source_table('local_recompletion_ssv', ['courseid' => backup::VAR_COURSEID]);
         }
         // Now deal with choice archive tables.
         $choiceanswers = new backup_nested_element('choiceanswers');
 
-        $choiceanswer = new backup_nested_element('choiceanswer', array('id'), array(
-            'choiceid', 'userid', 'optionid', 'timemodified', 'choice'));
+        $choiceanswer = new backup_nested_element('choiceanswer', ['id'], [
+            'choiceid', 'userid', 'optionid', 'timemodified', 'choice']);
 
         $recompletion->add_child($choiceanswers);
         $choiceanswers->add_child($choiceanswer);
 
         if ($usercompletion) {
-            $choiceanswer->set_source_table('local_recompletion_cha', array('course' => backup::VAR_COURSEID));
+            $choiceanswer->set_source_table('local_recompletion_cha', ['course' => backup::VAR_COURSEID]);
         }
         $choiceanswer->annotate_ids('user', 'userid');
 
         // Now deal with hvp archive tables.
         $hvpattempts = new backup_nested_element('hvpattempts');
-        $hvpattempt = new backup_nested_element('hvpattempt', array('id'), array(
-            'user_id', 'hvp_id', 'sub_content_id', 'data_id', 'data', 'preloaded', 'delete_on_content_change', 'course'));
+        $hvpattempt = new backup_nested_element('hvpattempt', ['id'], [
+            'user_id', 'hvp_id', 'sub_content_id', 'data_id', 'data', 'preloaded', 'delete_on_content_change', 'course']);
 
         $recompletion->add_child($hvpattempts);
         $hvpattempts->add_child($hvpattempt);
 
         if ($usercompletion) {
-            $hvpattempt->set_source_table('local_recompletion_hvp', array('course' => backup::VAR_COURSEID));
+            $hvpattempt->set_source_table('local_recompletion_hvp', ['course' => backup::VAR_COURSEID]);
         }
         $hvpattempt->annotate_ids('user', 'user_id');
 
         // Now deal with h5p table.
         $h5ps = new backup_nested_element('h5ps');
-        $h5p = new backup_nested_element('h5p', array('id'), array(
+        $h5p = new backup_nested_element('h5p', ['id'], [
             'originalattemptid', 'h5pactivityid', 'userid', 'timecreated', 'timemodified',
-            'rawscore', 'maxscore', 'scaled', 'duration', 'completion', 'success', 'course'));
+            'rawscore', 'maxscore', 'scaled', 'duration', 'completion', 'success', 'course']);
 
         // Now deal with h5p results table.
         $h5presults = new backup_nested_element('h5presults');
-        $h5presult = new backup_nested_element('h5presult', array('id'), array(
+        $h5presult = new backup_nested_element('h5presult', ['id'], [
             'attemptid', 'subcontent', 'timecreated', 'interactiontype', 'description',
-            'correctpattern', 'response', 'additionals', 'rawscore', 'maxscore', 'duration', 'completion', 'success', 'course'));
+            'correctpattern', 'response', 'additionals', 'rawscore', 'maxscore', 'duration', 'completion', 'success', 'course']);
 
         $recompletion->add_child($h5ps);
         $h5ps->add_child($h5p);
@@ -185,10 +184,10 @@ class backup_local_recompletion_plugin extends backup_local_plugin {
         $h5presults->add_child($h5presult);
 
         if ($usercompletion) {
-            $h5p->set_source_table('local_recompletion_h5p', array('course' => backup::VAR_COURSEID));
+            $h5p->set_source_table('local_recompletion_h5p', ['course' => backup::VAR_COURSEID]);
             $h5presult->set_source_table(
                 'local_recompletion_h5pr',
-                array('course' => backup::VAR_COURSEID, 'attemptid' => backup::VAR_PARENTID)
+                ['course' => backup::VAR_COURSEID, 'attemptid' => backup::VAR_PARENTID]
             );
         }
 
@@ -196,94 +195,93 @@ class backup_local_recompletion_plugin extends backup_local_plugin {
 
         // Now deal with lesson archive tables.
         $lessonattempts = new backup_nested_element('lessonattempts');
-        $lessonattempt = new backup_nested_element('lessonattempt', array('id'), array(
-            'lessonid', 'pageid', 'userid', 'answerid', 'retry', 'correct', 'useranswer', 'timeseen', 'course'));
+        $lessonattempt = new backup_nested_element('lessonattempt', ['id'], [
+            'lessonid', 'pageid', 'userid', 'answerid', 'retry', 'correct', 'useranswer', 'timeseen', 'course']);
 
         $recompletion->add_child($lessonattempts);
         $lessonattempts->add_child($lessonattempt);
 
         if ($usercompletion) {
-            $lessonattempt->set_source_table('local_recompletion_la', array('course' => backup::VAR_COURSEID));
+            $lessonattempt->set_source_table('local_recompletion_la', ['course' => backup::VAR_COURSEID]);
         }
         $lessonattempt->annotate_ids('user', 'userid');
 
         $lessongrades = new backup_nested_element('lessongrades');
-        $lessongrade = new backup_nested_element('lessongrade', array('id'), array(
-            'lessonid', 'userid', 'grade', 'late', 'completed', 'course'));
+        $lessongrade = new backup_nested_element('lessongrade', ['id'], [
+            'lessonid', 'userid', 'grade', 'late', 'completed', 'course']);
 
         $recompletion->add_child($lessongrades);
         $lessongrades->add_child($lessongrade);
 
         if ($usercompletion) {
-            $lessongrade->set_source_table('local_recompletion_lg', array('course' => backup::VAR_COURSEID));
+            $lessongrade->set_source_table('local_recompletion_lg', ['course' => backup::VAR_COURSEID]);
         }
         $lessongrade->annotate_ids('user', 'userid');
 
         $lessontimers = new backup_nested_element('lessontimers');
-        $lessontimer = new backup_nested_element('lessontimer', array('id'), array(
-            'lessonid', 'userid', 'starttime', 'lessontime', 'completed', 'timemodifiedoffline', 'course'));
+        $lessontimer = new backup_nested_element('lessontimer', ['id'], [
+            'lessonid', 'userid', 'starttime', 'lessontime', 'completed', 'timemodifiedoffline', 'course']);
 
         $recompletion->add_child($lessontimers);
         $lessontimers->add_child($lessontimer);
 
         if ($usercompletion) {
-            $lessontimer->set_source_table('local_recompletion_lt', array('course' => backup::VAR_COURSEID));
+            $lessontimer->set_source_table('local_recompletion_lt', ['course' => backup::VAR_COURSEID]);
         }
         $lessontimer->annotate_ids('user', 'userid');
 
         $lessonbraches = new backup_nested_element('lessonbraches');
-        $lessonbranch = new backup_nested_element('lessonbranch', array('id'), array(
-            'lessonid', 'userid', 'pageid', 'retry', 'flag', 'timeseen', 'nextpageid', 'course'));
+        $lessonbranch = new backup_nested_element('lessonbranch', ['id'], [
+            'lessonid', 'userid', 'pageid', 'retry', 'flag', 'timeseen', 'nextpageid', 'course']);
 
         $recompletion->add_child($lessonbraches);
         $lessonbraches->add_child($lessonbranch);
 
         if ($usercompletion) {
-            $lessonbranch->set_source_table('local_recompletion_lb', array('course' => backup::VAR_COURSEID));
+            $lessonbranch->set_source_table('local_recompletion_lb', ['course' => backup::VAR_COURSEID]);
         }
         $lessonbranch->annotate_ids('user', 'userid');
 
         $lessonoverrides = new backup_nested_element('lessonoverrides');
-        $lessonoverride = new backup_nested_element('lessonoverride', array('id'), array(
+        $lessonoverride = new backup_nested_element('lessonoverride', ['id'], [
             'lessonid', 'groupid', 'userid', 'available', 'deadline', 'timelimit',
-            'review', 'maxattempts', 'retake', 'password', 'course'));
+            'review', 'maxattempts', 'retake', 'password', 'course']);
 
         $recompletion->add_child($lessonoverrides);
         $lessonoverrides->add_child($lessonoverride);
 
         if ($usercompletion) {
-            $lessonoverride->set_source_table('local_recompletion_lo', array('course' => backup::VAR_COURSEID));
+            $lessonoverride->set_source_table('local_recompletion_lo', ['course' => backup::VAR_COURSEID]);
         }
         $lessonoverride->annotate_ids('user', 'userid');
 
         // Now deal with hotpot archive tables.
         $hotpotattempts = new backup_nested_element('hotpotattempts');
-        $hotpotattempt = new backup_nested_element('hotpotattempt', array('id'), array(
+        $hotpotattempt = new backup_nested_element('hotpotattempt', ['id'], [
             'hotpotid', 'userid', 'starttime', 'endtime', 'score', 'penalties', 'attempt', 'timestart',
-            'timefinish', 'status', 'clickreportid', 'timemodified', 'course'));
+            'timefinish', 'status', 'clickreportid', 'timemodified', 'course']);
 
         $recompletion->add_child($hotpotattempts);
         $hotpotattempts->add_child($hotpotattempt);
 
         if ($usercompletion) {
-            $hotpotattempt->set_source_table('local_recompletion_hpa', array('course' => backup::VAR_COURSEID));
+            $hotpotattempt->set_source_table('local_recompletion_hpa', ['course' => backup::VAR_COURSEID]);
         }
         $hotpotattempt->annotate_ids('user', 'userid');
 
         // Now deal mod_certificate archive table.
         $certificates = new backup_nested_element('certificates');
-        $certificate = new backup_nested_element('certificate', array('id'), array(
-            'userid', 'certificateid', 'code', 'timecreated', 'printdate', 'course'));
+        $certificate = new backup_nested_element('certificate', ['id'], [
+            'userid', 'certificateid', 'code', 'timecreated', 'printdate', 'course']);
 
         $recompletion->add_child($certificates);
         $certificates->add_child($certificate);
 
         if ($usercompletion) {
-            $certificate->set_source_table('local_recompletion_cert', array('course' => backup::VAR_COURSEID));
+            $certificate->set_source_table('local_recompletion_cert', ['course' => backup::VAR_COURSEID]);
         }
         $certificate->annotate_ids('user', 'userid');
 
         return $plugin;
     }
-
 }

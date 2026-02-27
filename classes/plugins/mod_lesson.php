@@ -25,7 +25,7 @@ use MoodleQuickForm;
 
 defined('MOODLE_INTERNAL') || die;
 
-require_once($CFG->dirroot.'/local/recompletion/locallib.php');
+require_once($CFG->dirroot . '/local/recompletion/locallib.php');
 
 /**
  * Lesson handler event.
@@ -35,7 +35,6 @@ require_once($CFG->dirroot.'/local/recompletion/locallib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_lesson {
-
     /**
      * Add params to form.
      *
@@ -45,10 +44,20 @@ class mod_lesson {
         $config = get_config('local_recompletion');
 
         $cba = [];
-        $cba[] = $mform->createElement('radio', 'lesson', '',
-                get_string('donothing', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING);
-        $cba[] = $mform->createElement('radio', 'lesson', '',
-                get_string('delete', 'local_recompletion'), LOCAL_RECOMPLETION_DELETE);
+        $cba[] = $mform->createElement(
+            'radio',
+            'lesson',
+            '',
+            get_string('donothing', 'local_recompletion'),
+            LOCAL_RECOMPLETION_NOTHING
+        );
+        $cba[] = $mform->createElement(
+            'radio',
+            'lesson',
+            '',
+            get_string('delete', 'local_recompletion'),
+            LOCAL_RECOMPLETION_DELETE
+        );
 
         $mform->addGroup($cba, 'lesson', get_string('lessonattempts', 'local_recompletion'), [' '], false);
         $mform->addHelpButton('lesson', 'lessonattempts', 'local_recompletion');
@@ -70,15 +79,23 @@ class mod_lesson {
     public static function settings(admin_settingpage $settings): void {
         $choices = [
             LOCAL_RECOMPLETION_NOTHING => get_string('donothing', 'local_recompletion'),
-            LOCAL_RECOMPLETION_DELETE => get_string('delete', 'local_recompletion')
+            LOCAL_RECOMPLETION_DELETE => get_string('delete', 'local_recompletion'),
         ];
 
-        $settings->add(new admin_setting_configselect('local_recompletion/lesson',
-                new lang_string('lessonattempts', 'local_recompletion'),
-                new lang_string('lessonattempts_help', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING, $choices));
+        $settings->add(new admin_setting_configselect(
+            'local_recompletion/lesson',
+            new lang_string('lessonattempts', 'local_recompletion'),
+            new lang_string('lessonattempts_help', 'local_recompletion'),
+            LOCAL_RECOMPLETION_NOTHING,
+            $choices
+        ));
 
-        $settings->add(new admin_setting_configcheckbox('local_recompletion/archivelesson',
-            new lang_string('archivelesson', 'local_recompletion'), '', 1));
+        $settings->add(new admin_setting_configcheckbox(
+            'local_recompletion/archivelesson',
+            new lang_string('archivelesson', 'local_recompletion'),
+            '',
+            1
+        ));
     }
 
     /**
@@ -96,7 +113,6 @@ class mod_lesson {
         }
 
         if ($config->lesson == LOCAL_RECOMPLETION_DELETE) {
-
             $tables = [
                 'lesson_attempts' => 'local_recompletion_la',
                 'lesson_grades' => 'local_recompletion_lg',

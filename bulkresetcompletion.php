@@ -51,8 +51,10 @@ if (empty($users) && empty($userid)) {
     }
 
     if (empty($users)) {
-        redirect($CFG->wwwroot . '/local/recompletion/participants.php?id=' . $course->id,
-            get_string('nousersselected', 'local_recompletion'));
+        redirect(
+            $CFG->wwwroot . '/local/recompletion/participants.php?id=' . $course->id,
+            get_string('nousersselected', 'local_recompletion')
+        );
     }
 }
 
@@ -83,8 +85,10 @@ if ($form->is_cancelled()) {
     if (!empty($data->newcompletion)) {
         // Update course completion.
         local_recompletion_update_course_completion($courseid, $users, $data->newcompletion);
-        redirect($CFG->wwwroot . '/local/recompletion/participants.php?id=' . $course->id,
-            get_string('completionupdated', 'local_recompletion'));
+        redirect(
+            $CFG->wwwroot . '/local/recompletion/participants.php?id=' . $course->id,
+            get_string('completionupdated', 'local_recompletion')
+        );
     }
 }
 

@@ -46,13 +46,23 @@ class mod_assign {
     public static function editingform($mform): void {
         $config = get_config('local_recompletion');
 
-        $cba = array();
-        $cba[] = $mform->createElement('radio', 'assign', '',
-            get_string('donothing', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING);
-        $cba[] = $mform->createElement('radio', 'assign', '',
-            get_string('extraattempt', 'local_recompletion'), LOCAL_RECOMPLETION_EXTRAATTEMPT);
+        $cba = [];
+        $cba[] = $mform->createElement(
+            'radio',
+            'assign',
+            '',
+            get_string('donothing', 'local_recompletion'),
+            LOCAL_RECOMPLETION_NOTHING
+        );
+        $cba[] = $mform->createElement(
+            'radio',
+            'assign',
+            '',
+            get_string('extraattempt', 'local_recompletion'),
+            LOCAL_RECOMPLETION_EXTRAATTEMPT
+        );
 
-        $mform->addGroup($cba, 'assign', get_string('assignattempts', 'local_recompletion'), array(' '), false);
+        $mform->addGroup($cba, 'assign', get_string('assignattempts', 'local_recompletion'), [' '], false);
         $mform->addHelpButton('assign', 'assignattempts', 'local_recompletion');
         $mform->setDefault('assign', $config->assign);
 
@@ -69,16 +79,23 @@ class mod_assign {
      * @param admin_settingpage $settings
      */
     public static function settings($settings) {
-        $choices = array(LOCAL_RECOMPLETION_NOTHING => new lang_string('donothing', 'local_recompletion'),
-            LOCAL_RECOMPLETION_EXTRAATTEMPT => new lang_string('extraattempt', 'local_recompletion'));
+        $choices = [LOCAL_RECOMPLETION_NOTHING => new lang_string('donothing', 'local_recompletion'),
+            LOCAL_RECOMPLETION_EXTRAATTEMPT => new lang_string('extraattempt', 'local_recompletion')];
 
-        $settings->add(new \admin_setting_configselect('local_recompletion/assign',
+        $settings->add(new \admin_setting_configselect(
+            'local_recompletion/assign',
             new lang_string('assignattempts', 'local_recompletion'),
-            new lang_string('assignattempts_help', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING, $choices));
+            new lang_string('assignattempts_help', 'local_recompletion'),
+            LOCAL_RECOMPLETION_NOTHING,
+            $choices
+        ));
 
-        $settings->add(new \admin_setting_configcheckbox('local_recompletion/assignevent',
+        $settings->add(new \admin_setting_configcheckbox(
+            'local_recompletion/assignevent',
             new lang_string('assignevent', 'local_recompletion'),
-            '', 0));
+            '',
+            0
+        ));
     }
 
     /**
@@ -96,7 +113,7 @@ class mod_assign {
                       FROM {assign} a
                       JOIN {assign_submission} s ON a.id = s.assignment
                      WHERE a.course = ? AND s.userid = ?";
-            $assigns = $DB->get_recordset_sql($sql, array($course->id, $userid));
+            $assigns = $DB->get_recordset_sql($sql, [$course->id, $userid]);
             $nopermissions = false;
             foreach ($assigns as $assign) {
                 $cm = get_coursemodule_from_instance('assign', $assign->id);

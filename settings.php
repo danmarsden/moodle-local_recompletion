@@ -33,7 +33,8 @@ if ($hassiteconfig) {
     $ADMIN->add('localplugins', $settings);
 
     // Type of recompletion - range(duration) or schedule(absolute times, based on cron schedule).
-    $settings->add(new admin_setting_configselect('local_recompletion/recompletiontype',
+    $settings->add(new admin_setting_configselect(
+        'local_recompletion/recompletiontype',
         new lang_string('recompletiontype', 'local_recompletion'),
         new lang_string('recompletiontype_help', 'local_recompletion'),
         local_recompletion_recompletion_form::RECOMPLETION_TYPE_DISABLED,
@@ -54,17 +55,27 @@ if ($hassiteconfig) {
                 'recompletiontype:schedule',
                 'local_recompletion',
             ),
-        ]));
+        ]
+    ));
 
-    $settings->add(new admin_setting_configstrtotime('local_recompletion/recompletionschedule',
+    $settings->add(new admin_setting_configstrtotime(
+        'local_recompletion/recompletionschedule',
         new lang_string('recompletionschedule', 'local_recompletion'),
-        new lang_string('recompletionschedule_help', 'local_recompletion'), 'Jan 1', PARAM_TEXT));
+        new lang_string('recompletionschedule_help', 'local_recompletion'),
+        'Jan 1',
+        PARAM_TEXT
+    ));
 
-    $settings->add(new admin_setting_configduration('local_recompletion/recompletionduration',
+    $settings->add(new admin_setting_configduration(
+        'local_recompletion/recompletionduration',
         new lang_string('recompletionrange', 'local_recompletion'),
-        new lang_string('recompletionrange_help', 'local_recompletion'), YEARSECS, PARAM_INT));
+        new lang_string('recompletionrange_help', 'local_recompletion'),
+        YEARSECS,
+        PARAM_INT
+    ));
 
-    $settings->add(new admin_setting_configselect('local_recompletion/recompletionnotify',
+    $settings->add(new admin_setting_configselect(
+        'local_recompletion/recompletionnotify',
         new lang_string('recompletionnotify', 'local_recompletion'),
         new lang_string('recompletionnotify_help', 'local_recompletion'),
         local_recompletion_recompletion_form::RECOMPLETION_NOTIFY_DISABLED,
@@ -85,33 +96,54 @@ if ($hassiteconfig) {
                 'recompletionnotify:enrolled',
                 'local_recompletion',
             ),
-        ]));
+        ]
+    ));
 
-    $settings->add(new admin_setting_configtext('local_recompletion/recompletionemailsubject',
+    $settings->add(new admin_setting_configtext(
+        'local_recompletion/recompletionemailsubject',
         new lang_string('recompletionemailsubject', 'local_recompletion'),
-        new lang_string('recompletionemailsubject_help', 'local_recompletion'), '', PARAM_TEXT));
+        new lang_string('recompletionemailsubject_help', 'local_recompletion'),
+        '',
+        PARAM_TEXT
+    ));
 
-    $settings->add(new admin_setting_confightmleditor('local_recompletion/recompletionemailbody',
+    $settings->add(new admin_setting_confightmleditor(
+        'local_recompletion/recompletionemailbody',
         new lang_string('recompletionemailbody', 'local_recompletion'),
-        new lang_string('recompletionemailbody_help', 'local_recompletion'), ''));
+        new lang_string('recompletionemailbody_help', 'local_recompletion'),
+        ''
+    ));
 
-    $settings->add(new admin_setting_configcheckbox('local_recompletion/recompletionunenrolenable',
+    $settings->add(new admin_setting_configcheckbox(
+        'local_recompletion/recompletionunenrolenable',
         new lang_string('recompletionunenrolenable', 'local_recompletion'),
-        new lang_string('recompletionunenrolenable_help', 'local_recompletion'), 0));
+        new lang_string('recompletionunenrolenable_help', 'local_recompletion'),
+        0
+    ));
 
-    $settings->add(new admin_setting_configcheckbox('local_recompletion/deletegradedata',
+    $settings->add(new admin_setting_configcheckbox(
+        'local_recompletion/deletegradedata',
         new lang_string('deletegradedata', 'local_recompletion'),
-        new lang_string('deletegradedata_help', 'local_recompletion'), 1));
+        new lang_string('deletegradedata_help', 'local_recompletion'),
+        1
+    ));
 
-    $settings->add(new admin_setting_configcheckbox('local_recompletion/archivecompletiondata',
+    $settings->add(new admin_setting_configcheckbox(
+        'local_recompletion/archivecompletiondata',
         new lang_string('archivecompletiondata', 'local_recompletion'),
-        new lang_string('archivecompletiondata_help', 'local_recompletion'), 1));
+        new lang_string('archivecompletiondata_help', 'local_recompletion'),
+        1
+    ));
 
-    $settings->add(new admin_setting_configcheckbox('local_recompletion/forcearchivecompletiondata',
+    $settings->add(new admin_setting_configcheckbox(
+        'local_recompletion/forcearchivecompletiondata',
         new lang_string('forcearchivecompletiondata', 'local_recompletion'),
-        new lang_string('forcearchivecompletiondata_help', 'local_recompletion'), 0));
+        new lang_string('forcearchivecompletiondata_help', 'local_recompletion'),
+        0
+    ));
 
-    $settings->add(new admin_setting_heading('local_recompletion/pluginsettings',
+    $settings->add(new admin_setting_heading(
+        'local_recompletion/pluginsettings',
         get_string('pluginssettings', 'local_recompletion'),
         ''
     ));
@@ -122,7 +154,8 @@ if ($hassiteconfig) {
         $fqn::settings($settings);
     }
 
-    $settings->add(new admin_setting_heading('local_recompletion/restrictionsettings',
+    $settings->add(new admin_setting_heading(
+        'local_recompletion/restrictionsettings',
         get_string('restrictionsettings', 'local_recompletion'),
         ''
     ));
@@ -132,5 +165,4 @@ if ($hassiteconfig) {
         $fqn = 'local_recompletion\\local\\restrictions\\' . $plugin;
         $fqn::settings($settings);
     }
-
 }

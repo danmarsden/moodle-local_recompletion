@@ -13,6 +13,7 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
 use core\clock;
 use core\di;
 
@@ -111,32 +112,48 @@ class local_recompletion_recompletion_form extends moodleform {
         $mform->hideIf('recompletionschedule', 'recompletiontype', 'neq', 'schedule');
 
         $options = ['startyear' => date('Y'), 'optional' => 1];
-        $mform->addElement('date_selector', 'recompletionschedulestart',
-                get_string('recompletionschedulestart', 'local_recompletion'), $options);
+        $mform->addElement(
+            'date_selector',
+            'recompletionschedulestart',
+            get_string('recompletionschedulestart', 'local_recompletion'),
+            $options
+        );
         $mform->addHelpButton('recompletionschedulestart', 'recompletionschedulestart', 'local_recompletion');
         $mform->hideIf('recompletionschedulestart', 'recompletiontype', 'neq', self::RECOMPLETION_TYPE_SCHEDULE);
 
         $nextresettime = $this->_customdata['instance']['nextresettime'] ?? '';
         if (!empty($nextresettime)) {
             $formatted = userdate($nextresettime, get_string('strftimedatetime', 'langconfig'));
-            $mform->addElement('static', 'calculatedtime', '',
-                               get_string('recompletioncalculateddate', 'local_recompletion', $formatted));
+            $mform->addElement(
+                'static',
+                'calculatedtime',
+                '',
+                get_string('recompletioncalculateddate', 'local_recompletion', $formatted)
+            );
             $mform->hideIf('calculatedtime', 'recompletiontype', 'noteq', self::RECOMPLETION_TYPE_SCHEDULE);
         }
 
         // Email Notification settings.
         $mform->addElement('header', 'emailheader', get_string('emailrecompletiontitle', 'local_recompletion'));
         $mform->setExpanded('emailheader', false);
-        $mform->addElement('text', 'recompletionemailsubject', get_string('recompletionemailsubject', 'local_recompletion'),
-                'size = "80"');
+        $mform->addElement(
+            'text',
+            'recompletionemailsubject',
+            get_string('recompletionemailsubject', 'local_recompletion'),
+            'size = "80"'
+        );
         $mform->setType('recompletionemailsubject', PARAM_TEXT);
         $mform->addHelpButton('recompletionemailsubject', 'recompletionemailsubject', 'local_recompletion');
         $mform->disabledIf('recompletionemailsubject', 'recompletiontype', 'eq', '');
         $mform->disabledIf('recompletionemailsubject', 'recompletionnotify', 'eq', self::RECOMPLETION_NOTIFY_DISABLED);
         $mform->setDefault('recompletionemailsubject', $config->recompletionemailsubject);
 
-        $mform->addElement('editor', 'recompletionemailbody', get_string('recompletionemailbody', 'local_recompletion'),
-            $editoroptions);
+        $mform->addElement(
+            'editor',
+            'recompletionemailbody',
+            get_string('recompletionemailbody', 'local_recompletion'),
+            $editoroptions
+        );
         $mform->setDefault('recompletionemailbody', ['text' => $config->recompletionemailbody, 'format' => FORMAT_HTML]);
         $mform->addHelpButton('recompletionemailbody', 'recompletionemailbody', 'local_recompletion');
         $mform->disabledIf('recompletionemailbody', 'recompletiontype', 'eq', '');

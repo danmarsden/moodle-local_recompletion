@@ -26,7 +26,7 @@ use MoodleQuickForm;
 
 defined('MOODLE_INTERNAL') || die;
 
-require_once($CFG->dirroot.'/local/recompletion/locallib.php');
+require_once($CFG->dirroot . '/local/recompletion/locallib.php');
 
 /**
  * Course certificate handler event.
@@ -36,7 +36,6 @@ require_once($CFG->dirroot.'/local/recompletion/locallib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_coursecertificate {
-
     /**
      * Add params to form.
      *
@@ -51,23 +50,37 @@ class mod_coursecertificate {
         $config = get_config('local_recompletion');
 
         $cba = [];
-        $cba[] = $mform->createElement('radio', 'coursecertificate', '',
-                get_string('donothing', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING);
-        $cba[] = $mform->createElement('radio', 'coursecertificate', '',
-                get_string('deletecoursecertificate', 'local_recompletion'), LOCAL_RECOMPLETION_DELETE);
+        $cba[] = $mform->createElement(
+            'radio',
+            'coursecertificate',
+            '',
+            get_string('donothing', 'local_recompletion'),
+            LOCAL_RECOMPLETION_NOTHING
+        );
+        $cba[] = $mform->createElement(
+            'radio',
+            'coursecertificate',
+            '',
+            get_string('deletecoursecertificate', 'local_recompletion'),
+            LOCAL_RECOMPLETION_DELETE
+        );
 
         $mform->addGroup($cba, 'coursecertificate', get_string('coursecertificate', 'local_recompletion'), [' '], false);
         $mform->addHelpButton('coursecertificate', 'coursecertificate', 'local_recompletion');
         $mform->setDefault('coursecertificate', $config->coursecertificate);
 
-        $mform->addElement('checkbox', 'archivecoursecertificate',
-                get_string('archivecoursecertificate', 'local_recompletion'));
+        $mform->addElement(
+            'checkbox',
+            'archivecoursecertificate',
+            get_string('archivecoursecertificate', 'local_recompletion')
+        );
         $mform->setDefault('archivecoursecertificate', $config->archivecoursecertificate);
 
         $verifywarngroup = [];
         $verifywarn = new notification(
-                get_string('coursecertificateverifywarn', 'local_recompletion'),
-                notification::NOTIFY_WARNING);
+            get_string('coursecertificateverifywarn', 'local_recompletion'),
+            notification::NOTIFY_WARNING
+        );
         $verifywarn->set_show_closebutton(false);
         $verifywarngroup[] =
                 $mform->createElement('static', 'coursecertificateverifywarn', '', $OUTPUT->render($verifywarn));
@@ -92,16 +105,23 @@ class mod_coursecertificate {
 
         $choices = [
             LOCAL_RECOMPLETION_NOTHING => get_string('donothing', 'local_recompletion'),
-                LOCAL_RECOMPLETION_DELETE => get_string('customcertresetcertificates', 'local_recompletion')
+                LOCAL_RECOMPLETION_DELETE => get_string('customcertresetcertificates', 'local_recompletion'),
         ];
 
-        $settings->add(new admin_setting_configselect('local_recompletion/coursecertificate',
-                new lang_string('coursecertificate', 'local_recompletion'),
-                new lang_string('coursecertificate_help', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING, $choices));
+        $settings->add(new admin_setting_configselect(
+            'local_recompletion/coursecertificate',
+            new lang_string('coursecertificate', 'local_recompletion'),
+            new lang_string('coursecertificate_help', 'local_recompletion'),
+            LOCAL_RECOMPLETION_NOTHING,
+            $choices
+        ));
 
-        $settings->add(new admin_setting_configcheckbox('local_recompletion/archivecoursecertificate',
-                new lang_string('archivecoursecertificate', 'local_recompletion'),
-                new lang_string('archivecoursecertificate_help', 'local_recompletion'), 1));
+        $settings->add(new admin_setting_configcheckbox(
+            'local_recompletion/archivecoursecertificate',
+            new lang_string('archivecoursecertificate', 'local_recompletion'),
+            new lang_string('archivecoursecertificate_help', 'local_recompletion'),
+            1
+        ));
     }
 
     /**

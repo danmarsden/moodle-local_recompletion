@@ -22,11 +22,11 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-require_once(__DIR__.'/../../config.php');
-require_once($CFG->dirroot.'/local/recompletion/locallib.php');
-require_once($CFG->dirroot.'/course/lib.php');
-require_once($CFG->libdir.'/completionlib.php');
-require_once($CFG->libdir.'/formslib.php');
+require_once(__DIR__ . '/../../config.php');
+require_once($CFG->dirroot . '/local/recompletion/locallib.php');
+require_once($CFG->dirroot . '/course/lib.php');
+require_once($CFG->libdir . '/completionlib.php');
+require_once($CFG->libdir . '/formslib.php');
 
 $id = required_param('id', PARAM_INT);
 
@@ -48,7 +48,6 @@ if ($id) {
     if (!$completion->is_enabled()) {
         throw new moodle_exception('completionnotenabled', 'local_recompletion');
     }
-
 } else {
     require_login();
     throw new moodle_exception('needcourseid');
@@ -92,7 +91,7 @@ foreach ($plugins as $plugin) {
         $plugin = str_replace('mod_', '', $plugin);
     }
     $setnames[] = $plugin;
-    $setnames[] = 'archive'.$plugin;
+    $setnames[] = 'archive' . $plugin;
 }
 
 $restrictions = local_recompletion_get_supported_restrictions();
@@ -105,10 +104,10 @@ $customdata = ['course' => $course];
 if (!empty($config)) {
     $customdata['instance'] = local_recompletion_get_data($config);
 }
-$form = new local_recompletion_recompletion_form('recompletion.php?id='.$id, $customdata);
+$form = new local_recompletion_recompletion_form('recompletion.php?id=' . $id, $customdata);
 
 if ($form->is_cancelled()) {
-    redirect($CFG->wwwroot.'/course/view.php?id='.$course->id);
+    redirect($CFG->wwwroot . '/course/view.php?id=' . $course->id);
 } else if ($data = $form->get_data()) {
     $data = local_recompletion_set_form_data($data);
     foreach ($setnames as $name) {

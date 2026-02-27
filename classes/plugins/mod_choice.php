@@ -43,21 +43,34 @@ class mod_choice {
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public static function editingform($mform) : void {
+    public static function editingform($mform): void {
         $config = get_config('local_recompletion');
 
-        $cba = array();
-        $cba[] = $mform->createElement('radio', 'choice', '',
-            get_string('donothing', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING);
-        $cba[] = $mform->createElement('radio', 'choice', '',
-            get_string('delete', 'local_recompletion'), LOCAL_RECOMPLETION_DELETE);
+        $cba = [];
+        $cba[] = $mform->createElement(
+            'radio',
+            'choice',
+            '',
+            get_string('donothing', 'local_recompletion'),
+            LOCAL_RECOMPLETION_NOTHING
+        );
+        $cba[] = $mform->createElement(
+            'radio',
+            'choice',
+            '',
+            get_string('delete', 'local_recompletion'),
+            LOCAL_RECOMPLETION_DELETE
+        );
 
-        $mform->addGroup($cba, 'choice', get_string('choiceattempts', 'local_recompletion'), array(' '), false);
+        $mform->addGroup($cba, 'choice', get_string('choiceattempts', 'local_recompletion'), [' '], false);
         $mform->addHelpButton('choice', 'choiceattempts', 'local_recompletion');
         $mform->setDefault('choice', $config->choice);
 
-        $mform->addElement('checkbox', 'archivechoice',
-            get_string('archive', 'local_recompletion'));
+        $mform->addElement(
+            'checkbox',
+            'archivechoice',
+            get_string('archive', 'local_recompletion')
+        );
         $mform->setDefault('archivechoice', $config->archivechoice);
 
         $mform->disabledIf('archivechoice', 'enable', 'notchecked');
@@ -72,15 +85,23 @@ class mod_choice {
      */
     public static function settings($settings) {
 
-        $choices = array(LOCAL_RECOMPLETION_NOTHING => new lang_string('donothing', 'local_recompletion'),
-                         LOCAL_RECOMPLETION_DELETE => new lang_string('delete', 'local_recompletion'));
+        $choices = [LOCAL_RECOMPLETION_NOTHING => new lang_string('donothing', 'local_recompletion'),
+                         LOCAL_RECOMPLETION_DELETE => new lang_string('delete', 'local_recompletion')];
 
-        $settings->add(new \admin_setting_configselect('local_recompletion/choice',
+        $settings->add(new \admin_setting_configselect(
+            'local_recompletion/choice',
             new lang_string('choiceattempts', 'local_recompletion'),
-            new lang_string('choiceattempts_help', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING, $choices));
+            new lang_string('choiceattempts_help', 'local_recompletion'),
+            LOCAL_RECOMPLETION_NOTHING,
+            $choices
+        ));
 
-        $settings->add(new \admin_setting_configcheckbox('local_recompletion/archivechoice',
-            new lang_string('archivechoice', 'local_recompletion'), '', 1));
+        $settings->add(new \admin_setting_configcheckbox(
+            'local_recompletion/archivechoice',
+            new lang_string('archivechoice', 'local_recompletion'),
+            '',
+            1
+        ));
     }
 
     /**
@@ -95,7 +116,7 @@ class mod_choice {
         if (empty($config->choice)) {
             return;
         } else if ($config->choice == LOCAL_RECOMPLETION_DELETE) {
-            $params = array('userid' => $userid, 'course' => $course->id);
+            $params = ['userid' => $userid, 'course' => $course->id];
             $selectsql = 'userid = ? AND choiceid IN (SELECT id FROM {choice} WHERE course = ?)';
             if ($config->archivechoice) {
                 $choiceanswers = $DB->get_records_select('choice_answers', $selectsql, $params);

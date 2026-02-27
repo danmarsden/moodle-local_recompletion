@@ -37,7 +37,6 @@ require_once("$CFG->libdir/grade/grade_grade.php");
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class local_recompletion_external extends external_api {
-
     /**
      * Describes the parameters for reset_course
      * @return external_function_parameters
@@ -46,7 +45,7 @@ class local_recompletion_external extends external_api {
         return new external_function_parameters(
             [
                 'courseid' => new external_value(PARAM_INT, 'course id'),
-                'userid' => new external_value(PARAM_INT, 'userid')
+                'userid' => new external_value(PARAM_INT, 'userid'),
             ]
         );
     }
@@ -60,7 +59,7 @@ class local_recompletion_external extends external_api {
     public static function reset_course($courseid, $userid) {
         $params = self::validate_parameters(self::reset_course_parameters(), [
             'courseid' => $courseid,
-            'userid' => $userid
+            'userid' => $userid,
         ]);
 
         $course = get_course($params['courseid']);

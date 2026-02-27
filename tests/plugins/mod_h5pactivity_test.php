@@ -25,12 +25,11 @@ namespace local_recompletion\plugins;
  *
  * @covers \local_recompletion\plugins\mod_h5pactivity
  */
-class mod_h5pactivity_test extends \advanced_testcase {
-
+final class mod_h5pactivity_test extends \advanced_testcase {
     /**
      * Test mod_h5pactivity recompletion.
      */
-    public function test_mod_h5pactivity() {
+    public function test_mod_h5pactivity(): void {
         global $DB;
 
         $this->resetAfterTest();
@@ -139,7 +138,7 @@ class mod_h5pactivity_test extends \advanced_testcase {
     /**
      * Test that can re complete mod_h5pactivity several times.
      */
-    public function test_can_recomplete_few_times_in_a_row() {
+    public function test_can_recomplete_few_times_in_a_row(): void {
         global $DB;
 
         $this->resetAfterTest();

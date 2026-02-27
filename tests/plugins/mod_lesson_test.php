@@ -25,8 +25,7 @@ namespace local_recompletion\plugins;
  *
  * @covers \local_recompletion\plugins\mod_lesson
  */
-class mod_lesson_test extends \advanced_testcase {
-
+final class mod_lesson_test extends \advanced_testcase {
     /**
      * Lesson object.
      * @var \stdClass
@@ -47,7 +46,7 @@ class mod_lesson_test extends \advanced_testcase {
 
         $generator = $this->getDataGenerator()->get_plugin_generator('mod_lesson');
         $page = $generator->create_question_truefalse($this->lesson);
-        $panswers = $DB->get_records('lesson_answers', array('lessonid' => $this->lesson->id, 'pageid' => $page->id), 'id');
+        $panswers = $DB->get_records('lesson_answers', ['lessonid' => $this->lesson->id, 'pageid' => $page->id], 'id');
         $answerid = reset($panswers)->id;
 
         $newpageattempt = [
@@ -95,7 +94,7 @@ class mod_lesson_test extends \advanced_testcase {
             'userid' => $this->user->id,
             'sortorder' => 1,
             'available' => 100,
-            'deadline' => 200
+            'deadline' => 200,
         ];
         $DB->insert_record('lesson_overrides', $useroverride);
     }
@@ -103,7 +102,7 @@ class mod_lesson_test extends \advanced_testcase {
     /**
      * Test mod_lesson recompletion.
      */
-    public function test_mod_lesson() {
+    public function test_mod_lesson(): void {
         global $DB;
 
         $this->resetAfterTest();

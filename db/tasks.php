@@ -25,14 +25,14 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$tasks = array(
-    array(
+$tasks = [
+    [
         'classname' => 'local_recompletion\task\check_recompletion',
         'blocking' => 0,
         'minute' => 'R',
         'hour' => 'R',
         'day' => '*',
         'dayofweek' => '*',
-        'month' => '*'
-    )
-);
+        'month' => '*',
+    ],
+];

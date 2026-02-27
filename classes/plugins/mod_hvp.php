@@ -25,7 +25,7 @@ use MoodleQuickForm;
 
 defined('MOODLE_INTERNAL') || die;
 
-require_once($CFG->dirroot.'/local/recompletion/locallib.php');
+require_once($CFG->dirroot . '/local/recompletion/locallib.php');
 
 /**
  * H5P handler event.
@@ -35,7 +35,6 @@ require_once($CFG->dirroot.'/local/recompletion/locallib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_hvp {
-
     /**
      * Add params to form.
      *
@@ -49,10 +48,20 @@ class mod_hvp {
         $config = get_config('local_recompletion');
 
         $cba = [];
-        $cba[] = $mform->createElement('radio', 'hvp', '',
-                get_string('donothing', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING);
-        $cba[] = $mform->createElement('radio', 'hvp', '',
-                get_string('delete', 'local_recompletion'), LOCAL_RECOMPLETION_DELETE);
+        $cba[] = $mform->createElement(
+            'radio',
+            'hvp',
+            '',
+            get_string('donothing', 'local_recompletion'),
+            LOCAL_RECOMPLETION_NOTHING
+        );
+        $cba[] = $mform->createElement(
+            'radio',
+            'hvp',
+            '',
+            get_string('delete', 'local_recompletion'),
+            LOCAL_RECOMPLETION_DELETE
+        );
 
         $mform->addGroup($cba, 'hvp', get_string('hvpattempts', 'local_recompletion'), [' '], false);
         $mform->addHelpButton('hvp', 'hvpattempts', 'local_recompletion');
@@ -78,15 +87,23 @@ class mod_hvp {
 
         $choices = [
             LOCAL_RECOMPLETION_NOTHING => get_string('donothing', 'local_recompletion'),
-            LOCAL_RECOMPLETION_DELETE => get_string('delete', 'local_recompletion')
+            LOCAL_RECOMPLETION_DELETE => get_string('delete', 'local_recompletion'),
         ];
 
-        $settings->add(new admin_setting_configselect('local_recompletion/hvp',
-                new lang_string('hvpattempts', 'local_recompletion'),
-                new lang_string('hvpattempts_help', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING, $choices));
+        $settings->add(new admin_setting_configselect(
+            'local_recompletion/hvp',
+            new lang_string('hvpattempts', 'local_recompletion'),
+            new lang_string('hvpattempts_help', 'local_recompletion'),
+            LOCAL_RECOMPLETION_NOTHING,
+            $choices
+        ));
 
-        $settings->add(new admin_setting_configcheckbox('local_recompletion/archivehvp',
-            new lang_string('archivehvp', 'local_recompletion'), '', 1));
+        $settings->add(new admin_setting_configcheckbox(
+            'local_recompletion/archivehvp',
+            new lang_string('archivehvp', 'local_recompletion'),
+            '',
+            1
+        ));
     }
 
     /**
@@ -110,7 +127,7 @@ class mod_hvp {
         if ($config->hvp == LOCAL_RECOMPLETION_DELETE) {
             $params = [
                 'userid' => $userid,
-                'course' => $course->id
+                'course' => $course->id,
             ];
 
             $selectsql = 'user_id = :userid AND hvp_id IN (SELECT id FROM {hvp} WHERE course = :course)';

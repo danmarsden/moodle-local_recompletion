@@ -33,7 +33,6 @@ use lang_string;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class hotpot_attempts extends base {
-    
     /**
      * Database tables that this entity uses
      *
@@ -89,14 +88,16 @@ class hotpot_attempts extends base {
             ->set_type(column::TYPE_INTEGER)
             ->add_fields("{$alias}.hotpotid, {$alias}.course")
             ->set_is_sortable(true)
-            ->add_callback(static function($value, $row): string {
+            ->add_callback(static function ($value, $row): string {
                 global $PAGE;
 
                 $renderer = new core_renderer($PAGE, RENDERER_TARGET_GENERAL);
                 $modinfo = get_fast_modinfo($row->course);
 
-                if (!empty($modinfo) && !empty($modinfo->get_instances_of('hotpot')
-                        && !empty($modinfo->get_instances_of('hotpot')[$row->hotpotid]))) {
+                if (
+                    !empty($modinfo) && !empty($modinfo->get_instances_of('hotpot')
+                        && !empty($modinfo->get_instances_of('hotpot')[$row->hotpotid]))
+                ) {
                     $cm = $modinfo->get_instances_of('hotpot')[$row->hotpotid];
                     $modulename = get_string('modulename', $cm->modname);
                     $activityicon = $renderer->pix_icon('monologo', $modulename, $cm->modname, ['class' => 'icon']);
@@ -178,7 +179,7 @@ class hotpot_attempts extends base {
             ->set_type(column::TYPE_INTEGER)
             ->add_field("{$alias}.status")
             ->set_is_sortable(true)
-            ->add_callback(static function($status): string {
+            ->add_callback(static function ($status): string {
                 switch ($status) {
                     case 1:
                         return get_string('inprogress', 'local_recompletion');
@@ -217,7 +218,7 @@ class hotpot_attempts extends base {
                 1 => get_string('inprogress', 'local_recompletion'),
                 2 => get_string('timedout', 'local_recompletion'),
                 3 => get_string('abandoned', 'local_recompletion'),
-                4 => get_string('completed', 'local_recompletion')
+                4 => get_string('completed', 'local_recompletion'),
             ]);
 
         return $filters;

@@ -31,7 +31,6 @@ use lang_string;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class certificate_issues extends base {
-
     /**
      * Database tables that this entity uses
      *
@@ -84,14 +83,16 @@ class certificate_issues extends base {
             ->set_type(column::TYPE_INTEGER)
             ->add_fields("{$tablealias}.certificateid, {$tablealias}.course")
             ->set_is_sortable(true)
-            ->add_callback(static function($value, $row): string {
+            ->add_callback(static function ($value, $row): string {
                 global $PAGE;
 
                 $renderer = new core_renderer($PAGE, RENDERER_TARGET_GENERAL);
                 $modinfo = get_fast_modinfo($row->course);
 
-                if (!empty($modinfo) && !empty($modinfo->get_instances_of('certificate')
-                        && !empty($modinfo->get_instances_of('certificate')[$row->certificateid]))) {
+                if (
+                    !empty($modinfo) && !empty($modinfo->get_instances_of('certificate')
+                        && !empty($modinfo->get_instances_of('certificate')[$row->certificateid]))
+                ) {
                     $cm = $modinfo->get_instances_of('certificate')[$row->certificateid];
                     $modulename = get_string('modulename', $cm->modname);
                     $activityicon = $renderer->pix_icon('monologo', $modulename, $cm->modname, ['class' => 'icon']);

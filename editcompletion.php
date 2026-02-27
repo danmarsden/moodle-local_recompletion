@@ -23,19 +23,19 @@
  */
 
 require_once('../../config.php');
-require_once($CFG->dirroot.'/local/recompletion/locallib.php');
+require_once($CFG->dirroot . '/local/recompletion/locallib.php');
 
 $courseid = required_param('id', PARAM_INT);
 $userid   = optional_param('user', 0, PARAM_INT);
-$users   = optional_param_array('users', array(), PARAM_INT);
+$users   = optional_param_array('users', [], PARAM_INT);
 
-$course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
+$course = $DB->get_record('course', ['id' => $courseid], '*', MUST_EXIST);
 require_login($course);
 
 $context = context_course::instance($course->id);
 require_capability('local/recompletion:manage', $context);
 
-$PAGE->set_url('/local/recompletion/editcompletion.php', array('id' => $course->id));
+$PAGE->set_url('/local/recompletion/editcompletion.php', ['id' => $course->id]);
 if (empty($users) && empty($userid)) {
     // The first time list hack.
     if ($post = data_submitted()) {
@@ -46,19 +46,20 @@ if (empty($users) && empty($userid)) {
         }
     }
     if (empty($users)) {
-        redirect($CFG->wwwroot.'/local/recompletion/participants.php?id='.$course->id,
-            get_string('nousersselected', 'local_recompletion'));
+        redirect(
+            $CFG->wwwroot . '/local/recompletion/participants.php?id=' . $course->id,
+            get_string('nousersselected', 'local_recompletion')
+        );
     }
-
 }
 if (empty($users)) {
-    $users = array();
+    $users = [];
     $users[] = $userid;
     // Get this users current completion date and use that in the form.
-    $params = array(
+    $params = [
         'userid'    => $userid,
-        'course'    => $courseid
-    );
+        'course'    => $courseid,
+    ];
     $ccompletion = new \completion_completion($params);
     if ($ccompletion->is_complete()) {
         $date = $ccompletion->timecompleted;
@@ -80,8 +81,10 @@ if ($resetcompletion && confirm_sesskey()) {
         $errors = $reset->reset_user($userid, $course, $config);
     }
 
-    redirect($CFG->wwwroot.'/local/recompletion/participants.php?id='.$course->id,
-        get_string('completionreset', 'local_recompletion'));
+    redirect(
+        $CFG->wwwroot . '/local/recompletion/participants.php?id=' . $course->id,
+        get_string('completionreset', 'local_recompletion')
+    );
 }
 
 $form = new local_recompletion_coursecompletion_form('editcompletion.php', [
@@ -96,8 +99,10 @@ if ($form->is_cancelled()) {
     if (!empty($data->newcompletion)) {
         // Update course completion.
         local_recompletion_update_course_completion($courseid, $users, $data->newcompletion);
-        redirect($CFG->wwwroot . '/local/recompletion/participants.php?id=' . $course->id,
-            get_string('completionupdated', 'local_recompletion'));
+        redirect(
+            $CFG->wwwroot . '/local/recompletion/participants.php?id=' . $course->id,
+            get_string('completionupdated', 'local_recompletion')
+        );
     }
 }
 

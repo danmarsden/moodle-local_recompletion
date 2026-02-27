@@ -29,7 +29,6 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class local_recompletion_coursecompletion_form extends moodleform {
-
     /**
      * Defines the form fields.
      */
@@ -39,8 +38,11 @@ class local_recompletion_coursecompletion_form extends moodleform {
         $course = $this->_customdata['course'];
         $users = $this->_customdata['users'];
 
-        $mform->addElement('date_time_selector', 'newcompletion',
-            get_string('coursecompletiondate', 'local_recompletion'));
+        $mform->addElement(
+            'date_time_selector',
+            'newcompletion',
+            get_string('coursecompletiondate', 'local_recompletion')
+        );
         $mform->setDefault('newcompletion', $this->_customdata['date']);
         // Add common action buttons.
         $this->add_action_buttons();
@@ -49,8 +51,8 @@ class local_recompletion_coursecompletion_form extends moodleform {
         $mform->addElement('hidden', 'id', $course);
         $mform->setType('id', PARAM_INT);
         foreach ($users as $userid) {
-            $mform->addElement('hidden', 'users['.$userid.']', $userid);
-            $mform->setType('users['.$userid.']', PARAM_INT);
+            $mform->addElement('hidden', 'users[' . $userid . ']', $userid);
+            $mform->setType('users[' . $userid . ']', PARAM_INT);
         }
     }
 }

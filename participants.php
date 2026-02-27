@@ -23,12 +23,12 @@
  */
 
 require_once('../../config.php');
-require_once($CFG->dirroot.'/user/lib.php');
-require_once($CFG->dirroot.'/course/lib.php');
-require_once($CFG->dirroot.'/notes/lib.php');
-require_once($CFG->libdir.'/tablelib.php');
-require_once($CFG->libdir.'/filelib.php');
-require_once($CFG->dirroot.'/enrol/locallib.php');
+require_once($CFG->dirroot . '/user/lib.php');
+require_once($CFG->dirroot . '/course/lib.php');
+require_once($CFG->dirroot . '/notes/lib.php');
+require_once($CFG->libdir . '/tablelib.php');
+require_once($CFG->libdir . '/filelib.php');
+require_once($CFG->dirroot . '/enrol/locallib.php');
 
 use core_table\local\filter\filter;
 use core_table\local\filter\integer_filter;
@@ -44,21 +44,21 @@ $newcourse    = optional_param('newcourse', false, PARAM_BOOL);
 $roleid       = optional_param('roleid', 0, PARAM_INT);
 $urlgroupid   = optional_param('group', 0, PARAM_INT);
 
-$PAGE->set_url('/local/recompletion/participants.php', array(
+$PAGE->set_url('/local/recompletion/participants.php', [
     'page' => $page,
     'perpage' => $perpage,
     'contextid' => $contextid,
     'id' => $courseid,
-    'newcourse' => $newcourse));
+    'newcourse' => $newcourse]);
 
 if ($contextid) {
     $context = context::instance_by_id($contextid, MUST_EXIST);
     if ($context->contextlevel != CONTEXT_COURSE) {
         throw new moodle_exception('invalidcontext');
     }
-    $course = $DB->get_record('course', array('id' => $context->instanceid), '*', MUST_EXIST);
+    $course = $DB->get_record('course', ['id' => $context->instanceid], '*', MUST_EXIST);
 } else {
-    $course = $DB->get_record('course', array('id' => $courseid), '*', MUST_EXIST);
+    $course = $DB->get_record('course', ['id' => $courseid], '*', MUST_EXIST);
     $context = context_course::instance($course->id, MUST_EXIST);
 }
 // Not needed anymore.
@@ -85,7 +85,7 @@ user_list_view($course, $context);
 
 $bulkoperations = has_capability('local/recompletion:bulkoperations', $context);
 
-$PAGE->set_title("$course->shortname: ".get_string('participants'));
+$PAGE->set_title("$course->shortname: " . get_string('participants'));
 $PAGE->set_heading($course->fullname);
 $PAGE->set_pagetype('course-view-' . $course->format);
 $PAGE->set_docs_path('enrol/users');
@@ -183,8 +183,8 @@ echo html_writer::start_tag('form', [
     'data-table-unique-id' => $participanttable->uniqueid,
 ]);
 echo '<div>';
-echo '<input type="hidden" name="sesskey" value="'.sesskey().'" />';
-echo '<input type="hidden" name="returnto" value="'.s($PAGE->url->out(false)).'" />';
+echo '<input type="hidden" name="sesskey" value="' . sesskey() . '" />';
+echo '<input type="hidden" name="returnto" value="' . s($PAGE->url->out(false)) . '" />';
 
 echo html_writer::tag(
     'p',
@@ -198,8 +198,8 @@ echo $participanttablehtml;
 
 if ($bulkoperations) {
     echo '<br /><div class="buttons"><div class="form-inline">';
-    echo '<input type="submit" name="submit" value="'.get_string('bulkchangedate', 'local_recompletion').'"/>';
-    echo '<input type="submit" name="reset_completion" value="'.get_string('bulkresetallcompletion', 'local_recompletion').'"/>';
+    echo '<input type="submit" name="submit" value="' . get_string('bulkchangedate', 'local_recompletion') . '"/>';
+    echo '<input type="submit" name="reset_completion" value="' . get_string('bulkresetallcompletion', 'local_recompletion') . '"/>';
     echo '<input type="hidden" name="id" value="' . $course->id . '" />';
     echo '</div></div>';
 }

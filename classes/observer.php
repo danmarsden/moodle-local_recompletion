@@ -18,7 +18,7 @@ namespace local_recompletion;
 
 defined('MOODLE_INTERNAL') || die;
 
-require_once($CFG->dirroot.'/local/recompletion/locallib.php');
+require_once($CFG->dirroot . '/local/recompletion/locallib.php');
 
 /**
  * Class local_recompletion_observer
@@ -39,10 +39,10 @@ class observer {
         // Check if recompletion enabled.
         $config = local_recompletion_get_config($course);
         if (!empty($config->recompletiontype) && !empty($config->assignevent)) {
-            $params = array(
+            $params = [
                 'userid'    => $event->relateduserid,
-                'course'    => $course->id
-            );
+                'course'    => $course->id,
+            ];
             $ccompletion = new \completion_completion($params);
             // Only update course completion date if already flagged complete.
             if ($ccompletion->is_complete()) {
@@ -110,7 +110,7 @@ class observer {
                 $setting = [
                     'name' => $key,
                     'value' => $value,
-                    'course' => $event->courseid
+                    'course' => $event->courseid,
                 ];
 
                 $DB->insert_record('local_recompletion_config', $setting);

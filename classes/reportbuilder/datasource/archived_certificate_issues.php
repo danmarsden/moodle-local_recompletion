@@ -30,7 +30,6 @@ use local_recompletion\reportbuilder\entities\certificate_issues;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class archived_certificate_issues extends datasource {
-
     /**
      * Return user friendly name of the datasource
      *

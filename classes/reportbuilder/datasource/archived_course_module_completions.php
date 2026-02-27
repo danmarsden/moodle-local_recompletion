@@ -30,7 +30,6 @@ use local_recompletion\reportbuilder\entities\course_modules_completion;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class archived_course_module_completions extends datasource {
-
     /**
      * Return user friendly name of the datasource
      *

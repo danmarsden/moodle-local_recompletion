@@ -33,7 +33,7 @@ $capabilities = [
         'archetypes' => [
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
-        ]
+        ],
     ],
     'local/recompletion:resetmycompletion' => [
         'captype' => 'write',
@@ -43,7 +43,7 @@ $capabilities = [
             'teacher' => CAP_ALLOW,
             'editingteacher' => CAP_ALLOW,
             'manager' => CAP_ALLOW,
-        ]
+        ],
     ],
     'local/recompletion:bulkoperations' => [
         'riskbitmask' => RISK_XSS,

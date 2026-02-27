@@ -43,24 +43,37 @@ class mod_questionnaire {
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public static function editingform($mform) : void {
+    public static function editingform($mform): void {
         if (!self::installed()) {
             return;
         }
         $config = get_config('local_recompletion');
 
-        $cba = array();
-        $cba[] = $mform->createElement('radio', 'questionnaire', '',
-            get_string('donothing', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING);
-        $cba[] = $mform->createElement('radio', 'questionnaire', '',
-            get_string('delete', 'local_recompletion'), LOCAL_RECOMPLETION_DELETE);
+        $cba = [];
+        $cba[] = $mform->createElement(
+            'radio',
+            'questionnaire',
+            '',
+            get_string('donothing', 'local_recompletion'),
+            LOCAL_RECOMPLETION_NOTHING
+        );
+        $cba[] = $mform->createElement(
+            'radio',
+            'questionnaire',
+            '',
+            get_string('delete', 'local_recompletion'),
+            LOCAL_RECOMPLETION_DELETE
+        );
 
-        $mform->addGroup($cba, 'questionnaire', get_string('questionnaireattempts', 'local_recompletion'), array(' '), false);
+        $mform->addGroup($cba, 'questionnaire', get_string('questionnaireattempts', 'local_recompletion'), [' '], false);
         $mform->addHelpButton('questionnaire', 'questionnaireattempts', 'local_recompletion');
         $mform->setDefault('questionnaire', $config->questionnaire);
 
-        $mform->addElement('checkbox', 'archivequestionnaire',
-            get_string('archive', 'local_recompletion'));
+        $mform->addElement(
+            'checkbox',
+            'archivequestionnaire',
+            get_string('archive', 'local_recompletion')
+        );
         $mform->setDefault('archivequestionnaire', $config->archivequestionnaire);
 
         $mform->disabledIf('questionnaire', 'enable', 'notchecked');
@@ -77,16 +90,24 @@ class mod_questionnaire {
         if (!self::installed()) {
             return;
         }
-        $choices = array(LOCAL_RECOMPLETION_NOTHING => new lang_string('donothing', 'local_recompletion'),
+        $choices = [LOCAL_RECOMPLETION_NOTHING => new lang_string('donothing', 'local_recompletion'),
             LOCAL_RECOMPLETION_DELETE => new lang_string('delete', 'local_recompletion'),
-            LOCAL_RECOMPLETION_EXTRAATTEMPT => new lang_string('extraattempt', 'local_recompletion'));
+            LOCAL_RECOMPLETION_EXTRAATTEMPT => new lang_string('extraattempt', 'local_recompletion')];
 
-        $settings->add(new \admin_setting_configselect('local_recompletion/questionnaire',
+        $settings->add(new \admin_setting_configselect(
+            'local_recompletion/questionnaire',
             new lang_string('questionnaireattempts', 'local_recompletion'),
-            new lang_string('questionnaireattempts_help', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING, $choices));
+            new lang_string('questionnaireattempts_help', 'local_recompletion'),
+            LOCAL_RECOMPLETION_NOTHING,
+            $choices
+        ));
 
-        $settings->add(new \admin_setting_configcheckbox('local_recompletion/archivequestionnaire',
-            new lang_string('archivequestionnaire', 'local_recompletion'), '', 1));
+        $settings->add(new \admin_setting_configcheckbox(
+            'local_recompletion/archivequestionnaire',
+            new lang_string('archivequestionnaire', 'local_recompletion'),
+            '',
+            1
+        ));
     }
 
     /**
@@ -100,7 +121,7 @@ class mod_questionnaire {
         if (!self::installed()) {
             return;
         }
-        $extratables = ['local_recompletion_qr_bool'   => 'questionnaire_response_bool' ,
+        $extratables = ['local_recompletion_qr_bool'   => 'questionnaire_response_bool',
                         'local_recompletion_qr_date'   => 'questionnaire_response_date',
                         'local_recompletion_qr_m'      => 'questionnaire_resp_multiple',
                         'local_recompletion_qr_other'  => 'questionnaire_response_other',
@@ -111,7 +132,7 @@ class mod_questionnaire {
         if (empty($config->questionnaire)) {
             return;
         } else if ($config->questionnaire == LOCAL_RECOMPLETION_DELETE) {
-            $params = array('userid' => $userid, 'course' => $course->id);
+            $params = ['userid' => $userid, 'course' => $course->id];
             $selectsql = 'userid = ? AND questionnaireid IN (SELECT id FROM {questionnaire} WHERE course = ?)';
 
             $questionnaireattempts = $DB->get_records_select('questionnaire_response', $selectsql, $params);
@@ -150,7 +171,7 @@ class mod_questionnaire {
      */
     public static function installed() {
         global $CFG;
-        if (!file_exists($CFG->dirroot.'/mod/questionnaire/version.php')) {
+        if (!file_exists($CFG->dirroot . '/mod/questionnaire/version.php')) {
             return false;
         }
         return true;

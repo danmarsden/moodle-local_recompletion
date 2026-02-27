@@ -56,9 +56,9 @@ class check_recompletion extends \core\task\scheduled_task {
                   JOIN {local_recompletion_config} r3 ON r3.course = cc.course
                                                      AND r3.name = 'recompletiontype' AND r3.value = 'period'
                   JOIN {course} c ON c.id = cc.course
-                 WHERE c.enablecompletion = ".COMPLETION_ENABLED."
+                 WHERE c.enablecompletion = " . COMPLETION_ENABLED . "
                    AND cc.timecompleted > 0
-                   AND (cc.timecompleted + ".$DB->sql_cast_char2int('r2.value').") < ?";
+                   AND (cc.timecompleted + " . $DB->sql_cast_char2int('r2.value') . ") < ?";
         $users = $DB->get_records_sql($sql, [$now]);
 
         // Schedule based recompletion.
@@ -74,7 +74,7 @@ class check_recompletion extends \core\task\scheduled_task {
              LEFT JOIN {local_recompletion_config} r3 ON r3.course = cc.course AND r3.name = 'nextresettime'
                   JOIN {local_recompletion_config} r4 ON r4.course = cc.course AND r4.name = 'recompletionschedule'
                   JOIN {course} c ON c.id = cc.course
-                 WHERE c.enablecompletion = ".COMPLETION_ENABLED."
+                 WHERE c.enablecompletion = " . COMPLETION_ENABLED . "
                    AND cc.timecompleted > 0";
         $recompletions = $DB->get_records_sql($sql, [$now]);
         foreach ($recompletions as $record) {
@@ -124,8 +124,11 @@ class check_recompletion extends \core\task\scheduled_task {
                 // Update next reset time.
                 $newconfig = new \stdClass();
                 if (isset($config->nextresettime)) {
-                    $newconfig->id = $DB->get_field('local_recompletion_config', 'id',
-                        ['course' => $course->id, 'name' => 'nextresettime']);
+                    $newconfig->id = $DB->get_field(
+                        'local_recompletion_config',
+                        'id',
+                        ['course' => $course->id, 'name' => 'nextresettime']
+                    );
                 }
                 $newconfig->course = $course->id;
                 $newconfig->name = 'nextresettime';
@@ -186,7 +189,6 @@ class check_recompletion extends \core\task\scheduled_task {
             $DB->insert_records('local_recompletion_cmv', $cmc);
         }
         $DB->delete_records_select('course_modules_viewed', $selectsql, $params);
-
     }
 
     /**
@@ -250,8 +252,12 @@ class check_recompletion extends \core\task\scheduled_task {
         $errors = [];
 
         if (empty($config)) {
-            $config = (object) $DB->get_records_menu('local_recompletion_config',
-                                                     ['course' => $course->id], '', 'name, value');
+            $config = (object) $DB->get_records_menu(
+                'local_recompletion_config',
+                ['course' => $course->id],
+                '',
+                'name, value'
+            );
         }
         if (empty($config->recompletiontype)) {
             $errors[] = get_string('recompletionnotenabledincourse', 'local_recompletion', $course->id);

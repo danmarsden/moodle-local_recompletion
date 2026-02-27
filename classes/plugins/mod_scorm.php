@@ -43,27 +43,39 @@ class mod_scorm {
      * @throws \coding_exception
      * @throws \dml_exception
      */
-    public static function editingform($mform) : void {
+    public static function editingform($mform): void {
         $config = get_config('local_recompletion');
 
-        $cba = array();
-        $cba[] = $mform->createElement('radio', 'scorm', '',
-            get_string('donothing', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING);
-        $cba[] = $mform->createElement('radio', 'scorm', '',
-            get_string('delete', 'local_recompletion'), LOCAL_RECOMPLETION_DELETE);
+        $cba = [];
+        $cba[] = $mform->createElement(
+            'radio',
+            'scorm',
+            '',
+            get_string('donothing', 'local_recompletion'),
+            LOCAL_RECOMPLETION_NOTHING
+        );
+        $cba[] = $mform->createElement(
+            'radio',
+            'scorm',
+            '',
+            get_string('delete', 'local_recompletion'),
+            LOCAL_RECOMPLETION_DELETE
+        );
 
-        $mform->addGroup($cba, 'scorm', get_string('scormattempts', 'local_recompletion'), array(' '), false);
+        $mform->addGroup($cba, 'scorm', get_string('scormattempts', 'local_recompletion'), [' '], false);
         $mform->addHelpButton('scorm', 'scormattempts', 'local_recompletion');
         $mform->setDefault('scorm', $config->scorm);
 
-        $mform->addElement('checkbox', 'archivescorm',
-            get_string('archive', 'local_recompletion'));
+        $mform->addElement(
+            'checkbox',
+            'archivescorm',
+            get_string('archive', 'local_recompletion')
+        );
         $mform->setDefault('archivescorm', $config->archivescorm);
 
         $mform->disabledIf('archivescorm', 'enable', 'notchecked');
         $mform->hideIf('archivescorm', 'scorm', 'notchecked');
         $mform->disabledIf('scorm', 'enable', 'notchecked');
-
     }
 
     /**
@@ -72,14 +84,22 @@ class mod_scorm {
      * @param admin_settingpage $settings
      */
     public static function settings($settings) {
-        $choices = array(LOCAL_RECOMPLETION_NOTHING => get_string('donothing', 'local_recompletion'),
-            LOCAL_RECOMPLETION_DELETE => get_string('delete', 'local_recompletion'));
-        $settings->add(new \admin_setting_configselect('local_recompletion/scorm',
+        $choices = [LOCAL_RECOMPLETION_NOTHING => get_string('donothing', 'local_recompletion'),
+            LOCAL_RECOMPLETION_DELETE => get_string('delete', 'local_recompletion')];
+        $settings->add(new \admin_setting_configselect(
+            'local_recompletion/scorm',
             new lang_string('scormattempts', 'local_recompletion'),
-            new lang_string('scormattempts_help', 'local_recompletion'), LOCAL_RECOMPLETION_NOTHING, $choices));
+            new lang_string('scormattempts_help', 'local_recompletion'),
+            LOCAL_RECOMPLETION_NOTHING,
+            $choices
+        ));
 
-        $settings->add(new \admin_setting_configcheckbox('local_recompletion/archivescorm',
-            new lang_string('archivescorm', 'local_recompletion'), '', 1));
+        $settings->add(new \admin_setting_configcheckbox(
+            'local_recompletion/archivescorm',
+            new lang_string('archivescorm', 'local_recompletion'),
+            '',
+            1
+        ));
     }
 
     /**
@@ -94,7 +114,7 @@ class mod_scorm {
         if (empty($config->scorm)) {
             return;
         } else if ($config->scorm == LOCAL_RECOMPLETION_DELETE) {
-            $params = array('userid' => $userid, 'course' => $course->id);
+            $params = ['userid' => $userid, 'course' => $course->id];
             $selectsql = 'userid = ? AND scormid IN (SELECT id FROM {scorm} WHERE course = ?)';
 
             $scormattempt = $DB->get_records_select('scorm_attempt', $selectsql, $params);
@@ -106,7 +126,6 @@ class mod_scorm {
                 if ($config->archivescorm) {
                     foreach (array_keys($scormscoesvalue) as $ssvid) {
                         $scormscoesvalue[$ssvid]->courseid = $course->id;
-
                     }
                     $DB->insert_records('local_recompletion_ssv', $scormscoesvalue);
                 }
