@@ -24,8 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version   = 2026022701;
-$plugin->release   = 2026022701;
+$plugin->version   = 2026022702;
+$plugin->release   = 2026022702;
 $plugin->maturity  = MATURITY_STABLE;
 $plugin->requires  = 2024100700; // Requires 4.5.
 $plugin->component = 'local_recompletion';
