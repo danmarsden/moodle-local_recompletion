@@ -32,6 +32,7 @@ use lang_string;
  *
  * @package    local_recompletion
  * @author     Dmitrii Metelkin <dmitriim@catalyst-au.net>
+ * @copyright Copyright Dan Marsden
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class course_modules_completion extends base {

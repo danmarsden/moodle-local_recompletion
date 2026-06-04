@@ -33,6 +33,7 @@ require_once($CFG->dirroot . '/local/recompletion/locallib.php');
  *
  * @package    local_recompletion
  * @author     2023 Dmitrii Metelkin
+ * @copyright Copyright Dan Marsden
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_coursecertificate {
