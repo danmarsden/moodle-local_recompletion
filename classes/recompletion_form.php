@@ -170,7 +170,7 @@ class local_recompletion_recompletion_form extends moodleform {
 
         $mform->addElement('checkbox', 'archivecompletiondata', get_string('archivecompletiondata', 'local_recompletion'));
         // If we are forcing completion data archive, always be ticked.
-        $archivedefault = $config->forcearchivecompletiondata ? 1 : ($config->archivecompletiondata ?? 0);
+        $archivedefault = !empty($config->forcearchivecompletiondata) ? 1 : ($config->archivecompletiondata ?? 0);
         $mform->setDefault('archivecompletiondata', $archivedefault);
         $mform->addHelpButton('archivecompletiondata', 'archivecompletiondata', 'local_recompletion');
 

@@ -62,10 +62,10 @@ class mod_lesson {
 
         $mform->addGroup($cba, 'lesson', get_string('lessonattempts', 'local_recompletion'), [' '], false);
         $mform->addHelpButton('lesson', 'lessonattempts', 'local_recompletion');
-        $mform->setDefault('lesson', $config->lesson);
+        $mform->setDefault('lesson', $config->lesson ?? LOCAL_RECOMPLETION_NOTHING);
 
         $mform->addElement('checkbox', 'archivelesson', get_string('archive', 'local_recompletion'));
-        $mform->setDefault('archivelesson', $config->archivelesson);
+        $mform->setDefault('archivelesson', $config->archivelesson ?? 1);
 
         $mform->disabledIf('archivelesson', 'enable');
         $mform->hideIf('archivelesson', 'lesson');

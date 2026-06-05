@@ -64,14 +64,14 @@ class mod_choice {
 
         $mform->addGroup($cba, 'choice', get_string('choiceattempts', 'local_recompletion'), [' '], false);
         $mform->addHelpButton('choice', 'choiceattempts', 'local_recompletion');
-        $mform->setDefault('choice', $config->choice);
+        $mform->setDefault('choice', $config->choice ?? LOCAL_RECOMPLETION_NOTHING);
 
         $mform->addElement(
             'checkbox',
             'archivechoice',
             get_string('archive', 'local_recompletion')
         );
-        $mform->setDefault('archivechoice', $config->archivechoice);
+        $mform->setDefault('archivechoice', $config->archivechoice ?? 1);
 
         $mform->disabledIf('archivechoice', 'enable', 'notchecked');
         $mform->hideIf('archivechoice', 'choice', 'notchecked');

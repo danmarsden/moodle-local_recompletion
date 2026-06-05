@@ -64,10 +64,10 @@ class mod_assign {
 
         $mform->addGroup($cba, 'assign', get_string('assignattempts', 'local_recompletion'), [' '], false);
         $mform->addHelpButton('assign', 'assignattempts', 'local_recompletion');
-        $mform->setDefault('assign', $config->assign);
+        $mform->setDefault('assign', $config->assign ?? LOCAL_RECOMPLETION_NOTHING);
 
         $mform->addElement('checkbox', 'assignevent', '', get_string('assignevent', 'local_recompletion'));
-        $mform->setDefault('assignevent', $config->assignevent);
+        $mform->setDefault('assignevent', $config->assignevent ?? 0);
 
         $mform->disabledIf('assignevent', 'enable', 'notchecked');
         $mform->disabledIf('assign', 'enable', 'notchecked');

@@ -71,21 +71,21 @@ class mod_quiz {
 
         $mform->addGroup($cba, 'quiz', get_string('quizattempts', 'local_recompletion'), [' '], false);
         $mform->addHelpButton('quiz', 'quizattempts', 'local_recompletion');
-        $mform->setDefault('quiz', $config->quiz);
+        $mform->setDefault('quiz', $config->quiz ?? LOCAL_RECOMPLETION_NOTHING);
 
         $mform->addElement(
             'checkbox',
             'archivequiz',
             get_string('archive', 'local_recompletion')
         );
-        $mform->setDefault('archivequiz', $config->archivequiz);
+        $mform->setDefault('archivequiz', $config->archivequiz ?? 1);
 
         $mform->addElement(
             'checkbox',
             'resetquizoverride',
             get_string('resetquizoverride', 'local_recompletion')
         );
-        $mform->setDefault('resetquizoverride', $config->resetquizoverride);
+        $mform->setDefault('resetquizoverride', $config->resetquizoverride ?? 0);
 
         $mform->disabledIf('quiz', 'enable', 'notchecked');
         $mform->disabledIf('archivequiz', 'enable', 'notchecked');

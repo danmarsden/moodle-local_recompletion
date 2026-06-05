@@ -62,10 +62,10 @@ class mod_h5pactivity {
 
         $mform->addGroup($cba, 'h5pactivity', get_string('h5pattempts', 'local_recompletion'), [' '], false);
         $mform->addHelpButton('h5pactivity', 'h5pattempts', 'local_recompletion');
-        $mform->setDefault('h5pactivity', $config->h5pactivity);
+        $mform->setDefault('h5pactivity', $config->h5pactivity ?? LOCAL_RECOMPLETION_NOTHING);
 
         $mform->addElement('checkbox', 'archiveh5pactivity', get_string('archive', 'local_recompletion'));
-        $mform->setDefault('archiveh5pactivity', $config->archiveh5pactivity);
+        $mform->setDefault('archiveh5pactivity', $config->archiveh5pactivity ?? 1);
 
         $mform->disabledIf('archiveh5pactivity', 'enable');
         $mform->hideIf('archiveh5pactivity', 'h5pactivity');

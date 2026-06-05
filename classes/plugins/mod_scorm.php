@@ -64,14 +64,14 @@ class mod_scorm {
 
         $mform->addGroup($cba, 'scorm', get_string('scormattempts', 'local_recompletion'), [' '], false);
         $mform->addHelpButton('scorm', 'scormattempts', 'local_recompletion');
-        $mform->setDefault('scorm', $config->scorm);
+        $mform->setDefault('scorm', $config->scorm ?? LOCAL_RECOMPLETION_NOTHING);
 
         $mform->addElement(
             'checkbox',
             'archivescorm',
             get_string('archive', 'local_recompletion')
         );
-        $mform->setDefault('archivescorm', $config->archivescorm);
+        $mform->setDefault('archivescorm', $config->archivescorm ?? 1);
 
         $mform->disabledIf('archivescorm', 'enable', 'notchecked');
         $mform->hideIf('archivescorm', 'scorm', 'notchecked');
