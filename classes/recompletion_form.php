@@ -101,7 +101,7 @@ class local_recompletion_recompletion_form extends moodleform {
         $options = ['optional' => false, 'defaultunit' => 86400];
         $mform->addElement('duration', 'recompletionduration', get_string('recompletionrange', 'local_recompletion'), $options);
         $mform->addHelpButton('recompletionduration', 'recompletionrange', 'local_recompletion');
-        $mform->setDefault('recompletionduration', $config->recompletionduration);
+        $mform->setDefault('recompletionduration', $config->recompletionduration ?? 0);
         $mform->hideif('recompletionduration', 'recompletiontype', 'neq', self::RECOMPLETION_TYPE_PERIOD);
 
         // Schedule / cron settings.
@@ -146,7 +146,7 @@ class local_recompletion_recompletion_form extends moodleform {
         $mform->addHelpButton('recompletionemailsubject', 'recompletionemailsubject', 'local_recompletion');
         $mform->disabledIf('recompletionemailsubject', 'recompletiontype', 'eq', '');
         $mform->disabledIf('recompletionemailsubject', 'recompletionnotify', 'eq', self::RECOMPLETION_NOTIFY_DISABLED);
-        $mform->setDefault('recompletionemailsubject', $config->recompletionemailsubject);
+        $mform->setDefault('recompletionemailsubject', $config->recompletionemailsubject ?? '');
 
         $mform->addElement(
             'editor',
@@ -154,7 +154,7 @@ class local_recompletion_recompletion_form extends moodleform {
             get_string('recompletionemailbody', 'local_recompletion'),
             $editoroptions
         );
-        $mform->setDefault('recompletionemailbody', ['text' => $config->recompletionemailbody, 'format' => FORMAT_HTML]);
+        $mform->setDefault('recompletionemailbody', ['text' => $config->recompletionemailbody ?? '', 'format' => FORMAT_HTML]);
         $mform->addHelpButton('recompletionemailbody', 'recompletionemailbody', 'local_recompletion');
         $mform->disabledIf('recompletionemailbody', 'recompletiontype', 'eq', '');
         $mform->disabledIf('recompletionemailbody', 'recompletionnotify', 'eq', self::RECOMPLETION_NOTIFY_DISABLED);
@@ -165,12 +165,12 @@ class local_recompletion_recompletion_form extends moodleform {
         $mform->setExpanded('advancedheader', false);
 
         $mform->addElement('checkbox', 'deletegradedata', get_string('deletegradedata', 'local_recompletion'));
-        $mform->setDefault('deletegradedata', $config->deletegradedata);
+        $mform->setDefault('deletegradedata', $config->deletegradedata ?? 0);
         $mform->addHelpButton('deletegradedata', 'deletegradedata', 'local_recompletion');
 
         $mform->addElement('checkbox', 'archivecompletiondata', get_string('archivecompletiondata', 'local_recompletion'));
         // If we are forcing completion data archive, always be ticked.
-        $archivedefault = $config->forcearchivecompletiondata ? 1 : $config->archivecompletiondata;
+        $archivedefault = $config->forcearchivecompletiondata ? 1 : ($config->archivecompletiondata ?? 0);
         $mform->setDefault('archivecompletiondata', $archivedefault);
         $mform->addHelpButton('archivecompletiondata', 'archivecompletiondata', 'local_recompletion');
 
@@ -197,7 +197,7 @@ class local_recompletion_recompletion_form extends moodleform {
         // Add hidden fields.
         $mform->addElement('hidden', 'course', $course->id);
         $mform->setType('course', PARAM_INT);
-        $mform->addElement('hidden', 'forcearchive', $config->forcearchivecompletiondata);
+        $mform->addElement('hidden', 'forcearchive', $config->forcearchivecompletiondata ?? 0);
         $mform->setType('forcearchive', PARAM_BOOL);
     }
 
