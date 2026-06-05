@@ -55,7 +55,7 @@ class enrol extends base {
             $enrolplugins,
             $options
         );
-        if (!empty($config->restrictenrol)){
+        if (!empty($config->restrictenrol)) {
             $mform->setDefault('restrictenrol', $config->restrictenrol);
         }
 
