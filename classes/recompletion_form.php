@@ -94,7 +94,7 @@ class local_recompletion_recompletion_form extends moodleform {
         $mform->hideIf('recompletionnotify', 'recompletiontype', 'eq', self::RECOMPLETION_TYPE_DISABLED);
 
         $mform->addElement('checkbox', 'recompletionunenrolenable', get_string('recompletionunenrolenable', 'local_recompletion'));
-        $mform->setDefault('recompletionunenrolenable', $config->recompletionunenrolenable);
+        $mform->setDefault('recompletionunenrolenable', $config->recompletionunenrolenable ?? 0);
         $mform->addHelpButton('recompletionunenrolenable', 'recompletionunenrolenable', 'local_recompletion');
         $mform->hideIf('recompletionunenrolenable', 'recompletiontype', 'eq', self::RECOMPLETION_TYPE_DISABLED);
 
