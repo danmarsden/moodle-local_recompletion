@@ -55,8 +55,10 @@ class enrol extends base {
             $enrolplugins,
             $options
         );
+        if (!empty($config->restrictenrol)){
+            $mform->setDefault('restrictenrol', $config->restrictenrol);
+        }
 
-        $mform->setDefault('restrictenrol', $config->restrictenrol);
         $mform->addHelpButton('restrictenrol', 'restrictenrol', 'local_recompletion');
     }
 
