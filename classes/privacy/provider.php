@@ -492,10 +492,10 @@ class provider implements \core_privacy\local\metadata\provider, \core_privacy\l
                 'local_recompletion_ssv',
                 'attemptid in (SELECT id
                                                         FROM {local_recompletion_sa}
-                                                       WHERE userid = :userid AND courseid = :course',
+                                                       WHERE userid = :userid AND courseid = :course)',
                 $params
             );
-            $DB->delete_records('local_recompletion_sa', $params);
+            $DB->delete_records('local_recompletion_sa', ['userid' => $userid, 'courseid' => $courseid]);
             $DB->delete_records('local_recompletion_ltia', ['userid' => $userid]);
             $DB->delete_records('local_recompletion_qr', $params);
             $DB->delete_records('local_recompletion_cha', $params);
