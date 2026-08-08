@@ -85,6 +85,15 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
             $data->name = 'recompletionnotify';
         }
 
+        if ($data->name == 'restrictgroups' && $data->value !== '') {
+            // Group ids are course-specific and get new ids on restore, so remap them.
+            $newgroupids = array_map(
+                fn ($groupid) => $this->get_mappingid('group', (int) $groupid),
+                explode(',', $data->value)
+            );
+            $data->value = implode(',', array_filter($newgroupids));
+        }
+
         $DB->insert_record('local_recompletion_config', $data);
     }
 
