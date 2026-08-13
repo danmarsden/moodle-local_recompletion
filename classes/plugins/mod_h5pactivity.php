@@ -129,40 +129,41 @@ class mod_h5pactivity {
                     $attemptids = array_keys($attempts);
 
                     foreach ($attempts as $attempt) {
+                        // Store some extra metadata about the attempts.
                         $attempt->course = $course->id;
                         $attempt->originalattemptid = $attempt->id;
                     }
 
+                    // Store these as-is into the recompletion h5p attempts storage (with extra metadata per above).
                     $DB->insert_records('local_recompletion_h5p', $attempts);
+
+                    // Map the source attempt IDs to the archive IDs from this reset only.
+                    [$insql, $inparams] = $DB->get_in_or_equal($attemptids, SQL_PARAMS_NAMED);
+                    $archivedattempts = $DB->get_records_select(
+                        'local_recompletion_h5p',
+                        "originalattemptid $insql",
+                        $inparams,
+                        '',
+                        'id, originalattemptid'
+                    );
+                    $archivedattemptids = [];
+                    foreach ($archivedattempts as $archivedattempt) {
+                        $archivedattemptids[$archivedattempt->originalattemptid] = $archivedattempt->id;
+                    }
 
                     // Archive results.
                     $results = $DB->get_records_select('h5pactivity_attempts_results', $resultsselectsql, $params);
                     if (!empty($results)) {
                         foreach ($results as $result) {
                             $result->course = $course->id;
+                            $result->attemptid = $archivedattemptids[$result->attemptid];
                         }
                         $DB->insert_records('local_recompletion_h5pr', $results);
-
-                        // Update attemptid for just inserted attempt results with IDs of previously inserted attempts.
-                        // We use temp originalattemptid here as it should be unique.
-                        if ($DB->get_dbfamily() == 'mysql') {
-                            $sql = 'UPDATE {local_recompletion_h5pr} h5pr
-                                      JOIN {local_recompletion_h5p} h5p ON h5pr.attemptid = h5p.originalattemptid
-                                       SET h5pr.attemptid = h5p.id';
-                        } else {
-                            $sql = ' UPDATE {local_recompletion_h5pr} h5pr
-                                        SET attemptid = h5p.id
-                                       FROM {local_recompletion_h5p} h5p
-                                      WHERE h5pr.attemptid = h5p.originalattemptid';
-                        }
-
-                        $DB->execute($sql);
                     }
 
                     // Now reset originalattemptid as we don't need it anymore.
                     // As well as to avoid issues with backup and restore when potentially originalattemptid can clash
                     // if restoring a course from another Moodle instance.
-                    [$insql, $inparams] = $DB->get_in_or_equal($attemptids, SQL_PARAMS_NAMED);
                     $sql = "UPDATE {local_recompletion_h5p} SET originalattemptid = 0 WHERE originalattemptid $insql";
                     $DB->execute($sql, $inparams);
                 }
