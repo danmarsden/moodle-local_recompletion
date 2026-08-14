@@ -90,6 +90,10 @@ class observer {
         $defaultsettings = get_config('local_recompletion');
 
         if (!empty($defaultsettings->recompletiontype)) {
+            // Skip if config already exists for this course - shouldn't happen, but just in case.
+            if ($DB->record_exists('local_recompletion_config', ['course' => $event->courseid])) {
+                return;
+            }
             foreach ($defaultsettings as $key => $value) {
                 if (is_null($value) || $key === 'forcearchivecompletiondata') {
                     continue;
