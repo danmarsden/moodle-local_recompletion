@@ -147,7 +147,6 @@ class participants extends \core_user\table\participants {
         }
 
         // If user has capability to review enrol, show them both role names.
-        // If user has capability to review enrol, show them both role names.
         $allrolesnamedisplay = ($canreviewenrol ? ROLENAME_BOTH : ROLENAME_ALIAS);
         $this->allroles = role_fix_names(get_all_roles($this->context), $this->context, $allrolesnamedisplay);
         $this->assignableroles = get_assignable_roles($this->context, ROLENAME_BOTH, false);

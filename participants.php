@@ -72,6 +72,8 @@ $isfrontpage = ($course->id == SITEID);
 
 $frontpagectx = context_course::instance(SITEID);
 
+$recompletionenabled = $DB->get_field('local_recompletion_config', 'value', ['name' => 'recompletiontype', 'course' => $course->id]);
+
 if ($isfrontpage) {
     $PAGE->set_pagelayout('admin');
     course_require_view_participants($systemcontext);
@@ -199,7 +201,9 @@ echo $participanttablehtml;
 if ($bulkoperations) {
     echo '<br /><div class="buttons"><div class="form-inline">';
     echo '<input type="submit" name="submit" value="' . get_string('bulkchangedate', 'local_recompletion') . '"/>';
-    echo '<input type="submit" name="reset_completion" value="' . get_string('bulkresetallcompletion', 'local_recompletion') . '"/>';
+    if (!empty($recompletionenabled)) {
+        echo '<input type="submit" name="reset_completion" value="' . get_string('bulkresetallcompletion', 'local_recompletion') . '"/>';
+    }
     echo '<input type="hidden" name="id" value="' . $course->id . '" />';
     echo '</div></div>';
 }
