@@ -58,6 +58,13 @@ class mod_assign {
             'radio',
             'assign',
             '',
+            get_string('delete', 'local_recompletion'),
+            LOCAL_RECOMPLETION_DELETE
+        );
+        $cba[] = $mform->createElement(
+            'radio',
+            'assign',
+            '',
             get_string('extraattempt', 'local_recompletion'),
             LOCAL_RECOMPLETION_EXTRAATTEMPT
         );
@@ -80,7 +87,8 @@ class mod_assign {
      */
     public static function settings($settings) {
         $choices = [LOCAL_RECOMPLETION_NOTHING => new lang_string('donothing', 'local_recompletion'),
-            LOCAL_RECOMPLETION_EXTRAATTEMPT => new lang_string('extraattempt', 'local_recompletion')];
+                    LOCAL_RECOMPLETION_DELETE => new lang_string('delete', 'local_recompletion'),
+                    LOCAL_RECOMPLETION_EXTRAATTEMPT => new lang_string('extraattempt', 'local_recompletion')];
 
         $settings->add(new \admin_setting_configselect(
             'local_recompletion/assign',
@@ -108,6 +116,21 @@ class mod_assign {
         global $DB;
         if (empty($config->assign)) {
             return '';
+        } else if ($config->assign == LOCAL_RECOMPLETION_DELETE) {
+            $assignments = $DB->get_records('assign', ['course' => $course->id]);
+            foreach ($assignments as $assignment) {
+                $cm = get_coursemodule_from_instance('assign', $assignment->id);
+                if (!$cm) {
+                    continue;
+                }
+                $context = \context_module::instance($cm->id);
+                if (!$context) {
+                    continue;
+                }
+                $assign = new \assign($context, $cm, $course);
+                $assign->remove_submission($userid);
+                self::delete_feedback_data($assign, $context, $userid);
+            }
         } else if ($config->assign == LOCAL_RECOMPLETION_EXTRAATTEMPT) {
             $sql = "SELECT DISTINCT a.*
                       FROM {assign} a
@@ -117,7 +140,13 @@ class mod_assign {
             $nopermissions = false;
             foreach ($assigns as $assign) {
                 $cm = get_coursemodule_from_instance('assign', $assign->id);
+                if (!$cm) {
+                    continue;
+                }
                 $context = \context_module::instance($cm->id);
+                if (!$context) {
+                    continue;
+                }
                 if (has_capability('mod/assign:grade', $context)) {
                     // Assign add_attempt() is protected and requires sesskey, use reflection so we don't have to write our own.
                     $_POST['sesskey'] = sesskey();
@@ -133,5 +162,71 @@ class mod_assign {
             }
         }
         return '';
+    }
+
+    /**
+     * Delete assignment feedback data for a user across supported feedback plugins.
+     *
+     * @param \assign $assign
+     * @param mixed $context
+     * @param int $userid
+     */
+    private static function delete_feedback_data(\assign $assign, $context, int $userid): void {
+        global $DB;
+
+        $requestdata = new \mod_assign\privacy\assign_plugin_request_data($context, $assign);
+        $requestdata->set_userids([$userid]);
+        $requestdata->populate_submissions_and_grades();
+        if (class_exists('\\assignfeedback_comments\\privacy\\provider')) {
+            \assignfeedback_comments\privacy\provider::delete_feedback_for_grades($requestdata);
+        }
+
+        if (
+            class_exists('\\assignfeedback_file\\privacy\\provider')
+            && $assign->get_plugin_by_type('assignfeedback', 'file')
+        ) {
+            \assignfeedback_file\privacy\provider::delete_feedback_for_grades($requestdata);
+        }
+
+        if (
+            class_exists('\\assignfeedback_editpdf\\privacy\\provider')
+            && $assign->get_plugin_by_type('assignfeedback', 'editpdf')
+        ) {
+            \assignfeedback_editpdf\privacy\provider::delete_feedback_for_grades($requestdata);
+        }
+
+        if (
+            class_exists('\\assignsubmission_comments\\privacy\\provider')
+            && $assign->get_plugin_by_type('assignsubmission', 'comments')
+        ) {
+            \assignsubmission_comments\privacy\provider::delete_submissions($requestdata);
+
+            $submissionids = $requestdata->get_submissionids();
+            if (!empty($submissionids) && class_exists('\\core_comment\\privacy\\provider')) {
+                [$insql, $inparams] = $DB->get_in_or_equal($submissionids, SQL_PARAMS_NAMED);
+                \core_comment\privacy\provider::delete_comments_for_all_users_select(
+                    $context,
+                    'assignsubmission_comments',
+                    'submission_comments',
+                    $insql,
+                    $inparams
+                );
+            }
+        }
+
+        $DB->delete_records('assign_grades', [
+            'assignment' => $assign->get_instance()->id,
+            'userid' => $userid,
+        ]);
+
+        $DB->delete_records('assign_user_flags', [
+            'assignment' => $assign->get_instance()->id,
+            'userid' => $userid,
+        ]);
+
+        $DB->delete_records('assign_user_mapping', [
+            'assignment' => $assign->get_instance()->id,
+            'userid' => $userid,
+        ]);
     }
 }
