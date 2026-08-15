@@ -133,6 +133,8 @@ function local_recompletion_get_data(array $data) {
  * @param int $timecompleted
  */
 function local_recompletion_update_course_completion(int $courseid, array $users, int $timecompleted) {
+    global $DB;
+
     foreach ($users as $user) {
         $params = ['userid' => $user, 'course' => $courseid];
         $ccompletion = new \completion_completion($params);
@@ -141,6 +143,9 @@ function local_recompletion_update_course_completion(int $courseid, array $users
             $ccompletion->timecompleted = null;
         }
         $ccompletion->mark_complete($timecompleted);
+
+        // Keep criterion completion dates aligned with the manually edited course completion date.
+        $DB->set_field('course_completion_crit_compl', 'timecompleted', $timecompleted, $params);
     }
 }
 
