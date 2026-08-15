@@ -26,6 +26,16 @@ defined('MOODLE_INTERNAL') || die();
 
 $capabilities = [
 
+    'local/recompletion:resetcompletion' => [
+        'riskbitmask' => RISK_XSS,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => [
+            'editingteacher' => CAP_ALLOW,
+            'manager' => CAP_ALLOW,
+        ],
+        'clonepermissionsfrom' => 'local/recompletion:manage',
+    ],
     'local/recompletion:manage' => [
         'riskbitmask' => RISK_XSS,
         'captype' => 'write',

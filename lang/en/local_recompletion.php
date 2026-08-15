@@ -210,6 +210,7 @@ $string['quizattempts_help'] = 'What to do with existing Quiz attempts. If delet
 $string['recompletion'] = 'recompletion';
 $string['recompletion:bulkoperations'] = 'Bulk operations';
 $string['recompletion:manage'] = 'Allow course recompletion settings to be changed';
+$string['recompletion:resetcompletion'] = 'Manage course completion dates and reset completion users';
 $string['recompletion:resetmycompletion'] = 'Reset my own completion';
 $string['recompletioncalculateddate'] = 'Next recompletion date: {$a}';
 $string['recompletionemailbody'] = 'Recompletion message body';
