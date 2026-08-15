@@ -66,6 +66,7 @@ unset($contextid);
 unset($courseid);
 
 require_login($course);
+require_capability('local/recompletion:resetcompletion', $context);
 
 $systemcontext = context_system::instance();
 $isfrontpage = ($course->id == SITEID);

@@ -33,6 +33,6 @@ $functions = [
         'classpath'     => 'local/recompletion/externallib.php',
         'description'   => 'Reset course completion for a given course and user.',
         'type'          => 'write',
-        'capabilities'  => 'local/recompletion:manage',
+        'capabilities'  => 'local/recompletion:resetcompletion',
     ],
 ];

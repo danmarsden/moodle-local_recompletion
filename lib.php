@@ -49,7 +49,9 @@ function local_recompletion_extend_navigation_course($navigation, $course, $cont
         $url = new moodle_url('/local/recompletion/recompletion.php', ['id' => $course->id]);
         $name = get_string('pluginname', 'local_recompletion');
         $navigation->add($name, $url, navigation_node::TYPE_SETTING, null, null, new pix_icon('i/settings', ''));
+    }
 
+    if (has_capability('local/recompletion:resetcompletion', $context)) {
         $url = new moodle_url('/local/recompletion/participants.php', ['id' => $course->id]);
         $name = get_string('modifycompletiondates', 'local_recompletion');
         $navigation->add($name, $url, navigation_node::TYPE_SETTING, null, null, new pix_icon('i/settings', ''));

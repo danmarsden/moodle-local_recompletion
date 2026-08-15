@@ -67,7 +67,7 @@ class local_recompletion_external extends external_api {
         // Perform security checks.
         $context = context_course::instance($courseid);
         self::validate_context($context);
-        require_capability('local/recompletion:manage', $context);
+        require_capability('local/recompletion:resetcompletion', $context);
 
         $reset = new local_recompletion\task\check_recompletion();
         $errors = $reset->reset_user($params['userid'], $course);
