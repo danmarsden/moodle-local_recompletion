@@ -167,7 +167,10 @@ final class mod_assign_test extends \advanced_testcase {
         $this->assertTrue($DB->record_exists('assign_user_flags', ['assignment' => $assign->id, 'userid' => $targetuser->id]));
         $this->assertTrue($DB->record_exists('assign_user_mapping', ['assignment' => $assign->id, 'userid' => $targetuser->id]));
         $this->assertTrue($DB->record_exists('assignfeedback_comments', ['assignment' => $assign->id, 'grade' => $targetgradeid]));
-        $this->assertTrue($DB->record_exists('comments', ['itemid' => $targetsubmissionid, 'component' => 'assignsubmission_comments']));
+        $this->assertTrue($DB->record_exists('comments', [
+            'itemid' => $targetsubmissionid,
+            'component' => 'assignsubmission_comments',
+        ]));
 
         mod_assign::reset($targetuser->id, $course, (object) ['assign' => LOCAL_RECOMPLETION_DELETE]);
 
@@ -175,13 +178,19 @@ final class mod_assign_test extends \advanced_testcase {
         $this->assertFalse($DB->record_exists('assign_user_flags', ['assignment' => $assign->id, 'userid' => $targetuser->id]));
         $this->assertFalse($DB->record_exists('assign_user_mapping', ['assignment' => $assign->id, 'userid' => $targetuser->id]));
         $this->assertFalse($DB->record_exists('assignfeedback_comments', ['assignment' => $assign->id, 'grade' => $targetgradeid]));
-        $this->assertFalse($DB->record_exists('comments', ['itemid' => $targetsubmissionid, 'component' => 'assignsubmission_comments']));
+        $this->assertFalse($DB->record_exists('comments', [
+            'itemid' => $targetsubmissionid,
+            'component' => 'assignsubmission_comments',
+        ]));
 
         $this->assertTrue($DB->record_exists('assign_grades', ['assignment' => $assign->id, 'userid' => $otheruser->id]));
         $this->assertTrue($DB->record_exists('assign_user_flags', ['assignment' => $assign->id, 'userid' => $otheruser->id]));
         $this->assertTrue($DB->record_exists('assign_user_mapping', ['assignment' => $assign->id, 'userid' => $otheruser->id]));
         $this->assertTrue($DB->record_exists('assignfeedback_comments', ['assignment' => $assign->id, 'grade' => $othergradeid]));
-        $this->assertTrue($DB->record_exists('comments', ['itemid' => $othersubmissionid, 'component' => 'assignsubmission_comments']));
+        $this->assertTrue($DB->record_exists('comments', [
+            'itemid' => $othersubmissionid,
+            'component' => 'assignsubmission_comments',
+        ]));
     }
 
     /**

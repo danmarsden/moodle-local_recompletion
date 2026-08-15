@@ -135,6 +135,8 @@ function local_recompletion_get_data(array $data) {
 function local_recompletion_update_course_completion(int $courseid, array $users, int $timecompleted) {
     global $DB;
 
+    $context = \context_course::instance($courseid);
+
     foreach ($users as $user) {
         $params = ['userid' => $user, 'course' => $courseid];
         $ccompletion = new \completion_completion($params);
@@ -146,6 +148,17 @@ function local_recompletion_update_course_completion(int $courseid, array $users
 
         // Keep criterion completion dates aligned with the manually edited course completion date.
         $DB->set_field('course_completion_crit_compl', 'timecompleted', $timecompleted, $params);
+
+        $event = \local_recompletion\event\course_completion_updated::create([
+            'objectid' => $ccompletion->id,
+            'relateduserid' => $user,
+            'courseid' => $courseid,
+            'context' => $context,
+            'other' => [
+                'timecompleted' => $timecompleted,
+            ],
+        ]);
+        $event->trigger();
     }
 }
 

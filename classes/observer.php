@@ -73,7 +73,18 @@ class observer {
             }
 
             if (!empty($errors)) {
-                // TODO: implement a new completion_reset_failed event.
+                $context = \context_course::instance($course->id);
+                $event = \local_recompletion\event\completion_reset_failed::create([
+                    'objectid' => $course->id,
+                    'relateduserid' => $userid,
+                    'courseid' => $course->id,
+                    'context' => $context,
+                    'other' => [
+                        'errors' => implode(',', $errors),
+                    ],
+                ]);
+                $event->trigger();
+
                 debugging('Completion reset failed for user ' . $userid .
                     ' in course ' . $course->id . ' Errors: ' . implode(',', $errors), DEBUG_DEVELOPER);
             }
