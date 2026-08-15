@@ -274,10 +274,11 @@ class provider implements
                 );
             }
 
-            $sql = "SELECT v.id, v.scoid, v.attemptid, e.element, v.courseid, t.timemodified
+                $sql = "SELECT v.id, v.scoid, v.attemptid, e.element, v.courseid AS course, v.timemodified
                     FROM {local_recompletion_ssv} v
                     JOIN {scorm_element} e ON e.id = v.elementid
-                    WHERE v.courseid = :course AND v.userid = :userid";
+                    JOIN {local_recompletion_sa} sa ON sa.id = v.attemptid
+                    WHERE v.courseid = :course AND sa.userid = :userid";
             $records = $DB->get_records_sql($sql, $params);
             foreach ($records as $record) {
                 $context = \context_course::instance($record->course);
@@ -811,8 +812,8 @@ class provider implements
         $DB->delete_records_select('local_recompletion_qg', "id $sql", $params);
 
         $sql = "SELECT rc.id
-                  FROM {local_recompletion_ssv} rc
-                  JOIN {local_recompletion_sa} sa on sa.attemptid = rc.id
+              FROM {local_recompletion_ssv} rc
+              JOIN {local_recompletion_sa} sa on sa.id = rc.attemptid
                   JOIN {course} c ON rc.courseid = c.id
                   JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
                   WHERE ctx.id = :contextid AND sa.userid $insql";
