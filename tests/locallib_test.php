@@ -69,7 +69,10 @@ final class locallib_test extends \advanced_testcase {
             'timecompleted' => $oldtime,
         ]);
 
+        $sink = $this->redirectEvents();
         \local_recompletion_update_course_completion($course->id, [$targetuser->id], $newtime);
+        $events = $sink->get_events();
+        $sink->close();
 
         $targetcompletion = new \completion_completion(['userid' => $targetuser->id, 'course' => $course->id]);
         $othercompletion = new \completion_completion(['userid' => $otheruser->id, 'course' => $course->id]);
@@ -89,5 +92,16 @@ final class locallib_test extends \advanced_testcase {
         $this->assertEquals($oldtime, (int) $othercompletion->timecompleted);
         $this->assertEquals($newtime, (int) $targetcriteriacompletion->timecompleted);
         $this->assertEquals($oldtime, (int) $othercriteriacompletion->timecompleted);
+
+        $matchingevents = array_values(array_filter($events, static function ($event): bool {
+            return $event instanceof \local_recompletion\event\course_completion_updated;
+        }));
+
+        $this->assertCount(1, $matchingevents);
+        $event = $matchingevents[0];
+        $this->assertEquals($course->id, (int) $event->courseid);
+        $this->assertEquals($targetuser->id, (int) $event->relateduserid);
+        $this->assertEquals($newtime, (int) $event->other['timecompleted']);
+        $this->assertNotEmpty($event->objectid);
     }
 }
