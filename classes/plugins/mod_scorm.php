@@ -117,22 +117,25 @@ class mod_scorm {
             $params = ['userid' => $userid, 'course' => $course->id];
             $selectsql = 'userid = ? AND scormid IN (SELECT id FROM {scorm} WHERE course = ?)';
 
-            $scormattempt = $DB->get_records_select('scorm_attempt', $selectsql, $params);
-            // Strictly not part of #78 but eliminates unused local variable violation.
-            foreach (array_keys($scormattempt) as $sid) {
-                // Add courseid to records to help with restore process.
-                $scormattempt[$sid]->courseid = $course->id;
+            $scormattempts = $DB->get_records_select('scorm_attempt', $selectsql, $params);
+            foreach ($scormattempts as $sid => $scormattempt) {
+                $archivedattemptid = null;
+                if (!empty($config->archivescorm)) {
+                    // Add courseid to archived attempts to help with restore process.
+                    $scormattempt->courseid = $course->id;
+                    $archivedattemptid = $DB->insert_record('local_recompletion_sa', $scormattempt);
+                }
+
                 $scormscoesvalue = $DB->get_records('scorm_scoes_value', ['attemptid' => $sid]);
-                if ($config->archivescorm) {
-                    foreach (array_keys($scormscoesvalue) as $ssvid) {
-                        $scormscoesvalue[$ssvid]->courseid = $course->id;
+                if (!empty($config->archivescorm) && !empty($scormscoesvalue)) {
+                    foreach ($scormscoesvalue as $ssv) {
+                        $ssv->courseid = $course->id;
+                        // Keep archived SCO tracking rows linked to archived attempt rows.
+                        $ssv->attemptid = $archivedattemptid;
                     }
                     $DB->insert_records('local_recompletion_ssv', $scormscoesvalue);
                 }
                 $DB->delete_records('scorm_scoes_value', ['attemptid' => $sid]);
-            }
-            if ($config->archivescorm) {
-                $DB->insert_records('local_recompletion_sa', $scormattempt);
             }
             $DB->delete_records_select('scorm_attempt', $selectsql, $params);
             $DB->delete_records_select('scorm_aicc_session', $selectsql, $params);
