@@ -14,76 +14,74 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * External local recompletion API.
- *
- * @package    local_recompletion
- * @author     Noémie Ariste <noemie.ariste@catalyst.net.nz>
- * @copyright  2024 Catalyst IT
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+namespace local_recompletion\external;
+
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_single_structure;
+use core_external\external_value;
 
 defined('MOODLE_INTERNAL') || die;
 
-require_once("$CFG->libdir/externallib.php");
-require_once("$CFG->dirroot/local/recompletion/locallib.php");
-require_once("$CFG->libdir/grade/grade_item.php");
-require_once("$CFG->libdir/grade/grade_grade.php");
+require_once($CFG->dirroot . '/local/recompletion/locallib.php');
 
 /**
- * local recompletion functions
- * @author     Noémie Ariste <noemie.ariste@catalyst.net.nz>
- * @copyright  2024 Catalyst IT
+ * External function to reset a user's course completion.
+ *
+ * @package    local_recompletion
+ * @copyright  2026 Dan Marsden
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class local_recompletion_external extends external_api {
+class reset_course extends external_api {
     /**
-     * Describes the parameters for reset_course
+     * Describes the parameters for execute.
+     *
      * @return external_function_parameters
      */
-    public static function reset_course_parameters() {
+    public static function execute_parameters() {
         return new external_function_parameters(
             [
                 'courseid' => new external_value(PARAM_INT, 'course id'),
-                'userid' => new external_value(PARAM_INT, 'userid'),
+                'userid' => new external_value(PARAM_INT, 'user id'),
             ]
         );
     }
 
     /**
-     * Resets course completion for the requested course id and user id
+     * Resets course completion for a specific user in a course.
+     *
      * @param int $courseid
      * @param int $userid
-     * @return array of errors and status result
+     * @return array
      */
-    public static function reset_course($courseid, $userid) {
-        $params = self::validate_parameters(self::reset_course_parameters(), [
+    public static function execute($courseid, $userid) {
+        $params = self::validate_parameters(self::execute_parameters(), [
             'courseid' => $courseid,
             'userid' => $userid,
         ]);
 
         $course = get_course($params['courseid']);
 
-        // Perform security checks.
-        $context = context_course::instance($courseid);
+        $context = \context_course::instance($course->id);
         self::validate_context($context);
         require_capability('local/recompletion:resetcompletion', $context);
 
-        $reset = new local_recompletion\task\check_recompletion();
-        $errors = $reset->reset_user($params['userid'], $course);
+        $config = \local_recompletion_get_config($course);
+        $reset = new \local_recompletion\task\check_recompletion();
+        $errors = $reset->reset_user($params['userid'], $course, $config);
 
-        $result = [];
-        $result['status'] = empty($errors) ? true : false;
-        $result['errors'] = implode(',', $errors);
-        return $result;
+        return [
+            'status' => empty($errors),
+            'errors' => implode(',', $errors),
+        ];
     }
 
     /**
-     * Describes the reset_course return value.
+     * Describes the execute return value.
      *
      * @return external_single_structure
      */
-    public static function reset_course_returns() {
+    public static function execute_returns() {
         return new external_single_structure(
             [
                 'status' => new external_value(PARAM_BOOL, 'status: true if success'),
