@@ -1098,5 +1098,65 @@ function xmldb_local_recompletion_upgrade($oldversion) {
         // Recompletion savepoint reached.
         upgrade_plugin_savepoint(true, 2024090300, 'local', 'recompletion');
     }
+
+    if ($oldversion < 2026081402) {
+        // Change local_recompletion_sa.courseid default only if it is not already 0.
+        $columns = $DB->get_columns('local_recompletion_sa');
+        if (array_key_exists('courseid', $columns) && (string) $columns['courseid']->default_value !== '0') {
+            $table = new xmldb_table('local_recompletion_sa');
+            $field = new xmldb_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'attempt');
+            $key = new xmldb_key('courseid', XMLDB_KEY_FOREIGN, ['courseid'], 'course', ['id']);
+
+            $dbman->drop_key($table, $key);
+
+            // Launch change of default for field courseid.
+            $dbman->change_field_default($table, $field);
+
+            $dbman->add_key($table, $key);
+        }
+
+        // Change local_recompletion_ssv.courseid default only if it is not already 0.
+        $columns = $DB->get_columns('local_recompletion_ssv');
+        if (array_key_exists('courseid', $columns) && (string) $columns['courseid']->default_value !== '0') {
+            $table = new xmldb_table('local_recompletion_ssv');
+            $field = new xmldb_field('courseid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'timemodified');
+            $coursekey = new xmldb_key('courseid', XMLDB_KEY_FOREIGN, ['courseid'], 'course', ['id']);
+
+            // Drop keys before changing field defaults.
+            $dbman->drop_key($table, $coursekey);
+            // Launch change of default for field courseid.
+            $dbman->change_field_default($table, $field);
+            $dbman->add_key($table, $coursekey);
+        }
+        if (array_key_exists('elementid', $columns) && $columns['elementid']->default_value !== null) {
+            $table = new xmldb_table('local_recompletion_ssv');
+            $field = new xmldb_field('elementid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null, 'attemptid');
+            $elementkey = new xmldb_key('elementid', XMLDB_KEY_FOREIGN, ['elementid'], 'scorm_element', ['id']);
+
+            $dbman->drop_key($table, $elementkey);
+
+            // Launch change of default for field elementid.
+            $dbman->change_field_default($table, $field);
+
+            // Add keys back after changing field defaults.
+            $dbman->add_key($table, $elementkey);
+        }
+        if (array_key_exists('attemptid', $columns) && $columns['attemptid']->default_value !== null) {
+            $table = new xmldb_table('local_recompletion_ssv');
+            $field = new xmldb_field('attemptid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null, 'scoid');
+            $attemptkey = new xmldb_key('attemptid', XMLDB_KEY_FOREIGN, ['attemptid'], 'scorm_attempt', ['id']);
+
+            $dbman->drop_key($table, $attemptkey);
+
+            // Launch change of default for field attemptid.
+            $dbman->change_field_default($table, $field);
+
+            $dbman->add_key($table, $attemptkey);
+        }
+
+        // Recompletion savepoint reached.
+        upgrade_plugin_savepoint(true, 2026081402, 'local', 'recompletion');
+    }
+
     return true;
 }
