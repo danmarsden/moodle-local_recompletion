@@ -332,10 +332,7 @@ class check_recompletion extends \core\task\scheduled_task {
         if ($clearcache) {
             // Difficult to find affected users, just purge all completion cache.
             \cache::make('core', 'completion')->purge();
-            // Clear coursecompletion cache which was added in Moodle 3.2.
-            if ($CFG->version >= 2016120500) {
-                \cache::make('core', 'coursecompletion')->purge();
-            }
+            \cache::make('core', 'coursecompletion')->purge();
         }
         return $errors;
     }
