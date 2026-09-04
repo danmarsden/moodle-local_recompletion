@@ -6,7 +6,8 @@ The following git branches are currently supported:
 
 | Moodle version     | Branch      |
 | ----------------- | ----------- |
-| Moodle 4.5+ | MOODLE_405_STABLE |
+| Moodle 5.3        | MOODLE_503_STABLE |
+| Moodle 4.5 - 5.2  | MOODLE_405_STABLE |
 
 This plugin adds course level settings for recompletion - clearing all course, activity completion and all other related moodle plugins data for a user based on the duration set notifying the student they need to return to the course and recomplete it.
 
