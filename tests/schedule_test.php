@@ -30,6 +30,8 @@ use core\di;
 final class schedule_test extends \advanced_testcase {
     /**
      * Basic test for future time scheduling.
+        *
+        * @covers \local_recompletion_calculate_schedule_time
      */
     public function test_local_recompletion(): void {
         global $CFG;
