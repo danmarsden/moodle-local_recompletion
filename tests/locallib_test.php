@@ -70,7 +70,7 @@ final class locallib_test extends \advanced_testcase {
         ]);
 
         $sink = $this->redirectEvents();
-        \local_recompletion_update_course_completion($course->id, [$targetuser->id], $newtime);
+        \local_recompletion_update_course_completion($course, [$targetuser->id], $newtime);
         $events = $sink->get_events();
         $sink->close();
 

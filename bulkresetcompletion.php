@@ -84,7 +84,7 @@ if ($form->is_cancelled()) {
 } else if ($data = $form->get_data()) {
     if (!empty($data->newcompletion)) {
         // Update course completion.
-        local_recompletion_update_course_completion($courseid, $users, $data->newcompletion);
+        local_recompletion_update_course_completion($course, $users, $data->newcompletion);
         redirect(
             $CFG->wwwroot . '/local/recompletion/participants.php?id=' . $course->id,
             get_string('completionupdated', 'local_recompletion')
