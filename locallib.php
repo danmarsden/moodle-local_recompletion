@@ -33,6 +33,9 @@ define('LOCAL_RECOMPLETION_NOTHING', 0);
 define('LOCAL_RECOMPLETION_DELETE', 1);
 define('LOCAL_RECOMPLETION_EXTRAATTEMPT', 2);
 
+define('LOCAL_RECOMPLETION_CLEAR_COURSE_DATE', 0);
+define('LOCAL_RECOMPLETION_EDIT_COURSE_DATE', 1);
+
 require_once($CFG->dirroot . '/user/lib.php');
 require_once($CFG->libdir . '/formslib.php');
 require_once($CFG->dirroot . '/course/lib.php');
@@ -128,37 +131,73 @@ function local_recompletion_get_data(array $data) {
 
 /**
  * Update course completions
- * @param int $courseid
+ * @param stdClass $course
  * @param array[] $users
- * @param int $timecompleted
+ * @param null|int $timecompleted
  */
-function local_recompletion_update_course_completion(int $courseid, array $users, int $timecompleted) {
+function local_recompletion_update_course_completion(stdClass $course, array $users, null|int $timecompleted) {
+    global $DB;
+
+    // Get recompletion config for this course.
+    $config = local_recompletion_get_config($course);
+
+    foreach ($users as $user) {
+        $context = \context_course::instance($course->id);
+        $params = ['userid' => $user, 'course' => $course->id];
+
+        if (is_null($timecompleted)) {
+            local_recompletion_delete_course_completion($course->id, $user, $config);
+        } else {
+            $ccompletion = new \completion_completion($params);
+            if ($ccompletion->is_complete()) {
+                // If we already have a completion date, clear it first so that mark_complete works.
+                $ccompletion->timecompleted = null;
+            }
+            $ccompletion->mark_complete($timecompleted);
+
+            // Keep criterion completion dates aligned with the manually edited course completion date.
+            $DB->set_field('course_completion_crit_compl', 'timecompleted', $timecompleted, $params);
+
+            $event = \local_recompletion\event\course_completion_updated::create([
+                'objectid' => $ccompletion->id,
+                'relateduserid' => $user,
+                'courseid' => $course->id,
+                'context' => $context,
+                'other' => [
+                    'timecompleted' => $timecompleted,
+                ],
+            ]);
+            $event->trigger();
+        }
+    }
+}
+
+/**
+ * Delete course completions
+ * @param int $courseid
+ * @param int $userid
+ * @param stdClass $config - recompletion config.
+ */
+function local_recompletion_delete_course_completion(int $courseid, int $userid, stdClass $config) {
     global $DB;
 
     $context = \context_course::instance($courseid);
 
-    foreach ($users as $user) {
-        $params = ['userid' => $user, 'course' => $courseid];
-        $ccompletion = new \completion_completion($params);
-        if ($ccompletion->is_complete()) {
-            // If we already have a completion date, clear it first so that mark_complete works.
-            $ccompletion->timecompleted = null;
-        }
-        $ccompletion->mark_complete($timecompleted);
+    $params = ['userid' => $userid, 'course' => $courseid];
+    if (!empty(get_config('local_recompletion', 'forcearchivecompletiondata')) || $config->archivecompletiondata) {
+        $coursecompletions = $DB->get_records('course_completions', $params);
+        $DB->insert_records('local_recompletion_cc', $coursecompletions);
+        $criteriacompletions = $DB->get_records('course_completion_crit_compl', $params);
+        $DB->insert_records('local_recompletion_cc_cc', $criteriacompletions);
+    }
+    $DB->delete_records('course_completions', $params);
+    $DB->delete_records('course_completion_crit_compl', $params);
 
-        // Keep criterion completion dates aligned with the manually edited course completion date.
-        $DB->set_field('course_completion_crit_compl', 'timecompleted', $timecompleted, $params);
+    $clearcache = true; // We have made some changes, clear completion cache.
 
-        $event = \local_recompletion\event\course_completion_updated::create([
-            'objectid' => $ccompletion->id,
-            'relateduserid' => $user,
-            'courseid' => $courseid,
-            'context' => $context,
-            'other' => [
-                'timecompleted' => $timecompleted,
-            ],
-        ]);
-        $event->trigger();
+    if ($clearcache) {
+        // Difficult to find affected users, just purge all completion cache.
+        \cache::make('core', 'coursecompletion')->purge();
     }
 }
 
