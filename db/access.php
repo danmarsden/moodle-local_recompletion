@@ -27,7 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 $capabilities = [
 
     'local/recompletion:resetcompletion' => [
-        'riskbitmask' => RISK_XSS,
+        'riskbitmask' => RISK_DATALOSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => [
@@ -37,7 +37,7 @@ $capabilities = [
         'clonepermissionsfrom' => 'local/recompletion:manage',
     ],
     'local/recompletion:manage' => [
-        'riskbitmask' => RISK_XSS,
+        'riskbitmask' => RISK_DATALOSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => [
@@ -56,7 +56,7 @@ $capabilities = [
         ],
     ],
     'local/recompletion:bulkoperations' => [
-        'riskbitmask' => RISK_XSS,
+        'riskbitmask' => RISK_DATALOSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => [
