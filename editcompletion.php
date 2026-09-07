@@ -114,7 +114,7 @@ echo $OUTPUT->box(get_string('editcompletion_desc', 'local_recompletion'));
 
 echo html_writer::start_div('userlist');
 foreach ($userlist as $user) {
-    echo html_writer::div(fullname($user));
+    echo html_writer::div(s(fullname($user)));
 }
 echo html_writer::end_div();
 

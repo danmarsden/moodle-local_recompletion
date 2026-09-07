@@ -74,12 +74,12 @@ $PAGE->set_heading($course->fullname);
 
 // Print the form.
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string("resetcompletionfor", "local_recompletion", fullname($user)));
+echo $OUTPUT->heading(get_string("resetcompletionfor", "local_recompletion", s(fullname($user))));
 
 $confirmurl = $PAGE->url;
 $confirmurl->param('confirm', 1);
 $confirmurl->param('user', $userid);
-$message = get_string("resetcompletionconfirm", "local_recompletion", fullname($user));
+$message = get_string("resetcompletionconfirm", "local_recompletion", s(fullname($user)));
 echo $OUTPUT->confirm($message, $confirmurl, $cancelurl);
 
 echo $OUTPUT->footer();
