@@ -27,7 +27,6 @@ defined('MOODLE_INTERNAL') || die();
 $capabilities = [
 
     'local/recompletion:resetcompletion' => [
-        'riskbitmask' => RISK_XSS,
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
         'archetypes' => [
