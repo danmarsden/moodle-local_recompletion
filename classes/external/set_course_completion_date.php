@@ -83,7 +83,7 @@ class set_course_completion_date extends external_api {
             throw new moodle_exception('completionnotenabled', 'local_recompletion');
         }
 
-        local_recompletion_update_course_completion($course->id, [$params['userid']], $params['timecompleted']);
+        local_recompletion_update_course_completion($course, [$params['userid']], $params['timecompleted']);
 
         return [
             'status' => true,

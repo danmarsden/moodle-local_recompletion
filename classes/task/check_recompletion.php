@@ -156,16 +156,11 @@ class check_recompletion extends \core\task\scheduled_task {
      */
     protected function reset_completions($userid, $course, $config) {
         global $DB;
-        $params = ['userid' => $userid, 'course' => $course->id];
-        if (!empty(get_config('local_recompletion', 'forcearchivecompletiondata')) || $config->archivecompletiondata) {
-            $coursecompletions = $DB->get_records('course_completions', $params);
-            $DB->insert_records('local_recompletion_cc', $coursecompletions);
-            $criteriacompletions = $DB->get_records('course_completion_crit_compl', $params);
-            $DB->insert_records('local_recompletion_cc_cc', $criteriacompletions);
-        }
-        $DB->delete_records('course_completions', $params);
-        $DB->delete_records('course_completion_crit_compl', $params);
 
+        // Archive and delete course completion.
+        local_recompletion_delete_course_completion($course->id, $userid, $config);
+
+        $params = ['userid' => $userid, 'course' => $course->id];
         // Archive and delete all activity completions.
         $selectsql = 'userid = ? AND coursemoduleid IN (SELECT id FROM {course_modules} WHERE course = ?)';
         if (!empty(get_config('local_recompletion', 'forcearchivecompletiondata')) || $config->archivecompletiondata) {
@@ -332,7 +327,6 @@ class check_recompletion extends \core\task\scheduled_task {
         if ($clearcache) {
             // Difficult to find affected users, just purge all completion cache.
             \cache::make('core', 'completion')->purge();
-            \cache::make('core', 'coursecompletion')->purge();
         }
         return $errors;
     }
