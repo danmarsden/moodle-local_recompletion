@@ -63,7 +63,9 @@ $string['completed'] = 'Completed';
 $string['completiondateaction'] = 'Completion date action';
 $string['completiondateaction_help'] = 'Controls how the course completion date should be edited. Choose:
 - "Clear course completion date" to delete the course completion.
-- "Modify course completion date" to set it to a new date';
+- "Modify course completion date" to set it to a new date
+
+Note: This does not trigger a full recompletion process, it only modifies the course completion date for the selected user.';
 $string['completionnotenabled'] = 'Completion is not enabled in this course';
 $string['completionreset'] = 'Completion for the selected students in this course has been reset.';
 $string['completionresetuser'] = 'Completion for {$a} in this course has been reset.';
