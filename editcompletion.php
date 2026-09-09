@@ -96,12 +96,16 @@ $form = new local_recompletion_coursecompletion_form('editcompletion.php', [
 if ($form->is_cancelled()) {
     redirect($CFG->wwwroot . '/local/recompletion/participants.php?id=' . $course->id);
 } else if ($data = $form->get_data()) {
-    if (!empty($data->newcompletion)) {
+    $modifydate = $data->completiondateaction;
+    if (!empty($data->newcompletion) || !$modifydate) {
+        $timecompleted = $modifydate ? $data->newcompletion : null;
         // Update course completion.
-        local_recompletion_update_course_completion($courseid, $users, $data->newcompletion);
+        local_recompletion_update_course_completion($course, $users, $timecompleted);
+        $notif = $modifydate ? get_string('completionupdated', 'local_recompletion')
+            : get_string('coursecompletionreset', 'local_recompletion');
         redirect(
             $CFG->wwwroot . '/local/recompletion/participants.php?id=' . $course->id,
-            get_string('completionupdated', 'local_recompletion')
+            $notif
         );
     }
 }

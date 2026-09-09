@@ -58,7 +58,14 @@ $string['certificate_help'] = 'Should issued certificates be deleted?';
 $string['certificateverifywarn'] = 'Attention: Deleting the issued certificates without archiving will result in the fact that issued certificates cannot be verified anymore in Moodle. Please only delete the certificates if this is acceptable for you.';
 $string['choiceattempts'] = "Choice attempts";
 $string['choiceattempts_help'] = 'Should existing Choice attempts be deleted - if archive is selected, the old Choice attempts will be archived in the local_recompletion_cha table.';
+$string['clearcompletiondate'] = 'Clear course completion';
 $string['completed'] = 'Completed';
+$string['completiondateaction'] = 'Completion date action';
+$string['completiondateaction_help'] = 'Controls how the course completion date should be edited. Choose:
+- "Clear course completion date" to delete the course completion.
+- "Modify course completion date" to set it to a new date
+
+Note: This does not trigger a full recompletion process, it only modifies the course completion date for the selected user.';
 $string['completionnotenabled'] = 'Completion is not enabled in this course';
 $string['completionreset'] = 'Completion for the selected students in this course has been reset.';
 $string['completionresetuser'] = 'Completion for {$a} in this course has been reset.';
@@ -67,6 +74,7 @@ $string['coursecertificate'] = 'Certificates (mod_coursecertificate)';
 $string['coursecertificate_help'] = 'Should issued certificates be deleted?';
 $string['coursecertificateverifywarn'] = 'Attention: Deleting the issued certificates without archiving will result in the fact that issued certificates cannot be verified anymore in Moodle. Please only delete the certificates if this is acceptable for you.';
 $string['coursecompletiondate'] = 'New course completion date';
+$string['coursecompletionreset'] = 'Course completion for the selected students in this course has been removed.';
 $string['coursecompletionstatus'] = 'Course completion status';
 $string['coursemodule'] = 'Course module';
 $string['customcertcertificates'] = 'Custom certificates (mod_customcert)';
@@ -91,7 +99,7 @@ $string['deletegradedata'] = 'Delete all grades for the user';
 $string['deletegradedata_help'] = 'Delete current grade completion data from grade_grades table. Grade recompletion data is permanently deleted but data retained in Grade history data table.';
 $string['donothing'] = 'Do nothing';
 $string['editcompletion'] = 'Edit course completion date';
-$string['editcompletion_desc'] = 'Modify the course completion date for the following users:';
+$string['editcompletion_desc'] = 'Edit the course completion for the following users:';
 $string['editrecompletion'] = 'Edit course recompletion settings';
 $string['elementid'] = 'Element ID';
 $string['emailrecompletiontitle'] = 'Custom recompletion message settings';
@@ -126,6 +134,7 @@ $string['invalidscheduledate'] = 'Invalid schedule date entered.';
 $string['invalidschedulestartdate'] = 'Invalid schedule start date entered, this must be a future or current date.';
 $string['lessonattempts'] = 'Lesson attempts';
 $string['lessonattempts_help'] = 'How to handle Lesson attempts within the course. If archive is selected, the attempts will be archived.';
+$string['modifycompletiondate'] = 'Modify course completion date';
 $string['modifycompletiondates'] = 'Modify course completion dates';
 $string['noassigngradepermission'] = 'Your completion was reset, but this course contains an assignment that could not be reset, please ask your teacher to do this for you if required.';
 $string['nousersselected'] = 'No users were selected';
