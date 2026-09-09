@@ -43,20 +43,20 @@ class local_recompletion_coursecompletion_form extends moodleform {
                     'radio',
                     'completiondateaction',
                     '',
-                    get_string('clearcompletiondate', 'local_recompletion'),
-                    LOCAL_RECOMPLETION_CLEAR_COURSE_DATE
+                    get_string('modifycompletiondate', 'local_recompletion'),
+                    LOCAL_RECOMPLETION_EDIT_COURSE_DATE
                 ),
                 $mform->createElement(
                     'radio',
                     'completiondateaction',
                     '',
-                    get_string('modifycompletiondate', 'local_recompletion'),
-                    LOCAL_RECOMPLETION_EDIT_COURSE_DATE
+                    get_string('clearcompletiondate', 'local_recompletion'),
+                    LOCAL_RECOMPLETION_CLEAR_COURSE_DATE
                 ),
             ];
         $mform->addGroup($actiongp, 'completiondateaction', get_string('completiondateaction', 'local_recompletion'), [' '], false);
         $mform->addHelpButton('completiondateaction', 'completiondateaction', 'local_recompletion');
-        $mform->setDefault('completiondateaction', LOCAL_RECOMPLETION_CLEAR_COURSE_DATE);
+        $mform->setDefault('completiondateaction', LOCAL_RECOMPLETION_EDIT_COURSE_DATE);
 
         $mform->addElement(
             'date_time_selector',
