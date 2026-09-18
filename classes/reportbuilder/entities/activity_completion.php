@@ -18,6 +18,7 @@ namespace local_recompletion\reportbuilder\entities;
 
 use lang_string;
 use core_reportbuilder\local\entities\base;
+use core_reportbuilder\local\helpers\custom_fields;
 use core_reportbuilder\local\helpers\format;
 use core_reportbuilder\local\report\column;
 use core_reportbuilder\local\report\filter;
@@ -78,11 +79,27 @@ class activity_completion extends base {
      */
     public function initialise(): base {
         $columns = $this->get_all_columns();
+        $filters = $this->get_all_filters();
+
+        if (class_exists('\\local_modcustomfields\\customfield\\mod_handler')) {
+            $coursemodulealias = $this->get_table_alias('course_modules');
+            $customfields = (new custom_fields(
+                "{$coursemodulealias}.id",
+                $this->get_entity_name(),
+                'local_modcustomfields',
+                'mod',
+            ))
+                ->add_joins($this->get_joins())
+                ->add_join($this->get_module_join());
+
+            $columns = array_merge($columns, $customfields->get_columns());
+            $filters = array_merge($filters, $customfields->get_filters());
+        }
+
         foreach ($columns as $column) {
             $this->add_column($column);
         }
 
-        $filters = $this->get_all_filters();
         foreach ($filters as $filter) {
             $this->add_filter($filter)->add_condition($filter);
         }
@@ -185,7 +202,7 @@ class activity_completion extends base {
             ->add_fields("activitynames.name AS activityname")
             ->set_is_sortable(true);
 
-            // Activitiy completion user group column.
+        // Activitiy completion user group column.
         $usergroups = $DB->sql_group_concat("{$groupsalias}.name");
         $columns[] = (new column(
             'groupname',
@@ -193,6 +210,7 @@ class activity_completion extends base {
             $this->get_entity_name()
         ))
             ->add_joins($this->get_joins())
+            ->add_join($this->get_module_join())
             ->set_type(column::TYPE_TEXT)
             ->add_field("
                 (SELECT {$usergroups}
@@ -210,6 +228,7 @@ class activity_completion extends base {
             $this->get_entity_name()
         ))
             ->add_joins($this->get_joins())
+            ->add_join($this->get_module_join())
             ->set_type(column::TYPE_TEXT)
             ->add_field("(SELECT COALESCE({$coursecomalias}.timecompleted, 0)
                         FROM {course_completions} {$coursecomalias}
@@ -321,6 +340,7 @@ class activity_completion extends base {
             "{$modulealias}.name"
         ))
             ->add_joins($this->get_joins())
+                ->add_join($this->get_module_join())
             ->set_options(self::SUPPORTED_ACTIVITIES);
 
         // Activitiy completion date filter.
