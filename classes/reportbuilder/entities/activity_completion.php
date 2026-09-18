@@ -185,7 +185,7 @@ class activity_completion extends base {
             ->add_fields("activitynames.name AS activityname")
             ->set_is_sortable(true);
 
-            // Activitiy completion user group column.
+        // Activitiy completion user group column.
         $usergroups = $DB->sql_group_concat("{$groupsalias}.name");
         $columns[] = (new column(
             'groupname',
@@ -193,6 +193,7 @@ class activity_completion extends base {
             $this->get_entity_name()
         ))
             ->add_joins($this->get_joins())
+            ->add_join($this->get_module_join())
             ->set_type(column::TYPE_TEXT)
             ->add_field("
                 (SELECT {$usergroups}
@@ -210,6 +211,7 @@ class activity_completion extends base {
             $this->get_entity_name()
         ))
             ->add_joins($this->get_joins())
+            ->add_join($this->get_module_join())
             ->set_type(column::TYPE_TEXT)
             ->add_field("(SELECT COALESCE({$coursecomalias}.timecompleted, 0)
                         FROM {course_completions} {$coursecomalias}
@@ -321,6 +323,7 @@ class activity_completion extends base {
             "{$modulealias}.name"
         ))
             ->add_joins($this->get_joins())
+                ->add_join($this->get_module_join())
             ->set_options(self::SUPPORTED_ACTIVITIES);
 
         // Activitiy completion date filter.
