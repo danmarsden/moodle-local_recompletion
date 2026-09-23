@@ -37,19 +37,42 @@ final class mod_quiz_test extends \advanced_testcase {
 
         $course = $this->getDataGenerator()->create_course();
         $quiz = $this->getDataGenerator()->create_module('quiz', ['course' => $course->id]);
+        $quizrecord = $DB->get_record('quiz', ['course' => $course->id]);
+        $quizid = $quizrecord->id;
         $targetuser = $this->getDataGenerator()->create_user();
         $otheruser = $this->getDataGenerator()->create_user();
 
         $this->getDataGenerator()->enrol_user($targetuser->id, $course->id, 'student');
         $this->getDataGenerator()->enrol_user($otheruser->id, $course->id, 'student');
 
+        // Clean up any auto-generated quiz attempts.
+        $DB->delete_records('quiz_attempts', ['quiz' => $quizid]);
+        $DB->delete_records('quiz_grades', ['quiz' => $quizid]);
+
         $now = time();
+
+        // Create question usages for quiz attempts.
+        $cm = get_coursemodule_from_instance('quiz', $quizid);
+        $context = \context_module::instance($cm->id);
+
+        $targetusageid = $DB->insert_record('question_usages', (object) [
+            'contextid' => $context->id,
+            'component' => 'mod_quiz',
+            'preferredbehaviour' => 'deferredfeedback',
+        ]);
+
+        $otherusageid = $DB->insert_record('question_usages', (object) [
+            'contextid' => $context->id,
+            'component' => 'mod_quiz',
+            'preferredbehaviour' => 'deferredfeedback',
+        ]);
 
         // Create quiz attempts for target user.
         $targetattemptid = $DB->insert_record('quiz_attempts', (object) [
-            'quiz' => $quiz->id,
+            'quiz' => $quizid,
             'userid' => $targetuser->id,
             'attempt' => 1,
+            'uniqueid' => $targetusageid,
             'timecreated' => $now,
             'timemodified' => $now,
             'layout' => '',
@@ -60,9 +83,10 @@ final class mod_quiz_test extends \advanced_testcase {
 
         // Create quiz attempts for other user.
         $otherattemptid = $DB->insert_record('quiz_attempts', (object) [
-            'quiz' => $quiz->id,
+            'quiz' => $quizid,
             'userid' => $otheruser->id,
             'attempt' => 1,
+            'uniqueid' => $otherusageid,
             'timecreated' => $now,
             'timemodified' => $now,
             'layout' => '',
@@ -73,14 +97,14 @@ final class mod_quiz_test extends \advanced_testcase {
 
         // Create quiz grades for both users.
         $targetgradeid = $DB->insert_record('quiz_grades', (object) [
-            'quiz' => $quiz->id,
+            'quiz' => $quizid,
             'userid' => $targetuser->id,
             'grade' => 50,
             'timemodified' => $now,
         ]);
 
         $othergradeid = $DB->insert_record('quiz_grades', (object) [
-            'quiz' => $quiz->id,
+            'quiz' => $quizid,
             'userid' => $otheruser->id,
             'grade' => 60,
             'timemodified' => $now,
@@ -115,17 +139,34 @@ final class mod_quiz_test extends \advanced_testcase {
 
         $course = $this->getDataGenerator()->create_course();
         $quiz = $this->getDataGenerator()->create_module('quiz', ['course' => $course->id]);
+        $quizrecord = $DB->get_record('quiz', ['course' => $course->id]);
+        $quizid = $quizrecord->id;
         $targetuser = $this->getDataGenerator()->create_user();
 
         $this->getDataGenerator()->enrol_user($targetuser->id, $course->id, 'student');
 
+        // Clean up any auto-generated quiz attempts.
+        $DB->delete_records('quiz_attempts', ['quiz' => $quizid]);
+        $DB->delete_records('quiz_grades', ['quiz' => $quizid]);
+
         $now = time();
+
+        // Create question usage for quiz attempt.
+        $cm = get_coursemodule_from_instance('quiz', $quizid);
+        $context = \context_module::instance($cm->id);
+
+        $usageid = $DB->insert_record('question_usages', (object) [
+            'contextid' => $context->id,
+            'component' => 'mod_quiz',
+            'preferredbehaviour' => 'deferredfeedback',
+        ]);
 
         // Create quiz attempt and grade.
         $attemptid = $DB->insert_record('quiz_attempts', (object) [
-            'quiz' => $quiz->id,
+            'quiz' => $quizid,
             'userid' => $targetuser->id,
             'attempt' => 1,
+            'uniqueid' => $usageid,
             'timecreated' => $now,
             'timemodified' => $now,
             'layout' => '',
@@ -135,7 +176,7 @@ final class mod_quiz_test extends \advanced_testcase {
         ]);
 
         $gradeid = $DB->insert_record('quiz_grades', (object) [
-            'quiz' => $quiz->id,
+            'quiz' => $quizid,
             'userid' => $targetuser->id,
             'grade' => 50,
             'timemodified' => $now,
@@ -152,8 +193,8 @@ final class mod_quiz_test extends \advanced_testcase {
         $this->assertFalse($DB->record_exists('quiz_grades', ['id' => $gradeid]));
 
         // Verify records are archived.
-        $this->assertTrue($DB->record_exists('local_recompletion_qa', ['quiz' => $quiz->id, 'userid' => $targetuser->id]));
-        $this->assertTrue($DB->record_exists('local_recompletion_qg', ['quiz' => $quiz->id, 'userid' => $targetuser->id]));
+        $this->assertTrue($DB->record_exists('local_recompletion_qa', ['quiz' => $quizid, 'userid' => $targetuser->id]));
+        $this->assertTrue($DB->record_exists('local_recompletion_qg', ['quiz' => $quizid, 'userid' => $targetuser->id]));
     }
 
     /**
@@ -172,17 +213,33 @@ final class mod_quiz_test extends \advanced_testcase {
             'timelimit' => 3600,
             'password' => 'testpassword',
         ]);
+        $quizrecord = $DB->get_record('quiz', ['course' => $course->id]);
+        $quizid = $quizrecord->id;
         $targetuser = $this->getDataGenerator()->create_user();
 
         $this->getDataGenerator()->enrol_user($targetuser->id, $course->id, 'student');
 
+        // Clean up any auto-generated quiz attempts.
+        $DB->delete_records('quiz_attempts', ['quiz' => $quizid]);
+
         $now = time();
+
+        // Create question usage for quiz attempt.
+        $cm = get_coursemodule_from_instance('quiz', $quizid);
+        $context = \context_module::instance($cm->id);
+
+        $usageid = $DB->insert_record('question_usages', (object) [
+            'contextid' => $context->id,
+            'component' => 'mod_quiz',
+            'preferredbehaviour' => 'deferredfeedback',
+        ]);
 
         // Create an existing quiz attempt to simulate user has attempted the quiz.
         $DB->insert_record('quiz_attempts', (object) [
-            'quiz' => $quiz->id,
+            'quiz' => $quizid,
             'userid' => $targetuser->id,
             'attempt' => 1,
+            'uniqueid' => $usageid,
             'timecreated' => $now,
             'timemodified' => $now,
             'layout' => '',
@@ -196,7 +253,7 @@ final class mod_quiz_test extends \advanced_testcase {
 
         // Verify override was created with doubled attempts (1 existing + 2 allowed = 3 total).
         $this->assertTrue($DB->record_exists('quiz_overrides', [
-            'quiz' => $quiz->id,
+            'quiz' => $quizid,
             'userid' => $targetuser->id,
             'attempts' => 3,
         ]));
@@ -216,17 +273,34 @@ final class mod_quiz_test extends \advanced_testcase {
             'course' => $course->id,
             'attempts' => 2,
         ]);
+        $quizrecord = $DB->get_record('quiz', ['course' => $course->id]);
+        $quizid = $quizrecord->id;
         $targetuser = $this->getDataGenerator()->create_user();
 
         $this->getDataGenerator()->enrol_user($targetuser->id, $course->id, 'student');
 
+        // Clean up any auto-generated quiz attempts and overrides.
+        $DB->delete_records('quiz_attempts', ['quiz' => $quizid]);
+        $DB->delete_records('quiz_overrides', ['quiz' => $quizid]);
+
         $now = time();
+
+        // Create question usage for quiz attempt.
+        $cm = get_coursemodule_from_instance('quiz', $quizid);
+        $context = \context_module::instance($cm->id);
+
+        $usageid = $DB->insert_record('question_usages', (object) [
+            'contextid' => $context->id,
+            'component' => 'mod_quiz',
+            'preferredbehaviour' => 'deferredfeedback',
+        ]);
 
         // Create an existing quiz attempt.
         $DB->insert_record('quiz_attempts', (object) [
-            'quiz' => $quiz->id,
+            'quiz' => $quizid,
             'userid' => $targetuser->id,
             'attempt' => 1,
+            'uniqueid' => $usageid,
             'timecreated' => $now,
             'timemodified' => $now,
             'layout' => '',
@@ -237,7 +311,7 @@ final class mod_quiz_test extends \advanced_testcase {
 
         // Create an existing override.
         $overrideid = $DB->insert_record('quiz_overrides', (object) [
-            'quiz' => $quiz->id,
+            'quiz' => $quizid,
             'userid' => $targetuser->id,
             'attempts' => 1,
         ]);
@@ -261,17 +335,34 @@ final class mod_quiz_test extends \advanced_testcase {
 
         $course = $this->getDataGenerator()->create_course();
         $quiz = $this->getDataGenerator()->create_module('quiz', ['course' => $course->id]);
+        $quizrecord = $DB->get_record('quiz', ['course' => $course->id]);
+        $quizid = $quizrecord->id;
         $targetuser = $this->getDataGenerator()->create_user();
         $otheruser = $this->getDataGenerator()->create_user();
 
         $this->getDataGenerator()->enrol_user($targetuser->id, $course->id, 'student');
         $this->getDataGenerator()->enrol_user($otheruser->id, $course->id, 'student');
 
+        // Clean up any auto-generated quiz attempts and overrides.
+        $DB->delete_records('quiz_attempts', ['quiz' => $quizid]);
+        $DB->delete_records('quiz_overrides', ['quiz' => $quizid]);
+
+        // Create question usage for quiz attempt.
+        $cm = get_coursemodule_from_instance('quiz', $quizid);
+        $context = \context_module::instance($cm->id);
+
+        $usageid = $DB->insert_record('question_usages', (object) [
+            'contextid' => $context->id,
+            'component' => 'mod_quiz',
+            'preferredbehaviour' => 'deferredfeedback',
+        ]);
+
         // Create quiz attempts.
         $DB->insert_record('quiz_attempts', (object) [
-            'quiz' => $quiz->id,
+            'quiz' => $quizid,
             'userid' => $targetuser->id,
             'attempt' => 1,
+            'uniqueid' => $usageid,
             'timecreated' => time(),
             'timemodified' => time(),
             'layout' => '',
@@ -282,13 +373,13 @@ final class mod_quiz_test extends \advanced_testcase {
 
         // Create overrides for both users.
         $targetoverideid = $DB->insert_record('quiz_overrides', (object) [
-            'quiz' => $quiz->id,
+            'quiz' => $quizid,
             'userid' => $targetuser->id,
             'attempts' => 5,
         ]);
 
         $otheoverideid = $DB->insert_record('quiz_overrides', (object) [
-            'quiz' => $quiz->id,
+            'quiz' => $quizid,
             'userid' => $otheruser->id,
             'attempts' => 3,
         ]);
@@ -317,16 +408,32 @@ final class mod_quiz_test extends \advanced_testcase {
 
         $course = $this->getDataGenerator()->create_course();
         $quiz = $this->getDataGenerator()->create_module('quiz', ['course' => $course->id]);
+        $quizrecord = $DB->get_record('quiz', ['course' => $course->id]);
+        $quizid = $quizrecord->id;
         $targetuser = $this->getDataGenerator()->create_user();
         $this->getDataGenerator()->enrol_user($targetuser->id, $course->id, 'student');
 
+        // Clean up any auto-generated quiz attempts.
+        $DB->delete_records('quiz_attempts', ['quiz' => $quizid]);
+
         $now = time();
+
+        // Create question usage for quiz attempt.
+        $cm = get_coursemodule_from_instance('quiz', $quizid);
+        $context = \context_module::instance($cm->id);
+
+        $usageid = $DB->insert_record('question_usages', (object) [
+            'contextid' => $context->id,
+            'component' => 'mod_quiz',
+            'preferredbehaviour' => 'deferredfeedback',
+        ]);
 
         // Create quiz attempt and grade.
         $attemptid = $DB->insert_record('quiz_attempts', (object) [
-            'quiz' => $quiz->id,
+            'quiz' => $quizid,
             'userid' => $targetuser->id,
             'attempt' => 1,
+            'uniqueid' => $usageid,
             'timecreated' => $now,
             'timemodified' => $now,
             'layout' => '',

@@ -286,21 +286,6 @@ class activity_completion extends base {
     }
 
     /**
-     * Return module join used by columns
-     *
-     * @return string
-     */
-    public function get_module_activity_join(): string {
-        $mainalias = $this->get_table_alias('course_modules_completion');
-        $coursemodulealias = $this->get_table_alias('course_modules');
-        $modulealias = $this->get_table_alias('modules');
-        return "LEFT JOIN {course_modules} {$coursemodulealias}
-                    ON {$coursemodulealias}.id = {$mainalias}.coursemoduleid
-                LEFT JOIN {modules} {$modulealias}
-                    ON {$modulealias}.id = {$coursemodulealias}.module";
-    }
-
-    /**
      * Return list of all available filters
      *
      * @return filter[]

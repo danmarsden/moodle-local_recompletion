@@ -122,7 +122,7 @@ class mod_lti {
                 'toolid' => $tool->id,
             ];
 
-            if ($config->archivelti) {
+            if (!empty($config->archivelti)) {
                 // If set we archive records.
                 $ltiusers = $DB->get_records('enrol_lti_users', $params, '', 'toolid,userid,lastaccess,lastgrade,timecreated');
                 $DB->insert_records('local_recompletion_ltia', $ltiusers);
