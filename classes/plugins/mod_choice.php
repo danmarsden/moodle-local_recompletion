@@ -118,7 +118,7 @@ class mod_choice {
         } else if ($config->choice == LOCAL_RECOMPLETION_DELETE) {
             $params = ['userid' => $userid, 'course' => $course->id];
             $selectsql = 'userid = ? AND choiceid IN (SELECT id FROM {choice} WHERE course = ?)';
-            if ($config->archivechoice) {
+            if (!empty($config->archivechoice)) {
                 $choiceanswers = $DB->get_records_select('choice_answers', $selectsql, $params);
                 foreach ($choiceanswers as $cid => $unused) {
                     // Add courseid to records to help with restore process.
