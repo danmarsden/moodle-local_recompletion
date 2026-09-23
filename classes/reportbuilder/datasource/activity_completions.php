@@ -55,6 +55,7 @@ class activity_completions extends datasource {
         $coursemodulealias = $mainentity->get_table_alias('course_modules');
         $this->add_entity($courseentity
             ->add_joins($mainentity->get_joins())
+            ->add_join($mainentity->get_module_join())
             ->add_join("LEFT JOIN {course} {$coursealias} ON {$coursealias}.id = {$coursemodulealias}.course"));
 
         // Join the course category entity.
