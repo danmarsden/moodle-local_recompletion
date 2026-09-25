@@ -172,7 +172,10 @@ final class mod_assign_test extends \advanced_testcase {
             'component' => 'assignsubmission_comments',
         ]));
 
-        mod_assign::reset($targetuser->id, $course, (object) ['assign' => LOCAL_RECOMPLETION_DELETE]);
+        mod_assign::reset($targetuser->id, $course, (object) [
+            'assign' => LOCAL_RECOMPLETION_DELETE,
+            'archiveassign' => 1,
+        ]);
 
         $this->assertFalse($DB->record_exists('assign_grades', ['assignment' => $assign->id, 'userid' => $targetuser->id]));
         $this->assertFalse($DB->record_exists('assign_user_flags', ['assignment' => $assign->id, 'userid' => $targetuser->id]));
@@ -181,6 +184,14 @@ final class mod_assign_test extends \advanced_testcase {
         $this->assertFalse($DB->record_exists('comments', [
             'itemid' => $targetsubmissionid,
             'component' => 'assignsubmission_comments',
+        ]));
+        $this->assertTrue($DB->record_exists('local_recompletion_as', [
+            'assignment' => $assign->id,
+            'userid' => $targetuser->id,
+        ]));
+        $this->assertTrue($DB->record_exists('local_recompletion_ag', [
+            'assignment' => $assign->id,
+            'userid' => $targetuser->id,
         ]));
 
         $this->assertTrue($DB->record_exists('assign_grades', ['assignment' => $assign->id, 'userid' => $otheruser->id]));

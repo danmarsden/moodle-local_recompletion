@@ -114,6 +114,37 @@ class backup_local_recompletion_plugin extends backup_local_plugin {
         $attempt->annotate_ids('user', 'userid');
         $grade->annotate_ids('user', 'userid');
 
+        // Now deal with Assign archive tables.
+        $assignsubmissions = new backup_nested_element('assignsubmissions');
+        $assignsubmission = new backup_nested_element('assignsubmission', ['id'], [
+            'assignment', 'userid', 'timecreated', 'timemodified', 'timestarted', 'status', 'groupid', 'attemptnumber', 'latest', 'course']);
+
+        $recompletion->add_child($assignsubmissions);
+        $assignsubmissions->add_child($assignsubmission);
+
+        if ($usercompletion) {
+            $assignsubmission->set_source_table('local_recompletion_as', ['course' => backup::VAR_COURSEID]);
+        }
+
+        $assignsubmission->annotate_ids('assign', 'assignment');
+        $assignsubmission->annotate_ids('user', 'userid');
+
+        $assigngrades = new backup_nested_element('assigngrades');
+        $assigngrade = new backup_nested_element('assigngrade', ['id'], [
+            'assignment', 'userid', 'timecreated', 'timemodified', 'grader', 'grade',
+            'penalty', 'attemptnumber', 'course']);
+
+        $recompletion->add_child($assigngrades);
+        $assigngrades->add_child($assigngrade);
+
+        if ($usercompletion) {
+            $assigngrade->set_source_table('local_recompletion_ag', ['course' => backup::VAR_COURSEID]);
+        }
+
+        $assigngrade->annotate_ids('assign', 'assignment');
+        $assigngrade->annotate_ids('user', 'userid');
+        $assigngrade->annotate_ids('user', 'grader');
+
         // Now deal with SCORM archive tables.
         $scormattempts = new backup_nested_element('scormattempts');
 
