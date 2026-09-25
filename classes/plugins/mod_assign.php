@@ -73,11 +73,16 @@ class mod_assign {
         $mform->addHelpButton('assign', 'assignattempts', 'local_recompletion');
         $mform->setDefault('assign', $config->assign ?? LOCAL_RECOMPLETION_NOTHING);
 
+        $mform->addElement('checkbox', 'archiveassign', get_string('archive', 'local_recompletion'));
+        $mform->setDefault('archiveassign', $config->archiveassign ?? 1);
+
         $mform->addElement('checkbox', 'assignevent', '', get_string('assignevent', 'local_recompletion'));
         $mform->setDefault('assignevent', $config->assignevent ?? 0);
 
         $mform->disabledIf('assignevent', 'enable', 'notchecked');
         $mform->disabledIf('assign', 'enable', 'notchecked');
+        $mform->disabledIf('archiveassign', 'enable', 'notchecked');
+        $mform->hideIf('archiveassign', 'assign', 'noteq', LOCAL_RECOMPLETION_DELETE);
     }
 
     /**
@@ -99,6 +104,13 @@ class mod_assign {
         ));
 
         $settings->add(new \admin_setting_configcheckbox(
+            'local_recompletion/archiveassign',
+            new lang_string('archiveassign', 'local_recompletion'),
+            '',
+            1
+        ));
+
+        $settings->add(new \admin_setting_configcheckbox(
             'local_recompletion/assignevent',
             new lang_string('assignevent', 'local_recompletion'),
             '',
@@ -117,6 +129,27 @@ class mod_assign {
         if (empty($config->assign)) {
             return '';
         } else if ($config->assign == LOCAL_RECOMPLETION_DELETE) {
+            if (!empty($config->archiveassign)) {
+                $params = ['userid' => $userid, 'course' => $course->id];
+                $selectsql = 'userid = ? AND assignment IN (SELECT id FROM {assign} WHERE course = ?)';
+
+                $submissions = $DB->get_records_select('assign_submission', $selectsql, $params);
+                foreach ($submissions as $submission) {
+                    $submission->course = $course->id;
+                }
+                if (!empty($submissions)) {
+                    $DB->insert_records('local_recompletion_as', $submissions);
+                }
+
+                $grades = $DB->get_records_select('assign_grades', $selectsql, $params);
+                foreach ($grades as $grade) {
+                    $grade->course = $course->id;
+                }
+                if (!empty($grades)) {
+                    $DB->insert_records('local_recompletion_ag', $grades);
+                }
+            }
+
             $assignments = $DB->get_records('assign', ['course' => $course->id]);
             foreach ($assignments as $assignment) {
                 $cm = get_coursemodule_from_instance('assign', $assignment->id);
@@ -215,6 +248,11 @@ class mod_assign {
         }
 
         $DB->delete_records('assign_grades', [
+            'assignment' => $assign->get_instance()->id,
+            'userid' => $userid,
+        ]);
+
+        $DB->delete_records('assign_submission', [
             'assignment' => $assign->get_instance()->id,
             'userid' => $userid,
         ]);
