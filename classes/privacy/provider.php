@@ -100,6 +100,31 @@ class provider implements
             'timemodified'          => 'privacy:metadata:quiz_grades:timemodified',
         ], 'privacy:metadata:quiz_grades');
 
+        $collection->add_database_table('local_recompletion_as', [
+            'assignment' => 'privacy:metadata:assignment',
+            'userid' => 'privacy:metadata:userid',
+            'timecreated' => 'privacy:metadata:timecreated',
+            'timemodified' => 'privacy:metadata:timemodified',
+            'timestarted' => 'privacy:metadata:timestarted',
+            'status' => 'privacy:metadata:status',
+            'groupid' => 'privacy:metadata:groupid',
+            'attemptnumber' => 'privacy:metadata:attemptnumber',
+            'latest' => 'privacy:metadata:latest',
+            'course' => 'privacy:metadata:course',
+        ], 'privacy:metadata:local_recompletion_as');
+
+        $collection->add_database_table('local_recompletion_ag', [
+            'assignment' => 'privacy:metadata:assignment',
+            'userid' => 'privacy:metadata:userid',
+            'timecreated' => 'privacy:metadata:timecreated',
+            'timemodified' => 'privacy:metadata:timemodified',
+            'grader' => 'privacy:metadata:grader',
+            'grade' => 'privacy:metadata:grade',
+            'penalty' => 'privacy:metadata:penalty',
+            'attemptnumber' => 'privacy:metadata:attemptnumber',
+            'course' => 'privacy:metadata:course',
+        ], 'privacy:metadata:local_recompletion_ag');
+
         $collection->add_database_table('local_recompletion_sa', [
             'userid' => 'privacy:metadata:userid',
             'scormid' => 'privacy:metadata:scormid',
@@ -270,6 +295,24 @@ class provider implements
                 $context = \context_course::instance($record->course);
                 writer::with_context($context)->export_data(
                     [get_string('recompletion', 'local_recompletion'), 'quiz_grades'],
+                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]
+                );
+            }
+
+            $records = $DB->get_records('local_recompletion_as', $params);
+            foreach ($records as $record) {
+                $context = \context_course::instance($record->course);
+                writer::with_context($context)->export_data(
+                    [get_string('recompletion', 'local_recompletion'), 'assign_submission'],
+                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]
+                );
+            }
+
+            $records = $DB->get_records('local_recompletion_ag', $params);
+            foreach ($records as $record) {
+                $context = \context_course::instance($record->course);
+                writer::with_context($context)->export_data(
+                    [get_string('recompletion', 'local_recompletion'), 'assign_grades'],
                     (object)[array_map([self::class, 'transform_db_row_to_session_data'], $records)]
                 );
             }
@@ -456,6 +499,8 @@ class provider implements
         $DB->delete_records('local_recompletion_cmv', $params);
         $DB->delete_records('local_recompletion_qa', $params);
         $DB->delete_records('local_recompletion_qg', $params);
+        $DB->delete_records('local_recompletion_as', $params);
+        $DB->delete_records('local_recompletion_ag', $params);
         $DB->delete_records('local_recompletion_ssv', $paramsid);
         $DB->delete_records('local_recompletion_sa', $paramsid);
         $DB->delete_records('local_recompletion_qr', $params);
@@ -492,6 +537,8 @@ class provider implements
             $DB->delete_records('local_recompletion_cmv', $params);
             $DB->delete_records('local_recompletion_qa', $params);
             $DB->delete_records('local_recompletion_qg', $params);
+            $DB->delete_records('local_recompletion_as', $params);
+            $DB->delete_records('local_recompletion_ag', $params);
             $DB->delete_records_select(
                 'local_recompletion_ssv',
                 'attemptid in (SELECT id
@@ -549,6 +596,16 @@ class provider implements
                   FROM {course} c
                   JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
                   JOIN {local_recompletion_qg} rc ON rc.course = c.id and rc.userid = :userid";
+        $contextlist->add_from_sql($sql, $params);
+        $sql = "SELECT ctx.id
+              FROM {course} c
+              JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+              JOIN {local_recompletion_as} rc ON rc.course = c.id and rc.userid = :userid";
+        $contextlist->add_from_sql($sql, $params);
+        $sql = "SELECT ctx.id
+              FROM {course} c
+              JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+              JOIN {local_recompletion_ag} rc ON rc.course = c.id and rc.userid = :userid";
         $contextlist->add_from_sql($sql, $params);
         $sql = "SELECT ctx.id
                   FROM {course} c
@@ -665,6 +722,20 @@ class provider implements
                   JOIN {course} c ON rc.course = c.id
                   JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
                   WHERE ctx.id = :contextid";
+        $userlist->add_from_sql('userid', $sql, $params);
+
+        $sql = "SELECT rc.userid
+              FROM {local_recompletion_as} rc
+              JOIN {course} c ON rc.course = c.id
+              JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+              WHERE ctx.id = :contextid";
+        $userlist->add_from_sql('userid', $sql, $params);
+
+        $sql = "SELECT rc.userid
+              FROM {local_recompletion_ag} rc
+              JOIN {course} c ON rc.course = c.id
+              JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+              WHERE ctx.id = :contextid";
         $userlist->add_from_sql('userid', $sql, $params);
 
         $sql = "SELECT rc.userid
@@ -810,6 +881,20 @@ class provider implements
                   JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
                   WHERE ctx.id = :contextid AND rc.userid $insql";
         $DB->delete_records_select('local_recompletion_qg', "id $sql", $params);
+
+        $sql = "SELECT rc.id
+                  FROM {local_recompletion_as} rc
+                  JOIN {course} c ON rc.course = c.id
+                  JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                  WHERE ctx.id = :contextid AND rc.userid $insql";
+        $DB->delete_records_select('local_recompletion_as', "id $sql", $params);
+
+        $sql = "SELECT rc.id
+                  FROM {local_recompletion_ag} rc
+                  JOIN {course} c ON rc.course = c.id
+                  JOIN {context} ctx ON c.id = ctx.instanceid AND ctx.contextlevel = :contextlevel
+                  WHERE ctx.id = :contextid AND rc.userid $insql";
+        $DB->delete_records_select('local_recompletion_ag', "id $sql", $params);
 
         $sql = "SELECT rc.id
               FROM {local_recompletion_ssv} rc

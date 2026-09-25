@@ -48,6 +48,8 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
         $paths[] = new restore_path_element('recompletion_completion', $elepath . '/course_completion/completions/completion');
         $paths[] = new restore_path_element('recompletion_qa', $elepath . '/quizattempts/attempt');
         $paths[] = new restore_path_element('recompletion_qg', $elepath . '/quizgrades/grade');
+        $paths[] = new restore_path_element('recompletion_as', $elepath . '/assignsubmissions/assignsubmission');
+        $paths[] = new restore_path_element('recompletion_ag', $elepath . '/assigngrades/assigngrade');
         $paths[] = new restore_path_element('recompletion_sa', $elepath . '/scormattempts/scormattempt');
         $paths[] = new restore_path_element('recompletion_ssv', $elepath . '/scormtracks/sco_track');
         $paths[] = new restore_path_element('recompletion_cha', $elepath . '/choiceanswers/choiceanswer');
@@ -157,6 +159,39 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
         $data->userid = $this->get_mappingid('user', $data->userid);
 
         $DB->insert_record('local_recompletion_qg', $data);
+    }
+
+    /**
+     * Process local_recompletion_as table.
+     * @param stdClass $data
+     */
+    public function process_recompletion_as($data) {
+        global $DB;
+
+        $data = (object) $data;
+        $data->course = $this->task->get_courseid();
+        $data->userid = $this->get_mappingid('user', $data->userid);
+        $data->assignment = $this->get_new_parentid('assign');
+
+        $DB->insert_record('local_recompletion_as', $data);
+    }
+
+    /**
+     * Process local_recompletion_ag table.
+     * @param stdClass $data
+     */
+    public function process_recompletion_ag($data) {
+        global $DB;
+
+        $data = (object) $data;
+        $data->course = $this->task->get_courseid();
+        $data->userid = $this->get_mappingid('user', $data->userid);
+        if (!empty($data->grader)) {
+            $data->grader = $this->get_mappingid('user', $data->grader);
+        }
+        $data->assignment = $this->get_new_parentid('assign');
+
+        $DB->insert_record('local_recompletion_ag', $data);
     }
 
     /**
