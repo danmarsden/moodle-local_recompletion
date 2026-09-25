@@ -140,7 +140,7 @@ class mod_quiz {
         } else if ($config->quiz == LOCAL_RECOMPLETION_DELETE) {
             $params = ['userid' => $userid, 'course' => $course->id];
             $selectsql = 'userid = ? AND quiz IN (SELECT id FROM {quiz} WHERE course = ?)';
-            if ($config->archivequiz) {
+            if (!empty($config->archivequiz)) {
                 $quizattempts = $DB->get_records_select('quiz_attempts', $selectsql, $params);
                 foreach ($quizattempts as $qid => $unused) {
                     // Add courseid to records to help with restore process.
