@@ -129,6 +129,16 @@ class mod_assign {
         if (empty($config->assign)) {
             return '';
         } else if ($config->assign == LOCAL_RECOMPLETION_DELETE) {
+            $assignments = $DB->get_records('assign', ['course' => $course->id]);
+            $assignmentcontexts = [];
+            foreach ($assignments as $assignment) {
+                $cm = get_coursemodule_from_instance('assign', $assignment->id);
+                if (!$cm) {
+                    continue;
+                }
+                $assignmentcontexts[$assignment->id] = \context_module::instance($cm->id);
+            }
+
             if (!empty($config->archiveassign)) {
                 $params = ['userid' => $userid, 'course' => $course->id];
                 $selectsql = 'userid = ? AND assignment IN (SELECT id FROM {assign} WHERE course = ?)';
@@ -136,21 +146,26 @@ class mod_assign {
                 $submissions = $DB->get_records_select('assign_submission', $selectsql, $params);
                 foreach ($submissions as $submission) {
                     $submission->course = $course->id;
-                }
-                if (!empty($submissions)) {
-                    $DB->insert_records('local_recompletion_as', $submissions);
+                    $submissionarchiveid = $DB->insert_record('local_recompletion_as', $submission);
+                    if (!empty($assignmentcontexts[$submission->assignment])) {
+                        self::archive_submission_files(
+                            $assignmentcontexts[$submission->assignment],
+                            $submission->id,
+                            $submissionarchiveid
+                        );
+                    }
                 }
 
                 $grades = $DB->get_records_select('assign_grades', $selectsql, $params);
                 foreach ($grades as $grade) {
                     $grade->course = $course->id;
-                }
-                if (!empty($grades)) {
-                    $DB->insert_records('local_recompletion_ag', $grades);
+                    $gradearchiveid = $DB->insert_record('local_recompletion_ag', $grade);
+                    if (!empty($assignmentcontexts[$grade->assignment])) {
+                        self::archive_grade_files($assignmentcontexts[$grade->assignment], $grade->id, $gradearchiveid);
+                    }
                 }
             }
 
-            $assignments = $DB->get_records('assign', ['course' => $course->id]);
             foreach ($assignments as $assignment) {
                 $cm = get_coursemodule_from_instance('assign', $assignment->id);
                 if (!$cm) {
@@ -195,6 +210,101 @@ class mod_assign {
             }
         }
         return '';
+    }
+
+    /**
+     * Archive files from the assignment submission area.
+     *
+     * @param \context_module $context
+     * @param int $sourceitemid
+     * @param int $archiveitemid
+     */
+    private static function archive_submission_files(\context_module $context, int $sourceitemid, int $archiveitemid): void {
+        self::archive_files(
+            $context->id,
+            'assignsubmission_file',
+            ASSIGNSUBMISSION_FILE_FILEAREA,
+            $sourceitemid,
+            $archiveitemid
+        );
+    }
+
+    /**
+     * Archive files from assignfeedback_file and assignfeedback_editpdf.
+     *
+     * @param \context_module $context
+     * @param int $sourceitemid
+     * @param int $archiveitemid
+     */
+    private static function archive_grade_files(\context_module $context, int $sourceitemid, int $archiveitemid): void {
+        self::archive_files(
+            $context->id,
+            'assignfeedback_file',
+            ASSIGNFEEDBACK_FILE_FILEAREA,
+            $sourceitemid,
+            $archiveitemid
+        );
+        self::archive_files(
+            $context->id,
+            'assignfeedback_editpdf',
+            \assignfeedback_editpdf\document_services::FINAL_PDF_FILEAREA,
+            $sourceitemid,
+            $archiveitemid
+        );
+        self::archive_files(
+            $context->id,
+            'assignfeedback_editpdf',
+            \assignfeedback_editpdf\document_services::PAGE_IMAGE_READONLY_FILEAREA,
+            $sourceitemid,
+            $archiveitemid
+        );
+    }
+
+    /**
+     * Copy files from one file area to the matching local_recompletion file area.
+     *
+     * @param int $contextid
+     * @param string $fromcomponent
+     * @param string $filearea
+     * @param int $fromitemid
+     * @param int $toitemid
+     */
+    private static function archive_files(
+        int $contextid,
+        string $fromcomponent,
+        string $filearea,
+        int $fromitemid,
+        int $toitemid,
+    ): void {
+        $fs = get_file_storage();
+
+        $filerecord = (object) [
+            'contextid' => $contextid,
+            'component' => 'local_recompletion',
+            'filearea' => $filearea,
+            'itemid' => $toitemid,
+        ];
+
+        $files = $fs->get_area_files($contextid, $fromcomponent, $filearea, $fromitemid, 'id', false);
+        foreach ($files as $file) {
+            if ($file->is_directory() && $file->get_filepath() === '/') {
+                continue;
+            }
+
+            $existingfile = $fs->get_file(
+                $contextid,
+                'local_recompletion',
+                $filearea,
+                $toitemid,
+                $file->get_filepath(),
+                $file->get_filename()
+            );
+            if ($existingfile) {
+                $existingfile->delete();
+            }
+
+            $fs->create_file_from_storedfile($filerecord, $file);
+        }
     }
 
     /**
