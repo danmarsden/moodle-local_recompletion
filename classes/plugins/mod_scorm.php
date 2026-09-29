@@ -47,22 +47,12 @@ class mod_scorm {
         $config = get_config('local_recompletion');
 
         $cba = [];
-        $cba[] = $mform->createElement(
-            'radio',
-            'scorm',
-            '',
-            get_string('donothing', 'local_recompletion'),
-            LOCAL_RECOMPLETION_NOTHING
-        );
-        $cba[] = $mform->createElement(
-            'radio',
-            'scorm',
-            '',
-            get_string('delete', 'local_recompletion'),
-            LOCAL_RECOMPLETION_DELETE
-        );
+        $choices = [
+            LOCAL_RECOMPLETION_NOTHING => get_string('donothing', 'local_recompletion'),
+            LOCAL_RECOMPLETION_DELETE => get_string('delete', 'local_recompletion'),
+        ];
 
-        $mform->addGroup($cba, 'scorm', get_string('scormattempts', 'local_recompletion'), [' '], false);
+        $mform->addElement('select', 'scorm', get_string('scormattempts', 'local_recompletion'), $choices);
         $mform->addHelpButton('scorm', 'scormattempts', 'local_recompletion');
         $mform->setDefault('scorm', $config->scorm ?? LOCAL_RECOMPLETION_NOTHING);
 

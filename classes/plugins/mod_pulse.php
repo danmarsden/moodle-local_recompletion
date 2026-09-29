@@ -52,22 +52,12 @@ class mod_pulse {
         $config = get_config('local_recompletion');
 
         $cba = [];
-        $cba[] = $mform->createElement(
-            'radio',
-            'pulse',
-            '',
-            get_string('donothing', 'local_recompletion'),
-            LOCAL_RECOMPLETION_NOTHING
-        );
-        $cba[] = $mform->createElement(
-            'radio',
-            'pulse',
-            '',
-            get_string('pulseresetnotifications', 'local_recompletion'),
-            LOCAL_RECOMPLETION_DELETE
-        );
+        $choices = [
+            LOCAL_RECOMPLETION_NOTHING => get_string('donothing', 'local_recompletion'),
+            LOCAL_RECOMPLETION_DELETE => get_string('pulseresetnotifications', 'local_recompletion'),
+        ];
 
-        $mform->addGroup($cba, 'pulse', get_string('pulsenotifications', 'local_recompletion'), [' '], false);
+        $mform->addElement('select', 'pulse', get_string('pulsenotifications', 'local_recompletion'), $choices);
         $mform->addHelpButton('pulse', 'pulsenotifications', 'local_recompletion');
         $mform->setDefault('pulse', $config->pulse);
     }

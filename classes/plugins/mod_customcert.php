@@ -54,22 +54,12 @@ class mod_customcert {
         $config = get_config('local_recompletion');
 
         $cba = [];
-        $cba[] = $mform->createElement(
-            'radio',
-            'customcert',
-            '',
-            get_string('donothing', 'local_recompletion'),
-            LOCAL_RECOMPLETION_NOTHING
-        );
-        $cba[] = $mform->createElement(
-            'radio',
-            'customcert',
-            '',
-            get_string('customcertresetcertificates', 'local_recompletion'),
-            LOCAL_RECOMPLETION_DELETE
-        );
+        $choices = [
+            LOCAL_RECOMPLETION_NOTHING => get_string('donothing', 'local_recompletion'),
+            LOCAL_RECOMPLETION_DELETE => get_string('customcertresetcertificates', 'local_recompletion'),
+        ];
 
-        $mform->addGroup($cba, 'customcert', get_string('customcertcertificates', 'local_recompletion'), [' '], false);
+        $mform->addElement('select', 'customcert', get_string('customcertcertificates', 'local_recompletion'), $choices);
         $mform->addHelpButton('customcert', 'customcertcertificates', 'local_recompletion');
         $mform->setDefault('customcert', $config->customcert);
 

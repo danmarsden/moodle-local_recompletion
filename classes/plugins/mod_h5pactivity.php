@@ -45,22 +45,12 @@ class mod_h5pactivity {
         $config = get_config('local_recompletion');
 
         $cba = [];
-        $cba[] = $mform->createElement(
-            'radio',
-            'h5pactivity',
-            '',
-            get_string('donothing', 'local_recompletion'),
-            LOCAL_RECOMPLETION_NOTHING
-        );
-        $cba[] = $mform->createElement(
-            'radio',
-            'h5pactivity',
-            '',
-            get_string('delete', 'local_recompletion'),
-            LOCAL_RECOMPLETION_DELETE
-        );
+        $choices = [
+            LOCAL_RECOMPLETION_NOTHING => get_string('donothing', 'local_recompletion'),
+            LOCAL_RECOMPLETION_DELETE => get_string('delete', 'local_recompletion'),
+        ];
 
-        $mform->addGroup($cba, 'h5pactivity', get_string('h5pattempts', 'local_recompletion'), [' '], false);
+        $mform->addElement('select', 'h5pactivity', get_string('h5pattempts', 'local_recompletion'), $choices);
         $mform->addHelpButton('h5pactivity', 'h5pattempts', 'local_recompletion');
         $mform->setDefault('h5pactivity', $config->h5pactivity ?? LOCAL_RECOMPLETION_NOTHING);
 
