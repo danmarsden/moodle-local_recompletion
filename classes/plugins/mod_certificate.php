@@ -51,22 +51,12 @@ class mod_certificate {
         $config = get_config('local_recompletion');
 
         $cba = [];
-        $cba[] = $mform->createElement(
-            'radio',
-            'certificate',
-            '',
-            get_string('donothing', 'local_recompletion'),
-            LOCAL_RECOMPLETION_NOTHING
-        );
-        $cba[] = $mform->createElement(
-            'radio',
-            'certificate',
-            '',
-            get_string('deletecertificate', 'local_recompletion'),
-            LOCAL_RECOMPLETION_DELETE
-        );
+        $choices = [
+            LOCAL_RECOMPLETION_NOTHING => get_string('donothing', 'local_recompletion'),
+            LOCAL_RECOMPLETION_DELETE => get_string('deletecertificate', 'local_recompletion'),
+        ];
 
-        $mform->addGroup($cba, 'certificate', get_string('certificate', 'local_recompletion'), [' '], false);
+        $mform->addElement('select', 'certificate', get_string('certificate', 'local_recompletion'), $choices);
         $mform->addHelpButton('certificate', 'certificate', 'local_recompletion');
         $mform->setDefault('certificate', $config->certificate);
 

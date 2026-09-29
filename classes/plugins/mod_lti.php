@@ -49,22 +49,12 @@ class mod_lti {
         }
 
         $options = [];
-        $options[] = $mform->createElement(
-            'radio',
-            'lti',
-            '',
-            get_string('donothing', 'local_recompletion'),
-            LOCAL_RECOMPLETION_NOTHING
-        );
-        $options[] = $mform->createElement(
-            'radio',
-            'lti',
-            '',
-            get_string('resetlti', 'local_recompletion'),
-            LOCAL_RECOMPLETION_DELETE
-        );
+        $choices = [
+            LOCAL_RECOMPLETION_NOTHING => get_string('donothing', 'local_recompletion'),
+            LOCAL_RECOMPLETION_DELETE => get_string('resetlti', 'local_recompletion'),
+        ];
 
-        $mform->addGroup($options, 'lti', get_string('resetltis', 'local_recompletion'), [' '], false);
+        $mform->addElement('select', 'lti', get_string('resetltis', 'local_recompletion'), $choices);
         $mform->addHelpButton('lti', 'resetltis', 'local_recompletion');
 
         $mform->addElement(

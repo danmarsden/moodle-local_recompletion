@@ -46,30 +46,13 @@ class mod_quiz {
     public static function editingform($mform): void {
         $config = get_config('local_recompletion');
 
-        $cba = [];
-        $cba[] = $mform->createElement(
-            'radio',
-            'quiz',
-            '',
-            get_string('donothing', 'local_recompletion'),
-            LOCAL_RECOMPLETION_NOTHING
-        );
-        $cba[] = $mform->createElement(
-            'radio',
-            'quiz',
-            '',
-            get_string('delete', 'local_recompletion'),
-            LOCAL_RECOMPLETION_DELETE
-        );
-        $cba[] = $mform->createElement(
-            'radio',
-            'quiz',
-            '',
-            get_string('extraattempt', 'local_recompletion'),
-            LOCAL_RECOMPLETION_EXTRAATTEMPT
-        );
+        $choices = [
+            LOCAL_RECOMPLETION_NOTHING => get_string('donothing', 'local_recompletion'),
+            LOCAL_RECOMPLETION_DELETE => get_string('delete', 'local_recompletion'),
+            LOCAL_RECOMPLETION_EXTRAATTEMPT => get_string('extraattempt', 'local_recompletion'),
+        ];
 
-        $mform->addGroup($cba, 'quiz', get_string('quizattempts', 'local_recompletion'), [' '], false);
+        $mform->addElement('select', 'quiz', get_string('quizattempts', 'local_recompletion'), $choices);
         $mform->addHelpButton('quiz', 'quizattempts', 'local_recompletion');
         $mform->setDefault('quiz', $config->quiz ?? LOCAL_RECOMPLETION_NOTHING);
 
