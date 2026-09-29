@@ -46,30 +46,13 @@ class mod_assign {
     public static function editingform($mform): void {
         $config = get_config('local_recompletion');
 
-        $cba = [];
-        $cba[] = $mform->createElement(
-            'radio',
-            'assign',
-            '',
-            get_string('donothing', 'local_recompletion'),
-            LOCAL_RECOMPLETION_NOTHING
-        );
-        $cba[] = $mform->createElement(
-            'radio',
-            'assign',
-            '',
-            get_string('delete', 'local_recompletion'),
-            LOCAL_RECOMPLETION_DELETE
-        );
-        $cba[] = $mform->createElement(
-            'radio',
-            'assign',
-            '',
-            get_string('extraattempt', 'local_recompletion'),
-            LOCAL_RECOMPLETION_EXTRAATTEMPT
-        );
+        $choices = [
+            LOCAL_RECOMPLETION_NOTHING => get_string('donothing', 'local_recompletion'),
+            LOCAL_RECOMPLETION_DELETE => get_string('delete', 'local_recompletion'),
+            LOCAL_RECOMPLETION_EXTRAATTEMPT => get_string('extraattempt', 'local_recompletion'),
+        ];
 
-        $mform->addGroup($cba, 'assign', get_string('assignattempts', 'local_recompletion'), [' '], false);
+        $mform->addElement('select', 'assign', get_string('assignattempts', 'local_recompletion'), $choices);
         $mform->addHelpButton('assign', 'assignattempts', 'local_recompletion');
         $mform->setDefault('assign', $config->assign ?? LOCAL_RECOMPLETION_NOTHING);
 
@@ -176,10 +159,8 @@ class mod_assign {
                 if (!$cm) {
                     continue;
                 }
+                /** @var \context $context */
                 $context = \context_module::instance($cm->id);
-                if (!$context) {
-                    continue;
-                }
                 if (has_capability('mod/assign:grade', $context)) {
                     // Assign add_attempt() is protected and requires sesskey, use reflection so we don't have to write our own.
                     $_POST['sesskey'] = sesskey();

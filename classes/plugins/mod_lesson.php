@@ -45,22 +45,12 @@ class mod_lesson {
         $config = get_config('local_recompletion');
 
         $cba = [];
-        $cba[] = $mform->createElement(
-            'radio',
-            'lesson',
-            '',
-            get_string('donothing', 'local_recompletion'),
-            LOCAL_RECOMPLETION_NOTHING
-        );
-        $cba[] = $mform->createElement(
-            'radio',
-            'lesson',
-            '',
-            get_string('delete', 'local_recompletion'),
-            LOCAL_RECOMPLETION_DELETE
-        );
+        $choices = [
+            LOCAL_RECOMPLETION_NOTHING => get_string('donothing', 'local_recompletion'),
+            LOCAL_RECOMPLETION_DELETE => get_string('delete', 'local_recompletion'),
+        ];
 
-        $mform->addGroup($cba, 'lesson', get_string('lessonattempts', 'local_recompletion'), [' '], false);
+        $mform->addElement('select', 'lesson', get_string('lessonattempts', 'local_recompletion'), $choices);
         $mform->addHelpButton('lesson', 'lessonattempts', 'local_recompletion');
         $mform->setDefault('lesson', $config->lesson ?? LOCAL_RECOMPLETION_NOTHING);
 

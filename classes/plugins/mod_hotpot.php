@@ -49,22 +49,12 @@ class mod_hotpot {
         $config = get_config('local_recompletion');
 
         $cba = [];
-        $cba[] = $mform->createElement(
-            'radio',
-            'hotpot',
-            '',
-            get_string('donothing', 'local_recompletion'),
-            LOCAL_RECOMPLETION_NOTHING
-        );
-        $cba[] = $mform->createElement(
-            'radio',
-            'hotpot',
-            '',
-            get_string('delete', 'local_recompletion'),
-            LOCAL_RECOMPLETION_DELETE
-        );
+        $choices = [
+            LOCAL_RECOMPLETION_NOTHING => get_string('donothing', 'local_recompletion'),
+            LOCAL_RECOMPLETION_DELETE => get_string('delete', 'local_recompletion'),
+        ];
 
-        $mform->addGroup($cba, 'hotpot', get_string('hotpotattempts', 'local_recompletion'), [' '], false);
+        $mform->addElement('select', 'hotpot', get_string('hotpotattempts', 'local_recompletion'), $choices);
         $mform->addHelpButton('hotpot', 'hotpotattempts', 'local_recompletion');
         $mform->setDefault('hotpot', $config->hotpot);
 
