@@ -1003,7 +1003,7 @@ class provider implements
 
         $where = 'a.course = :course';
         $conditions = ['course' => $courseid];
-        if (!empty($user)) {
+        if (!empty($userid)) {
             $where .= ' AND a.userid = :userid';
             $conditions['userid'] = $userid;
         }
