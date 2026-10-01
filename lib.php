@@ -57,3 +57,36 @@ function local_recompletion_extend_navigation_course($navigation, $course, $cont
         $navigation->add($name, $url, navigation_node::TYPE_SETTING, null, null, new pix_icon('i/settings', ''));
     }
 }
+
+/**
+ * Serve archived recompletion files.
+ *
+ * @param stdClass|null $course
+ * @param stdClass|null $cm
+ * @param context $context
+ * @param string $filearea
+ * @param array $args
+ * @param bool $forcedownload
+ * @param array $options
+ * @return bool
+ */
+function local_recompletion_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = []) {
+    if (!in_array($filearea, ['submission_files', 'feedback_files', 'download', 'readonlypages'], true)) {
+        return false;
+    }
+
+    require_login($course, false, $cm);
+    require_capability('local/recompletion:manage', $context);
+
+    $itemid = (int) array_shift($args);
+    $filename = array_pop($args);
+    $filepath = $args ? '/' . implode('/', $args) . '/' : '/';
+
+    $fs = get_file_storage();
+    $file = $fs->get_file($context->id, 'local_recompletion', $filearea, $itemid, $filepath, $filename);
+    if (!$file) {
+        return false;
+    }
+
+    send_stored_file($file, null, 0, $forcedownload, $options);
+}

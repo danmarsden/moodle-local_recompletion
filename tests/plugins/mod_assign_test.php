@@ -163,6 +163,40 @@ final class mod_assign_test extends \advanced_testcase {
             'timecreated' => $now,
         ]);
 
+        $fs = get_file_storage();
+        $fs->create_file_from_string([
+            'contextid' => $context->id,
+            'component' => 'assignsubmission_file',
+            'filearea' => ASSIGNSUBMISSION_FILE_FILEAREA,
+            'itemid' => $targetsubmissionid,
+            'filepath' => '/',
+            'filename' => 'submission.txt',
+        ], 'submission file contents');
+        $fs->create_file_from_string([
+            'contextid' => $context->id,
+            'component' => 'assignfeedback_file',
+            'filearea' => ASSIGNFEEDBACK_FILE_FILEAREA,
+            'itemid' => $targetgradeid,
+            'filepath' => '/',
+            'filename' => 'feedback.txt',
+        ], 'feedback file contents');
+        $fs->create_file_from_string([
+            'contextid' => $context->id,
+            'component' => 'assignfeedback_editpdf',
+            'filearea' => 'download',
+            'itemid' => $targetgradeid,
+            'filepath' => '/',
+            'filename' => 'feedback.pdf',
+        ], 'pdf contents');
+        $fs->create_file_from_string([
+            'contextid' => $context->id,
+            'component' => 'assignfeedback_editpdf',
+            'filearea' => 'readonlypages',
+            'itemid' => $targetgradeid,
+            'filepath' => '/',
+            'filename' => 'page1.png',
+        ], 'page image contents');
+
         $this->assertTrue($DB->record_exists('assign_grades', ['assignment' => $assign->id, 'userid' => $targetuser->id]));
         $this->assertTrue($DB->record_exists('assign_user_flags', ['assignment' => $assign->id, 'userid' => $targetuser->id]));
         $this->assertTrue($DB->record_exists('assign_user_mapping', ['assignment' => $assign->id, 'userid' => $targetuser->id]));
@@ -185,13 +219,41 @@ final class mod_assign_test extends \advanced_testcase {
             'itemid' => $targetsubmissionid,
             'component' => 'assignsubmission_comments',
         ]));
-        $this->assertTrue($DB->record_exists('local_recompletion_as', [
+        $archivedsubmission = $DB->get_record('local_recompletion_as', [
             'assignment' => $assign->id,
             'userid' => $targetuser->id,
+        ]);
+        $archivedgrade = $DB->get_record('local_recompletion_ag', [
+            'assignment' => $assign->id,
+            'userid' => $targetuser->id,
+        ]);
+
+        if (!$archivedsubmission || !$archivedgrade) {
+            throw new \coding_exception('Archived submission and grade records were not created.');
+        }
+        $this->assertTrue($DB->record_exists('files', [
+            'component' => 'local_recompletion',
+            'filearea' => 'submission_files',
+            'itemid' => $archivedsubmission->id,
+            'filename' => 'submission.txt',
         ]));
-        $this->assertTrue($DB->record_exists('local_recompletion_ag', [
-            'assignment' => $assign->id,
-            'userid' => $targetuser->id,
+        $this->assertTrue($DB->record_exists('files', [
+            'component' => 'local_recompletion',
+            'filearea' => 'feedback_files',
+            'itemid' => $archivedgrade->id,
+            'filename' => 'feedback.txt',
+        ]));
+        $this->assertTrue($DB->record_exists('files', [
+            'component' => 'local_recompletion',
+            'filearea' => 'download',
+            'itemid' => $archivedgrade->id,
+            'filename' => 'feedback.pdf',
+        ]));
+        $this->assertTrue($DB->record_exists('files', [
+            'component' => 'local_recompletion',
+            'filearea' => 'readonlypages',
+            'itemid' => $archivedgrade->id,
+            'filename' => 'page1.png',
         ]));
 
         $this->assertTrue($DB->record_exists('assign_grades', ['assignment' => $assign->id, 'userid' => $otheruser->id]));

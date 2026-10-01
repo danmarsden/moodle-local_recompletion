@@ -129,6 +129,9 @@ class backup_local_recompletion_plugin extends backup_local_plugin {
 
         $assignsubmission->annotate_ids('assign', 'assignment');
         $assignsubmission->annotate_ids('user', 'userid');
+        if ($usercompletion) {
+            $assignsubmission->annotate_files('local_recompletion', 'submission_files', 'id');
+        }
 
         $assigngrades = new backup_nested_element('assigngrades');
         $assigngrade = new backup_nested_element('assigngrade', ['id'], [
@@ -145,6 +148,11 @@ class backup_local_recompletion_plugin extends backup_local_plugin {
         $assigngrade->annotate_ids('assign', 'assignment');
         $assigngrade->annotate_ids('user', 'userid');
         $assigngrade->annotate_ids('user', 'grader');
+        if ($usercompletion) {
+            $assigngrade->annotate_files('local_recompletion', 'feedback_files', 'id');
+            $assigngrade->annotate_files('local_recompletion', 'download', 'id');
+            $assigngrade->annotate_files('local_recompletion', 'readonlypages', 'id');
+        }
 
         // Now deal with SCORM archive tables.
         $scormattempts = new backup_nested_element('scormattempts');
