@@ -77,6 +77,13 @@ final class schedule_test extends \advanced_testcase {
      */
     public function test_recompletion_form_validation(array $data, bool $valid): void {
         $this->resetAfterTest(true);
+        $clock = $this->mock_clock_with_frozen();
+
+        if (isset($data['recompletionschedulestart'])) {
+            $data['recompletionschedulestart'] = $clock->now()
+                ->modify($data['recompletionschedulestart'])
+                ->getTimestamp();
+        }
 
         $course = $this->getDataGenerator()->create_course();
 
@@ -102,7 +109,6 @@ final class schedule_test extends \advanced_testcase {
      * @return array
      */
     public static function recompletion_form_validation_provider(): array {
-        $clock = di::get(clock::class);
         return [
             'Valid recompletionschedule, no recompletionschedulestart' => [
                 'data' => [
@@ -119,35 +125,35 @@ final class schedule_test extends \advanced_testcase {
             'Valid recompletionschedule, valid recompletionschedulestart of today' => [
                 'data' => [
                     'recompletionschedule' => '3 months',
-                    'recompletionschedulestart' => $clock->now()->modify('today')->getTimestamp(),
+                    'recompletionschedulestart' => 'today',
                 ],
                 'valid' => true,
             ],
             'Valid recompletionschedule, valid recompletionschedulestart of tomorrow' => [
                 'data' => [
                     'recompletionschedule' => '3 months',
-                    'recompletionschedulestart' => $clock->now()->modify('tomorrow')->getTimestamp(),
+                    'recompletionschedulestart' => 'tomorrow',
                 ],
                 'valid' => true,
             ],
             'Invalid recompletionschedule, invalid recompletionschedulestart' => [
                 'data' => [
                     'recompletionschedule' => 'Invalid date string',
-                    'recompletionschedulestart' => $clock->now()->modify('yesterday')->getTimestamp(),
+                    'recompletionschedulestart' => 'yesterday',
                 ],
                 'valid' => false,
             ],
             'Valid recompletionschedule, invalid recompletionschedulestart' => [
                 'data' => [
                     'recompletionschedule' => '3 months',
-                    'recompletionschedulestart' => $clock->now()->modify('yesterday')->getTimestamp(),
+                    'recompletionschedulestart' => 'yesterday',
                 ],
                 'valid' => false,
             ],
             'Invalid recompletionschedule, valid recompletionschedulestart' => [
                 'data' => [
                     'recompletionschedule' => 'Invalid date string',
-                    'recompletionschedulestart' => $clock->now()->modify('today')->getTimestamp(),
+                    'recompletionschedulestart' => 'today',
                 ],
                 'valid' => false,
             ],
