@@ -228,4 +228,13 @@ class participants extends \core_user\table\participants {
 
         return $OUTPUT->render_from_template('core/inplace_editable', $editable->export_for_template($OUTPUT));
     }
+    /**
+     * Check if the current user has the capability to reset completion.
+     *
+     * @return bool
+     */
+    public function has_capability(): bool {
+        return parent::has_capability()
+            && has_capability('local/recompletion:resetcompletion', $this->get_context());
+    }
 }
