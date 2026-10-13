@@ -204,7 +204,7 @@ class mod_assign {
         self::archive_files(
             $context->id,
             'assignsubmission_file',
-            ASSIGNSUBMISSION_FILE_FILEAREA,
+            'submission_files',
             $sourceitemid,
             $archiveitemid
         );
@@ -221,7 +221,7 @@ class mod_assign {
         self::archive_files(
             $context->id,
             'assignfeedback_file',
-            ASSIGNFEEDBACK_FILE_FILEAREA,
+            'feedback_files',
             $sourceitemid,
             $archiveitemid
         );
