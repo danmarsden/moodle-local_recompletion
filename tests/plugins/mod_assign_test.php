@@ -167,7 +167,7 @@ final class mod_assign_test extends \advanced_testcase {
         $fs->create_file_from_string([
             'contextid' => $context->id,
             'component' => 'assignsubmission_file',
-            'filearea' => ASSIGNSUBMISSION_FILE_FILEAREA,
+            'filearea' => 'submission_files',
             'itemid' => $targetsubmissionid,
             'filepath' => '/',
             'filename' => 'submission.txt',
@@ -175,7 +175,7 @@ final class mod_assign_test extends \advanced_testcase {
         $fs->create_file_from_string([
             'contextid' => $context->id,
             'component' => 'assignfeedback_file',
-            'filearea' => ASSIGNFEEDBACK_FILE_FILEAREA,
+            'filearea' => 'feedback_files',
             'itemid' => $targetgradeid,
             'filepath' => '/',
             'filename' => 'feedback.txt',
