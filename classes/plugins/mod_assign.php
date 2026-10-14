@@ -127,9 +127,14 @@ class mod_assign {
                 $selectsql = 'userid = ? AND assignment IN (SELECT id FROM {assign} WHERE course = ?)';
 
                 $submissions = $DB->get_records_select('assign_submission', $selectsql, $params);
+                $submissionarchives = [];
                 foreach ($submissions as $submission) {
                     $submission->course = $course->id;
                     $submissionarchiveid = $DB->insert_record('local_recompletion_as', $submission);
+                    $submissionarchives[$submission->id] = (object) [
+                        'id' => $submissionarchiveid,
+                        'assignment' => $submission->assignment,
+                    ];
                     if (!empty($assignmentcontexts[$submission->assignment])) {
                         self::archive_submission_files(
                             $assignmentcontexts[$submission->assignment],
@@ -140,13 +145,22 @@ class mod_assign {
                 }
 
                 $grades = $DB->get_records_select('assign_grades', $selectsql, $params);
+                $gradearchives = [];
                 foreach ($grades as $grade) {
                     $grade->course = $course->id;
                     $gradearchiveid = $DB->insert_record('local_recompletion_ag', $grade);
+                    $gradearchives[$grade->id] = (object) [
+                        'id' => $gradearchiveid,
+                        'assignment' => $grade->assignment,
+                        'grader' => $grade->grader,
+                    ];
                     if (!empty($assignmentcontexts[$grade->assignment])) {
                         self::archive_grade_files($assignmentcontexts[$grade->assignment], $grade->id, $gradearchiveid);
                     }
                 }
+
+                self::archive_feedback_comments($gradearchives, $course->id);
+                self::archive_submission_comments($submissionarchives, $course->id);
             }
 
             foreach ($assignments as $assignment) {
@@ -239,6 +253,88 @@ class mod_assign {
             $sourceitemid,
             $archiveitemid
         );
+    }
+
+    /**
+     * Archive feedback comments from assignfeedback_comments.
+     *
+     * @param array $gradearchives archived grade records keyed by source grade id.
+     * @param int $courseid course id for the archive record.
+     */
+    private static function archive_feedback_comments(array $gradearchives, int $courseid): void {
+        global $DB;
+
+        if (empty($gradearchives)) {
+            return;
+        }
+
+        $gradeids = array_keys($gradearchives);
+        [$insql, $inparams] = $DB->get_in_or_equal($gradeids, SQL_PARAMS_NAMED, 'gradeid');
+        $comments = $DB->get_recordset_select('assignfeedback_comments', "grade {$insql}", $inparams);
+        foreach ($comments as $comment) {
+            if (empty($gradearchives[$comment->grade])) {
+                continue;
+            }
+
+            $gradearchive = $gradearchives[$comment->grade];
+            $record = (object) [
+                'assignment' => $gradearchive->assignment,
+                'grade' => $gradearchive->id,
+                'userid' => $gradearchive->grader,
+                'mark' => $comment->mark ?? null,
+                'commenttext' => $comment->commenttext,
+                'commentformat' => $comment->commentformat,
+                'course' => $courseid,
+            ];
+            $DB->insert_record('local_recompletion_afc', $record);
+        }
+        $comments->close();
+    }
+
+    /**
+     * Archive submission comments from the core comments table.
+     *
+     * @param array $submissionarchives archived submission records keyed by source submission id.
+     * @param int $courseid course id for the archive record.
+     */
+    private static function archive_submission_comments(array $submissionarchives, int $courseid): void {
+        global $DB;
+
+        if (empty($submissionarchives)) {
+            return;
+        }
+
+        $submissionids = array_keys($submissionarchives);
+        [$insql, $inparams] = $DB->get_in_or_equal($submissionids, SQL_PARAMS_NAMED, 'submissionid');
+        $params = array_merge([
+            'component' => 'assignsubmission_comments',
+            'commentarea' => 'submission_comments',
+        ], $inparams);
+        $comments = $DB->get_recordset_select(
+            'comments',
+            "component = :component AND commentarea = :commentarea AND itemid {$insql}",
+            $params
+        );
+        foreach ($comments as $comment) {
+            if (empty($submissionarchives[$comment->itemid])) {
+                continue;
+            }
+
+            $submissionarchive = $submissionarchives[$comment->itemid];
+            $record = (object) [
+                'assignment' => $submissionarchive->assignment,
+                'submission' => $submissionarchive->id,
+                'userid' => $comment->userid,
+                'content' => $comment->content,
+                'format' => $comment->format,
+                'timecreated' => $comment->timecreated,
+                'component' => $comment->component,
+                'commentarea' => $comment->commentarea,
+                'course' => $courseid,
+            ];
+            $DB->insert_record('local_recompletion_asc', $record);
+        }
+        $comments->close();
     }
 
     /**
