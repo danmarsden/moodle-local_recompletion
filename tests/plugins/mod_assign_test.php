@@ -278,8 +278,9 @@ final class mod_assign_test extends \advanced_testcase {
         $this->resetAfterTest();
         $this->setAdminUser();
 
-        $course = $this->getDataGenerator()->create_course();
+        $course = $this->getDataGenerator()->create_course(['enablecompletion' => 1]);
         $assign = $this->getDataGenerator()->create_module('assign', ['course' => $course->id]);
+        $page = $this->getDataGenerator()->create_module('page', ['course' => $course->id, 'completion' => 2]);
         $student = $this->getDataGenerator()->create_user();
         $teacher = $this->getDataGenerator()->create_user();
 
@@ -311,6 +312,76 @@ final class mod_assign_test extends \advanced_testcase {
             'penalty' => 0,
             'attemptnumber' => 0,
         ]);
+
+        $DB->insert_record('local_recompletion_config', (object) [
+            'course' => $course->id,
+            'name' => 'recompletiontype',
+            'value' => 'ondemand',
+        ]);
+        $DB->insert_record('local_recompletion_config', (object) [
+            'course' => $course->id,
+            'name' => 'assign',
+            'value' => LOCAL_RECOMPLETION_DELETE,
+        ]);
+        $DB->insert_record('local_recompletion_config', (object) [
+            'course' => $course->id,
+            'name' => 'archiveassign',
+            'value' => 1,
+        ]);
+        $DB->insert_record('local_recompletion_config', (object) [
+            'course' => $course->id,
+            'name' => 'archivecompletiondata',
+            'value' => 1,
+        ]);
+        $DB->insert_record('local_recompletion_config', (object) [
+            'course' => $course->id,
+            'name' => 'deletegradedata',
+            'value' => 1,
+        ]);
+
+        $completiontime = $now - 60;
+        $coursecompletion = new \completion_completion(['userid' => $student->id, 'course' => $course->id]);
+        $coursecompletion->mark_complete($completiontime);
+
+        $criteriaid = $DB->insert_record('course_completion_criteria', (object) [
+            'course' => $course->id,
+            'criteriatype' => COMPLETION_CRITERIA_TYPE_SELF,
+        ]);
+        $DB->insert_record('course_completion_crit_compl', (object) [
+            'userid' => $student->id,
+            'course' => $course->id,
+            'criteriaid' => $criteriaid,
+            'timecompleted' => $completiontime,
+        ]);
+        $DB->insert_record('course_modules_completion', (object) [
+            'coursemoduleid' => $page->cmid,
+            'userid' => $student->id,
+            'completionstate' => COMPLETION_COMPLETE,
+            'viewed' => 1,
+            'overrideby' => null,
+            'timemodified' => $completiontime,
+        ]);
+
+        grade_update('mod/assign', $course->id, 'mod', 'assign', $assign->id, 0, [
+            'userid' => $student->id,
+            'rawgrade' => 90,
+        ]);
+        $gradeitems = \grade_item::fetch_all([
+            'courseid' => $course->id,
+            'itemtype' => 'mod',
+            'itemmodule' => 'assign',
+            'iteminstance' => $assign->id,
+            'itemnumber' => 0,
+        ]);
+        $gradeitem = reset($gradeitems);
+
+        if (!$gradeitem) {
+            throw new \coding_exception('Grade item was not created for the assignment.');
+        }
+
+        if (!\grade_grade::fetch(['userid' => $student->id, 'itemid' => $gradeitem->id])) {
+            throw new \coding_exception('Grade grade was not created for the assignment.');
+        }
 
         // Bump the archive tables so their next ids are guaranteed to be different from the source ids.
         while ((int) $DB->get_field_sql('SELECT COALESCE(MAX(id), 0) FROM {local_recompletion_as}') <= $submissionid) {
@@ -358,10 +429,9 @@ final class mod_assign_test extends \advanced_testcase {
             'filename' => 'feedback.txt',
         ], 'feedback file contents');
 
-        mod_assign::reset($student->id, $course, (object) [
-            'assign' => LOCAL_RECOMPLETION_DELETE,
-            'archiveassign' => 1,
-        ]);
+        $reset = new \local_recompletion\task\check_recompletion();
+        $errors = $reset->reset_user($student->id, $course);
+        $this->assertSame([], $errors);
 
         $archivedsubmission = $DB->get_record('local_recompletion_as', [
             'assignment' => $assign->id,
@@ -386,6 +456,45 @@ final class mod_assign_test extends \advanced_testcase {
             'filearea' => 'feedback_files',
             'itemid' => $archivedgrade->id,
             'filename' => 'feedback.txt',
+        ]));
+
+        $this->assertFalse($DB->record_exists('assign_submission', [
+            'assignment' => $assign->id,
+            'userid' => $student->id,
+        ]));
+        $this->assertFalse($DB->record_exists('assign_grades', [
+            'assignment' => $assign->id,
+            'userid' => $student->id,
+        ]));
+        $this->assertFalse($DB->record_exists('grade_grades', [
+            'userid' => $student->id,
+            'itemid' => $gradeitem->id,
+        ]));
+        $this->assertFalse($DB->record_exists('course_completions', [
+            'userid' => $student->id,
+            'course' => $course->id,
+        ]));
+        $this->assertFalse($DB->record_exists('course_completion_crit_compl', [
+            'userid' => $student->id,
+            'course' => $course->id,
+            'criteriaid' => $criteriaid,
+        ]));
+        $this->assertFalse($DB->record_exists('course_modules_completion', [
+            'coursemoduleid' => $page->cmid,
+            'userid' => $student->id,
+        ]));
+        $this->assertTrue($DB->record_exists('local_recompletion_cc', [
+            'userid' => $student->id,
+            'course' => $course->id,
+        ]));
+        $this->assertTrue($DB->record_exists('local_recompletion_cc_cc', [
+            'userid' => $student->id,
+            'course' => $course->id,
+            'criteriaid' => $criteriaid,
+        ]));
+        $this->assertTrue($DB->record_exists('local_recompletion_cmc', [
+            'coursemoduleid' => $page->cmid,
+            'userid' => $student->id,
         ]));
     }
 
