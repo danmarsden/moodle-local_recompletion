@@ -231,6 +231,26 @@ final class mod_assign_test extends \advanced_testcase {
         if (!$archivedsubmission || !$archivedgrade) {
             throw new \coding_exception('Archived submission and grade records were not created.');
         }
+        $feedbackcomments = $DB->get_records('local_recompletion_afc', [
+            'assignment' => $assign->id,
+            'grade' => $archivedgrade->id,
+        ]);
+        $this->assertCount(1, $feedbackcomments);
+        $feedbackcomment = reset($feedbackcomments);
+        $this->assertSame((int) $teacher->id, (int) $feedbackcomment->userid);
+        $this->assertSame('Target feedback comment', $feedbackcomment->commenttext);
+
+        $submissioncomments = $DB->get_records('local_recompletion_asc', [
+            'assignment' => $assign->id,
+            'submission' => $archivedsubmission->id,
+        ]);
+        $this->assertCount(2, $submissioncomments);
+        $submissioncommenttexts = array_map(static fn($comment) => $comment->content, $submissioncomments);
+        sort($submissioncommenttexts);
+        $this->assertSame([
+            'Student comment on target submission',
+            'Teacher comment on target submission',
+        ], $submissioncommenttexts);
         $this->assertTrue($DB->record_exists('files', [
             'component' => 'local_recompletion',
             'filearea' => 'submission_files',

@@ -154,6 +154,35 @@ class backup_local_recompletion_plugin extends backup_local_plugin {
             $assigngrade->annotate_files('local_recompletion', 'readonlypages', 'id');
         }
 
+        $assignfeedbackcomments = new backup_nested_element('assignfeedbackcomments');
+        $assignfeedbackcomment = new backup_nested_element('assignfeedbackcomment', ['id'], [
+            'assignment', 'grade', 'userid', 'mark', 'commenttext', 'commentformat', 'course']);
+
+        $recompletion->add_child($assignfeedbackcomments);
+        $assignfeedbackcomments->add_child($assignfeedbackcomment);
+
+        if ($usercompletion) {
+            $assignfeedbackcomment->set_source_table('local_recompletion_afc', ['course' => backup::VAR_COURSEID]);
+        }
+
+        $assignfeedbackcomment->annotate_ids('assign', 'assignment');
+        $assignfeedbackcomment->annotate_ids('user', 'userid');
+
+        $assignsubmissioncomments = new backup_nested_element('assignsubmissioncomments');
+        $assignsubmissioncomment = new backup_nested_element('assignsubmissioncomment', ['id'], [
+            'assignment', 'submission', 'userid', 'content', 'format', 'timecreated',
+            'component', 'commentarea', 'course']);
+
+        $recompletion->add_child($assignsubmissioncomments);
+        $assignsubmissioncomments->add_child($assignsubmissioncomment);
+
+        if ($usercompletion) {
+            $assignsubmissioncomment->set_source_table('local_recompletion_asc', ['course' => backup::VAR_COURSEID]);
+        }
+
+        $assignsubmissioncomment->annotate_ids('assign', 'assignment');
+        $assignsubmissioncomment->annotate_ids('user', 'userid');
+
         // Now deal with SCORM archive tables.
         $scormattempts = new backup_nested_element('scormattempts');
 
