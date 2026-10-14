@@ -51,6 +51,8 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
         $paths[] = new restore_path_element('recompletion_sa', $elepath . '/scormattempts/scormattempt');
         $paths[] = new restore_path_element('recompletion_ssv', $elepath . '/scormtracks/sco_track');
         $paths[] = new restore_path_element('recompletion_cha', $elepath . '/choiceanswers/choiceanswer');
+        $paths[] = new restore_path_element('recompletion_afc', $elepath . '/assignfeedbackcomments/assignfeedbackcomment');
+        $paths[] = new restore_path_element('recompletion_asc', $elepath . '/assignsubmissioncomments/assignsubmissioncomment');
         $paths[] = new restore_path_element('recompletion_hvp', $elepath . '/hvpattempts/hvpattempt');
         $paths[] = new restore_path_element('recompletion_h5p', $elepath . '/h5ps/h5p');
         $paths[] = new restore_path_element('recompletion_h5pr', $elepath . '/h5ps/h5p/h5presults/h5presult');
@@ -193,6 +195,38 @@ class restore_local_recompletion_plugin extends restore_local_plugin {
         $this->add_related_files('local_recompletion', 'feedback_files', 'recompletion_ag', null, $oldid);
         $this->add_related_files('local_recompletion', 'download', 'recompletion_ag', null, $oldid);
         $this->add_related_files('local_recompletion', 'readonlypages', 'recompletion_ag', null, $oldid);
+    }
+
+    /**
+     * Process local_recompletion_afc table.
+     * @param stdClass $data
+     */
+    public function process_recompletion_afc($data) {
+        global $DB;
+
+        $data = (object) $data;
+        $data->course = $this->task->get_courseid();
+        $data->assignment = $this->get_mappingid('assign', $data->assignment);
+        $data->grade = $this->get_mappingid('recompletion_ag', $data->grade);
+        $data->userid = $this->get_mappingid('user', $data->userid);
+
+        $DB->insert_record('local_recompletion_afc', $data);
+    }
+
+    /**
+     * Process local_recompletion_asc table.
+     * @param stdClass $data
+     */
+    public function process_recompletion_asc($data) {
+        global $DB;
+
+        $data = (object) $data;
+        $data->course = $this->task->get_courseid();
+        $data->assignment = $this->get_mappingid('assign', $data->assignment);
+        $data->submission = $this->get_mappingid('recompletion_as', $data->submission);
+        $data->userid = $this->get_mappingid('user', $data->userid);
+
+        $DB->insert_record('local_recompletion_asc', $data);
     }
 
     /**
