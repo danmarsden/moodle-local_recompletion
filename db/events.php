@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * URKUND observers.
+ * Event observers.
  *
  * @package    local_recompletion
  * @author     Dan Marsden http://danmarsden.com
