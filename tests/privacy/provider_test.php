@@ -25,17 +25,16 @@
 
 namespace local_recompletion\privacy;
 
-defined('MOODLE_INTERNAL') || die();
-
 use core_privacy\local\request\approved_contextlist;
 use core_privacy\local\request\writer;
 use core_privacy\tests\provider_testcase;
 
 /**
  * Privacy API tests for local_recompletion.
+ *
+ * @covers \local_recompletion\privacy\provider
  */
 final class provider_test extends provider_testcase {
-
     /**
      * Test that user data is exported for a user in a course.
      */

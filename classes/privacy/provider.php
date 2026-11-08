@@ -411,7 +411,7 @@ class provider implements
                 $context = \context_course::instance($record->course);
                 writer::with_context($context)->export_data(
                     [get_string('recompletion', 'local_recompletion'), 'recompletion_hvp'],
-                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $record)]
+                    (object)[self::transform_db_row_to_session_data($record)]
                 );
             }
 
@@ -436,7 +436,7 @@ class provider implements
                 $context = \context_course::instance($record->course);
                 writer::with_context($context)->export_data(
                     [get_string('recompletion', 'local_recompletion'), 'recompletion_h5pr'],
-                    (object)[array_map([self::class, 'transform_db_row_to_session_data'], $record)]
+                    (object)[self::transform_db_row_to_session_data($record)]
                 );
             }
 
@@ -1102,7 +1102,7 @@ class provider implements
      * @param int $courseid a course_id
      * @param int|null $userid a user id
      */
-    private static function delete_hp5_activity_records(int $courseid, int $userid = null): void {
+    private static function delete_hp5_activity_records(int $courseid, ?int $userid = null): void {
         global $DB;
 
         $where = 'a.course = :course';
