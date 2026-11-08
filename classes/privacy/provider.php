@@ -431,7 +431,7 @@ class provider implements
                  WHERE ha.course = :course
                    AND ha.userid = :userid";
 
-            $records = $DB->get_records($sql, $params);
+            $records = $DB->get_records_sql($sql, $params);
             foreach ($records as $record) {
                 $context = \context_course::instance($record->course);
                 writer::with_context($context)->export_data(
